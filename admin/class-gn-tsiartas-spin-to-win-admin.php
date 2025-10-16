@@ -22,12 +22,6 @@
  */
 class Gn_Tsiartas_Spin_To_Win_Admin {
 
-        const OPTION_SPIN_DURATION = 'gn_tsiartas_spin_to_win_spin_duration';
-
-        const OPTION_GROUP = 'gn_tsiartas_spin_to_win_settings';
-
-        const SETTINGS_PAGE = 'gn-tsiartas-spin-to-win-settings';
-
 	/**
 	 * The ID of this plugin.
 	 *
@@ -88,11 +82,11 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
 	 *
 	 * @since    1.0.0
 	 */
-        public function enqueue_scripts() {
+	public function enqueue_scripts() {
 
-                /**
-                 * This function is provided for demonstration purposes only.
-                 *
+		/**
+		 * This function is provided for demonstration purposes only.
+		 *
 		 * An instance of this class should be passed to the run() function
 		 * defined in Gn_Tsiartas_Spin_To_Win_Loader as all of the hooks are defined
 		 * in that particular class.
@@ -104,132 +98,6 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/gn-tsiartas-spin-to-win-admin.js', array( 'jquery' ), $this->version, false );
 
-        }
-
-        /**
-         * Register the Spin & Win settings page in the WordPress admin menu.
-         *
-         * @since    1.0.0
-         * @return   void
-         */
-        public function register_admin_menu() {
-                add_menu_page(
-                        __( 'Spin & Win Settings', 'gn-tsiartas-spin-to-win' ),
-                        __( 'Spin & Win', 'gn-tsiartas-spin-to-win' ),
-                        'manage_options',
-                        self::SETTINGS_PAGE,
-                        array( $this, 'render_settings_page' ),
-                        'dashicons-controls-repeat'
-                );
-        }
-
-        /**
-         * Register plugin settings and fields using the Settings API.
-         *
-         * @since    1.0.0
-         * @return   void
-         */
-        public function register_settings() {
-                register_setting(
-                        self::OPTION_GROUP,
-                        self::OPTION_SPIN_DURATION,
-                        array(
-                                'type'              => 'integer',
-                                'sanitize_callback' => array( $this, 'sanitize_spin_duration' ),
-                                'default'           => 4600,
-                        )
-                );
-
-                add_settings_section(
-                        'gn_tsiartas_spin_to_win_general',
-                        __( 'General', 'gn-tsiartas-spin-to-win' ),
-                        array( $this, 'render_general_section_intro' ),
-                        self::SETTINGS_PAGE
-                );
-
-                add_settings_field(
-                        self::OPTION_SPIN_DURATION,
-                        __( 'Spin duration (ms)', 'gn-tsiartas-spin-to-win' ),
-                        array( $this, 'render_spin_duration_field' ),
-                        self::SETTINGS_PAGE,
-                        'gn_tsiartas_spin_to_win_general'
-                );
-        }
-
-        /**
-         * Sanitize and validate the spin duration option.
-         *
-         * @since    1.0.0
-         *
-         * @param mixed $value Raw value provided by the administrator.
-         *
-         * @return int Sanitised duration in milliseconds.
-         */
-        public function sanitize_spin_duration( $value ) {
-                $value = is_numeric( $value ) ? (int) $value : 0;
-
-                if ( $value < 600 ) {
-                        $value = 600;
-                }
-
-                if ( $value > 60000 ) {
-                        $value = 60000;
-                }
-
-                return $value;
-        }
-
-        /**
-         * Render the general settings section introduction.
-         *
-         * @since    1.0.0
-         * @return   void
-         */
-        public function render_general_section_intro() {
-                echo '<p>' . esc_html__( 'Configure the behaviour of the Spin & Win experience.', 'gn-tsiartas-spin-to-win' ) . '</p>';
-        }
-
-        /**
-         * Output the spin duration field control.
-         *
-         * @since    1.0.0
-         * @return   void
-         */
-        public function render_spin_duration_field() {
-                $value = get_option( self::OPTION_SPIN_DURATION, 4600 );
-                ?>
-                <input
-                        type="number"
-                        name="<?php echo esc_attr( self::OPTION_SPIN_DURATION ); ?>"
-                        id="<?php echo esc_attr( self::OPTION_SPIN_DURATION ); ?>"
-                        value="<?php echo esc_attr( absint( $value ) ); ?>"
-                        min="600"
-                        max="60000"
-                        step="100"
-                        class="regular-text"
-                />
-                <p class="description">
-                        <?php esc_html_e( 'Specify how long the wheel should spin in milliseconds. Recommended range: 0.6s (600) to 60s (60000).', 'gn-tsiartas-spin-to-win' ); ?>
-                </p>
-                <?php
-        }
-
-        /**
-         * Render the settings page content using the admin partial.
-         *
-         * @since    1.0.0
-         * @return   void
-         */
-        public function render_settings_page() {
-                if ( ! current_user_can( 'manage_options' ) ) {
-                        return;
-                }
-
-                $settings = array(
-                        'spin_duration' => get_option( self::OPTION_SPIN_DURATION, 4600 ),
-                );
-
-                include plugin_dir_path( __FILE__ ) . 'partials/gn-tsiartas-spin-to-win-admin-display.php';
-        }
+	}
 
 }
