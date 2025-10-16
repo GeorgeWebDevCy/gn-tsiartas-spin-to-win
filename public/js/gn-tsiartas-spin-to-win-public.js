@@ -60,17 +60,7 @@
                         prizeId: null,
                 };
                 this.reducedMotion = window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
-
-                if ( this.reducedMotion ) {
-                        this.spinDuration = 600;
-                } else {
-                        var configuredDuration = parseInt( this.settings.spinDuration, 10 );
-                        if ( isFinite( configuredDuration ) && configuredDuration >= 600 && configuredDuration <= 60000 ) {
-                                this.spinDuration = configuredDuration;
-                        } else {
-                                this.spinDuration = DEFAULT_SPIN_DURATION;
-                        }
-                }
+                this.spinDuration = this.reducedMotion ? 600 : DEFAULT_SPIN_DURATION;
         }
 
         SpinToWin.prototype.init = function() {
@@ -281,33 +271,6 @@
                 if ( this.reducedMotion ) {
                         this.$wheel.css( 'transition-duration', '0.6s' );
                 }
-
-                this.updateSliceDistance();
-        };
-
-        SpinToWin.prototype.updateSliceDistance = function() {
-                if ( ! this.$wheel.length ) {
-                        return;
-                }
-
-                var element = this.$wheel[ 0 ];
-                if ( ! element ) {
-                        return;
-                }
-
-                var width = element.offsetWidth;
-                var height = element.offsetHeight;
-
-                if ( ! width || ! height ) {
-                        return;
-                }
-
-                var radius = Math.min( width, height ) / 2;
-                var rootFontSize = parseFloat( window.getComputedStyle( document.documentElement ).fontSize ) || 16;
-                var offset = 3 * rootFontSize;
-                var sliceDistance = Math.max( radius - offset, 0 );
-
-                element.style.setProperty( '--slice-distance', sliceDistance + 'px' );
         };
 
         SpinToWin.prototype.highlightAvailablePrizes = function() {
@@ -341,12 +304,6 @@
                         event.preventDefault();
                         _this.closeModal();
                 } );
-
-                if ( ! this.boundUpdateSliceDistance ) {
-                        this.boundUpdateSliceDistance = this.updateSliceDistance.bind( this );
-                        $( window ).on( 'resize', this.boundUpdateSliceDistance );
-                        $( window ).on( 'load', this.boundUpdateSliceDistance );
-                }
         };
 
         SpinToWin.prototype.restoreState = function() {

@@ -68,7 +68,6 @@
         transition: transform 4.6s var(--gn-tsiartas-transition);
         transform: rotate(var(--rotation-angle));
         will-change: transform;
-        --slice-distance: calc((var(--gn-tsiartas-wheel-size) / 2) - 3rem);
 }
 
 .gn-tsiartas-spin-to-win.is-spinning .gn-tsiartas-spin-to-win__wheel {
@@ -101,7 +100,7 @@
         top: 50%;
         left: 50%;
         transform-origin: center center;
-        transform: translate(-50%, -50%) rotate(var(--slice-rotation)) translateY(calc(-1 * var(--slice-distance)));
+        transform: translate(-50%, -50%) rotate(var(--slice-rotation)) translateY(calc(-1 * var(--slice-distance, 10.5rem)));
         width: min(9rem, 28vmin);
         text-align: center;
         font-weight: 600;
@@ -117,7 +116,6 @@
 .gn-tsiartas-spin-to-win__slice-label span {
         display: block;
         transform: rotate(calc(-1 * var(--slice-rotation)));
-        overflow-wrap: anywhere;
 }
 
 .gn-tsiartas-spin-to-win__spin-button {

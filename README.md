@@ -23,6 +23,10 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 1.3.2
+- Rolled the core, admin, and front-end code back to the 1.2.0 implementation so spin duration and layout helpers return to their original behaviour.
+- Removed the PHP-based audio proxy and default empty spin/win settings to the bundled MP3 files for direct playback.
+
 ### 1.3.1
 - Default the spinning audio cue to `spin.mp3` and the winning celebration cue to `win.mp3` so each moment plays the correct sound automatically.
 - Bumped the plugin metadata to version 1.3.1 to capture the updated audio defaults.

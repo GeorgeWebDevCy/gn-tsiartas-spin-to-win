@@ -321,20 +321,10 @@ class Gn_Tsiartas_Spin_To_Win_Public {
          * @return   array
          */
         private function get_global_settings() {
-                $default_duration = 4600;
-                $option_name      = class_exists( 'Gn_Tsiartas_Spin_To_Win_Admin' ) ? Gn_Tsiartas_Spin_To_Win_Admin::OPTION_SPIN_DURATION : 'gn_tsiartas_spin_to_win_spin_duration';
-                $spin_duration    = get_option( $option_name, $default_duration );
-                $spin_duration    = absint( $spin_duration );
-
-                if ( $spin_duration < 600 || $spin_duration > 60000 ) {
-                        $spin_duration = $default_duration;
-                }
-
                 return array(
                         'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
                         'nonce'     => wp_create_nonce( 'gn-tsiartas-spin-to-win' ),
                         'pluginUrl' => plugin_dir_url( __FILE__ ),
-                        'spinDuration' => $spin_duration,
                 );
         }
 
