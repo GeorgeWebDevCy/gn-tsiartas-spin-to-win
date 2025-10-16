@@ -23,6 +23,9 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 1.3.3
+- Refreshed the default wheel prizes to include the updated voucher spread and "Δοκιμάστε Ξανά" segment, keeping special odds for €50 and €100 rewards.
+
 ### 1.3.2
 - Rolled the core, admin, and front-end code back to the 1.2.0 implementation so spin duration and layout helpers return to their original behaviour.
 - Removed the PHP-based audio proxy and default empty spin/win settings to the bundled MP3 files for direct playback.
