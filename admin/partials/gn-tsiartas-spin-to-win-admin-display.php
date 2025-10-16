@@ -11,6 +11,21 @@
  * @package    Gn_Tsiartas_Spin_To_Win
  * @subpackage Gn_Tsiartas_Spin_To_Win/admin/partials
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+        exit;
+}
+
 ?>
 
-<!-- This file should primarily consist of HTML with a little bit of PHP. -->
+<div class="wrap">
+        <h1><?php esc_html_e( 'Spin & Win Settings', 'gn-tsiartas-spin-to-win' ); ?></h1>
+
+        <form method="post" action="options.php">
+                <?php
+                settings_fields( 'gn_tsiartas_spin_to_win' );
+                do_settings_sections( 'gn_tsiartas_spin_to_win' );
+                submit_button();
+                ?>
+        </form>
+</div>
