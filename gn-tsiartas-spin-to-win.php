@@ -70,6 +70,12 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-gn-tsiartas-spin-to-win.ph
  * @see https://github.com/YahnisElsts/plugin-update-checker
  */
 require_once plugin_dir_path( __FILE__ ) . 'includes/plugin-update-checker/plugin-update-checker.php';
+
+// Provide backwards compatibility for legacy PUC factory class names.
+if ( ! class_exists( 'Puc_v5_Factory' ) && class_exists( '\YahnisElsts\PluginUpdateChecker\v5\PucFactory' ) ) {
+	class Puc_v5_Factory extends \YahnisElsts\PluginUpdateChecker\v5\PucFactory {}
+}
+
 $gn_tsiartas_spin_to_win_updater = Puc_v5_Factory::buildUpdateChecker(
 	'https://github.com/GeorgeWebDevCy/gn-tsiartas-spin-to-win/',
 	__FILE__,
