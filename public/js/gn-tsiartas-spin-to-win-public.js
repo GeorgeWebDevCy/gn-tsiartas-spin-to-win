@@ -352,16 +352,30 @@
         };
 
         SpinToWin.prototype.handleSpin = function() {
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] handleSpin triggered', {
+                        isAnimating: this.isAnimating,
+                        hasSpun: this.state.hasSpun,
+                        prizeCount: this.config.prizes.length,
+                        spinDuration: this.spinDuration,
+                } );
+
                 if ( this.isAnimating ) {
+                        // eslint-disable-next-line no-console
+                        console.log( '[SpinToWin] Spin blocked: animation already in progress' );
                         return;
                 }
 
                 if ( this.state.hasSpun ) {
+                        // eslint-disable-next-line no-console
+                        console.log( '[SpinToWin] Spin blocked: wheel already spun for this session' );
                         this.showAlreadyPlayedMessage();
                         return;
                 }
 
                 if ( ! this.config.prizes.length ) {
+                        // eslint-disable-next-line no-console
+                        console.log( '[SpinToWin] Spin blocked: no prizes configured' );
                         return;
                 }
 
@@ -373,7 +387,21 @@
                 var selectedPrize = this.selectPrize();
                 var targetRotation = this.computeTargetRotation( selectedPrize );
 
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Starting spin', {
+                        selectedPrize: selectedPrize,
+                        targetRotation: targetRotation,
+                        baseRotation: this.baseRotation,
+                        currentRotation: this.currentRotation,
+                } );
+
                 window.requestAnimationFrame( function() {
+                        if ( ! this.$wheel.length ) {
+                                // eslint-disable-next-line no-console
+                                console.log( '[SpinToWin] Unable to rotate wheel: element not found' );
+                                return;
+                        }
+
                         this.$wheel[ 0 ].style.setProperty( '--rotation-angle', targetRotation + 'deg' );
                 }.bind( this ) );
 
@@ -391,10 +419,18 @@
                         accumulator += this.prizeWeights[ prize.id ];
 
                         if ( random <= accumulator ) {
+                                // eslint-disable-next-line no-console
+                                console.log( '[SpinToWin] Prize selected', {
+                                        prize: prize,
+                                        random: random,
+                                        accumulator: accumulator,
+                                } );
                                 return prize;
                         }
                 }
 
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Fallback prize selected', this.config.prizes[ this.config.prizes.length - 1 ] );
                 return this.config.prizes[ this.config.prizes.length - 1 ];
         };
 
@@ -410,6 +446,17 @@
 
                 var targetRotation = rotations * 360 + ( anglePerSegment * index ) + this.baseRotation + randomOffset;
                 this.currentRotation = targetRotation % 360;
+
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Computed target rotation', {
+                        prizeId: prize.id,
+                        index: index,
+                        rotations: rotations,
+                        anglePerSegment: anglePerSegment,
+                        randomOffset: randomOffset,
+                        targetRotation: targetRotation,
+                        currentRotation: this.currentRotation,
+                } );
 
                 return targetRotation;
         };
