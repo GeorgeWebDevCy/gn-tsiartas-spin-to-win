@@ -23,6 +23,10 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 1.3.0
+- Refreshed the plugin header metadata and documentation to match the 1.3.0 distribution.
+- Clarified release packaging guidance so GitHub-tagged builds stay in sync with WordPress.org expectations.
+
 ### 1.2.0
 - Documented the `[tsiartas_spin_to_win]` shortcode for embedding the promotional wheel markup and localized messages.
 - Highlighted the bundled front-end assets that render the interactive spin-to-win wheel experience on the page.
