@@ -562,28 +562,58 @@ class Gn_Tsiartas_Spin_To_Win_Public {
         private function get_default_prizes() {
                 return array(
                         array(
-                                'id'          => 'grand-prize',
-                                'label'       => __( '€100 Gift Card', 'gn-tsiartas-spin-to-win' ),
-                                'description' => __( 'Enjoy a €100 shopping spree at Tsiartas Supermarket.', 'gn-tsiartas-spin-to-win' ),
+                                'id'          => 'voucher-5-a',
+                                'label'       => __( 'Voucher €5', 'gn-tsiartas-spin-to-win' ),
+                                'description' => __( 'Random probability reward.', 'gn-tsiartas-spin-to-win' ),
                                 'weight'      => 1,
                         ),
                         array(
-                                'id'          => 'runner-up',
-                                'label'       => __( 'Free Groceries', 'gn-tsiartas-spin-to-win' ),
-                                'description' => __( 'Take home a basket of hand-picked essentials.', 'gn-tsiartas-spin-to-win' ),
-                                'weight'      => 2,
+                                'id'          => 'voucher-10-a',
+                                'label'       => __( 'Voucher €10', 'gn-tsiartas-spin-to-win' ),
+                                'description' => __( 'Random probability reward.', 'gn-tsiartas-spin-to-win' ),
+                                'weight'      => 1,
                         ),
                         array(
-                                'id'          => 'discount',
-                                'label'       => __( '10% Discount Voucher', 'gn-tsiartas-spin-to-win' ),
-                                'description' => __( 'Apply the discount on your next visit.', 'gn-tsiartas-spin-to-win' ),
-                                'weight'      => 4,
+                                'id'          => 'voucher-15-a',
+                                'label'       => __( 'Voucher €15', 'gn-tsiartas-spin-to-win' ),
+                                'description' => __( 'Random probability reward.', 'gn-tsiartas-spin-to-win' ),
+                                'weight'      => 1,
                         ),
                         array(
-                                'id'          => 'thank-you',
-                                'label'       => __( 'Thank You', 'gn-tsiartas-spin-to-win' ),
-                                'description' => __( 'Better luck next time – enjoy exclusive member offers.', 'gn-tsiartas-spin-to-win' ),
-                                'weight'      => 3,
+                                'id'          => 'voucher-50',
+                                'label'       => __( 'Voucher €50', 'gn-tsiartas-spin-to-win' ),
+                                'description' => __( 'Awarded approximately every 50 spins.', 'gn-tsiartas-spin-to-win' ),
+                                'weight'      => 1,
+                        ),
+                        array(
+                                'id'          => 'voucher-100',
+                                'label'       => __( 'Voucher €100', 'gn-tsiartas-spin-to-win' ),
+                                'description' => __( 'Awarded approximately every 100 spins.', 'gn-tsiartas-spin-to-win' ),
+                                'weight'      => 1,
+                        ),
+                        array(
+                                'id'          => 'try-again',
+                                'label'       => __( 'Δοκιμάστε Ξανά', 'gn-tsiartas-spin-to-win' ),
+                                'description' => __( 'Random probability outcome.', 'gn-tsiartas-spin-to-win' ),
+                                'weight'      => 1,
+                        ),
+                        array(
+                                'id'          => 'voucher-5-b',
+                                'label'       => __( 'Voucher €5', 'gn-tsiartas-spin-to-win' ),
+                                'description' => __( 'Random probability reward.', 'gn-tsiartas-spin-to-win' ),
+                                'weight'      => 1,
+                        ),
+                        array(
+                                'id'          => 'voucher-10-b',
+                                'label'       => __( 'Voucher €10', 'gn-tsiartas-spin-to-win' ),
+                                'description' => __( 'Random probability reward.', 'gn-tsiartas-spin-to-win' ),
+                                'weight'      => 1,
+                        ),
+                        array(
+                                'id'          => 'voucher-15-b',
+                                'label'       => __( 'Voucher €15', 'gn-tsiartas-spin-to-win' ),
+                                'description' => __( 'Random probability reward.', 'gn-tsiartas-spin-to-win' ),
+                                'weight'      => 1,
                         ),
                 );
         }
