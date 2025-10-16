@@ -23,6 +23,11 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 1.3.4
+- Simplified the sidebar prize list by removing description rows so only the headline rewards display.
+- Synced the wheel animation duration with the configured spin timing so each play visibly rotates the wheel.
+- Locked the spin and win cues to the bundled `spin.mp3` and `win.mp3` audio files for consistent playback.
+
 ### 1.3.3
 - Refreshed the default wheel prizes to include the updated voucher spread and "Δοκιμάστε Ξανά" segment, keeping special odds for €50 and €100 rewards.
 

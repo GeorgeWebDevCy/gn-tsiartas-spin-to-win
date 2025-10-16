@@ -275,9 +275,8 @@
                         background: gradient,
                         '--rotation-angle': this.baseRotation + 'deg',
                 } );
-
-                if ( this.reducedMotion ) {
-                        this.$wheel.css( 'transition-duration', '0.6s' );
+                if ( this.$wheel.length ) {
+                        this.$wheel[ 0 ].style.setProperty( '--gn-tsiartas-spin-duration', this.spinDuration + 'ms' );
                 }
         };
 

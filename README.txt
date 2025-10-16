@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.3.3
+Stable tag: 1.3.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,6 +52,11 @@ provided by the Plugin Update Checker library.
 
 == Changelog ==
 
+= 1.3.4 =
+* Removed the prize description copy from the sidebar list so only the main reward labels appear.
+* Matched the wheel animation duration with the configured spin setting to guarantee a visible rotation on each play.
+* Locked the spin and win audio cues to the bundled `spin.mp3` and `win.mp3` assets for consistent playback.
+
 = 1.3.3 =
 * Updated the default wheel prizes to reflect the latest voucher lineup and "Δοκιμάστε Ξανά" outcome, including special odds for the €50 and €100 rewards.
 
@@ -77,6 +82,9 @@ provided by the Plugin Update Checker library.
 * Initial release of the GN Tsiartas Spin to Win experience.
 
 == Upgrade Notice ==
+
+= 1.3.4 =
+Update to keep the wheel animation aligned with the configured spin timing, simplify the prize list layout, and rely on the bundled MP3 cues for spin and win events.
 
 = 1.3.3 =
 Install this update to load the refreshed voucher wheel defaults, including the €50 and €100 prize cadence.
