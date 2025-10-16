@@ -213,9 +213,6 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                                 <?php foreach ( $prizes as $prize ) : ?>
                                                         <li class="gn-tsiartas-spin-to-win__prize-item" data-prize-id="<?php echo esc_attr( $prize['id'] ); ?>">
                                                                 <span class="gn-tsiartas-spin-to-win__prize-label"><?php echo esc_html( $prize['label'] ); ?></span>
-                                                                <?php if ( ! empty( $prize['description'] ) ) : ?>
-                                                                        <span class="gn-tsiartas-spin-to-win__prize-description"><?php echo esc_html( $prize['description'] ); ?></span>
-                                                                <?php endif; ?>
                                                         </li>
                                                 <?php endforeach; ?>
                                         </ul>
@@ -311,13 +308,8 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         )
                 );
 
-                if ( empty( $audio_settings['spin'] ) ) {
-                        $audio_settings['spin'] = plugins_url( 'public/audio/spin.mp3', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE );
-                }
-
-                if ( empty( $audio_settings['win'] ) ) {
-                        $audio_settings['win'] = plugins_url( 'public/audio/win.mp3', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE );
-                }
+                $audio_settings['spin'] = plugins_url( 'public/audio/spin.mp3', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE );
+                $audio_settings['win']  = plugins_url( 'public/audio/win.mp3', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE );
 
                 return array(
                         'id'         => $instance_id,
