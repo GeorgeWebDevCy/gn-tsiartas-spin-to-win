@@ -292,7 +292,11 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 );
 
                 if ( empty( $audio_settings['spin'] ) ) {
-                        $audio_settings['spin'] = plugins_url( 'public/audio/spin-loop.php', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE );
+                        $audio_settings['spin'] = plugins_url( 'public/audio/spin.mp3', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE );
+                }
+
+                if ( empty( $audio_settings['win'] ) ) {
+                        $audio_settings['win'] = plugins_url( 'public/audio/win.mp3', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE );
                 }
 
                 return array(

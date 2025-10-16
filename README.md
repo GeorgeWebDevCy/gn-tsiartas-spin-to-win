@@ -23,6 +23,10 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 1.3.1
+- Default the spinning audio cue to `spin.mp3` and the winning celebration cue to `win.mp3` so each moment plays the correct sound automatically.
+- Bumped the plugin metadata to version 1.3.1 to capture the updated audio defaults.
+
 ### 1.3.0
 - Refreshed the plugin header metadata and documentation to match the 1.3.0 distribution.
 - Clarified release packaging guidance so GitHub-tagged builds stay in sync with WordPress.org expectations.
