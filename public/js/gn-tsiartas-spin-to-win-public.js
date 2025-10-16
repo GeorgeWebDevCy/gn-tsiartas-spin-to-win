@@ -60,7 +60,15 @@
                         prizeId: null,
                 };
                 this.reducedMotion = window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
-                this.spinDuration = this.reducedMotion ? 600 : DEFAULT_SPIN_DURATION;
+
+                var configuredDuration = DEFAULT_SPIN_DURATION;
+                var providedDuration = parseInt( this.settings && this.settings.spinDuration, 10 );
+
+                if ( ! isNaN( providedDuration ) && providedDuration >= 1000 ) {
+                        configuredDuration = providedDuration;
+                }
+
+                this.spinDuration = this.reducedMotion ? 600 : configuredDuration;
         }
 
         SpinToWin.prototype.init = function() {

@@ -37,6 +37,10 @@ if ( ! defined( 'WPINC' ) ) {
  */
 define( 'GN_TSIARTAS_SPIN_TO_WIN_VERSION', '1.3.2' );
 
+if ( ! defined( 'GN_TSIARTAS_SPIN_TO_WIN_OPTION_NAME' ) ) {
+        define( 'GN_TSIARTAS_SPIN_TO_WIN_OPTION_NAME', 'gn_tsiartas_spin_to_win_settings' );
+}
+
 if ( ! defined( 'GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE' ) ) {
         define( 'GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE', __FILE__ );
 }

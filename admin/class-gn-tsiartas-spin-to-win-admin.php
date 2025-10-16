@@ -40,19 +40,372 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
 	 */
 	private $version;
 
-	/**
-	 * Initialize the class and set its properties.
-	 *
-	 * @since    1.0.0
-	 * @param      string    $plugin_name       The name of this plugin.
-	 * @param      string    $version    The version of this plugin.
-	 */
-	public function __construct( $plugin_name, $version ) {
+        /**
+         * Cached copy of the saved settings.
+         *
+         * @since    1.3.3
+         * @access   private
+         * @var      array
+         */
+        private $settings = null;
 
-		$this->plugin_name = $plugin_name;
-		$this->version = $version;
+        /**
+         * Initialize the class and set its properties.
+         *
+         * @since    1.0.0
+         * @param      string    $plugin_name       The name of this plugin.
+         * @param      string    $version    The version of this plugin.
+         */
+        public function __construct( $plugin_name, $version ) {
 
-	}
+                $this->plugin_name = $plugin_name;
+                $this->version     = $version;
+
+        }
+
+        /**
+         * Retrieve the default plugin settings.
+         *
+         * @since    1.3.3
+         *
+         * @return   array
+         */
+        public static function get_default_settings() {
+                return array(
+                        'spin_duration'      => 4600,
+                        'active_day'         => 'friday',
+                        'active_start_time'  => '08:00',
+                        'active_end_time'    => '20:00',
+                        'cashier_notice'     => __( 'Please spin the wheel in front of the cashier.', 'gn-tsiartas-spin-to-win' ),
+                );
+        }
+
+        /**
+         * Register the plugin settings page in the WordPress admin.
+         *
+         * @since    1.3.3
+         * @return   void
+         */
+        public function register_admin_menu() {
+                add_menu_page(
+                        __( 'Spin & Win Settings', 'gn-tsiartas-spin-to-win' ),
+                        __( 'Spin & Win', 'gn-tsiartas-spin-to-win' ),
+                        'manage_options',
+                        'gn-tsiartas-spin-to-win',
+                        array( $this, 'render_settings_page' ),
+                        'dashicons-controls-repeat',
+                        65
+                );
+        }
+
+        /**
+         * Render the plugin settings page.
+         *
+         * @since    1.3.3
+         * @return   void
+         */
+        public function render_settings_page() {
+                if ( ! current_user_can( 'manage_options' ) ) {
+                        return;
+                }
+
+                $settings = $this->get_settings();
+                $option_name = $this->get_option_name();
+
+                include plugin_dir_path( __FILE__ ) . 'partials/gn-tsiartas-spin-to-win-admin-display.php';
+        }
+
+        /**
+         * Register settings, sections, and fields.
+         *
+         * @since    1.3.3
+         * @return   void
+         */
+        public function register_settings() {
+                register_setting( 'gn_tsiartas_spin_to_win', $this->get_option_name(), array( $this, 'sanitize_settings' ) );
+
+                add_settings_section(
+                        'gn_tsiartas_spin_to_win_general',
+                        __( 'General Settings', 'gn-tsiartas-spin-to-win' ),
+                        array( $this, 'render_general_settings_section' ),
+                        'gn_tsiartas_spin_to_win'
+                );
+
+                add_settings_field(
+                        'gn_tsiartas_spin_to_win_spin_duration',
+                        __( 'Spin duration (milliseconds)', 'gn-tsiartas-spin-to-win' ),
+                        array( $this, 'render_spin_duration_field' ),
+                        'gn_tsiartas_spin_to_win',
+                        'gn_tsiartas_spin_to_win_general'
+                );
+
+                add_settings_field(
+                        'gn_tsiartas_spin_to_win_active_window',
+                        __( 'Active window', 'gn-tsiartas-spin-to-win' ),
+                        array( $this, 'render_active_window_field' ),
+                        'gn_tsiartas_spin_to_win',
+                        'gn_tsiartas_spin_to_win_general'
+                );
+
+                add_settings_field(
+                        'gn_tsiartas_spin_to_win_cashier_notice',
+                        __( 'Cashier notification', 'gn-tsiartas-spin-to-win' ),
+                        array( $this, 'render_cashier_notice_field' ),
+                        'gn_tsiartas_spin_to_win',
+                        'gn_tsiartas_spin_to_win_general'
+                );
+        }
+
+        /**
+         * Render a description for the general settings section.
+         *
+         * @since    1.3.3
+         * @return   void
+         */
+        public function render_general_settings_section() {
+                echo '<p>' . esc_html__( 'Control how the Spin & Win experience behaves on the front-end.', 'gn-tsiartas-spin-to-win' ) . '</p>';
+        }
+
+        /**
+         * Render the spin duration field.
+         *
+         * @since    1.3.3
+         * @return   void
+         */
+        public function render_spin_duration_field() {
+                $settings    = $this->get_settings();
+                $option_name = $this->get_option_name();
+                ?>
+                <input
+                        type="number"
+                        class="small-text"
+                        id="gn-tsiartas-spin-duration"
+                        name="<?php echo esc_attr( $option_name ); ?>[spin_duration]"
+                        value="<?php echo esc_attr( $settings['spin_duration'] ); ?>"
+                        min="1000"
+                        step="100"
+                />
+                <p class="description">
+                        <?php esc_html_e( 'Set how long the wheel spins in milliseconds (1 second = 1000ms).', 'gn-tsiartas-spin-to-win' ); ?>
+                </p>
+                <?php
+        }
+
+        /**
+         * Render the active window field.
+         *
+         * @since    1.3.3
+         * @return   void
+         */
+        public function render_active_window_field() {
+                $settings     = $this->get_settings();
+                $option_name  = $this->get_option_name();
+                $day_options  = $this->get_weekday_options();
+                ?>
+                <label for="gn-tsiartas-spin-day" class="screen-reader-text"><?php esc_html_e( 'Active day', 'gn-tsiartas-spin-to-win' ); ?></label>
+                <select id="gn-tsiartas-spin-day" name="<?php echo esc_attr( $option_name ); ?>[active_day]">
+                        <?php foreach ( $day_options as $value => $label ) : ?>
+                                <option value="<?php echo esc_attr( $value ); ?>" <?php selected( $settings['active_day'], $value ); ?>><?php echo esc_html( $label ); ?></option>
+                        <?php endforeach; ?>
+                </select>
+                <label for="gn-tsiartas-spin-start" class="screen-reader-text"><?php esc_html_e( 'Start time', 'gn-tsiartas-spin-to-win' ); ?></label>
+                <input
+                        type="time"
+                        id="gn-tsiartas-spin-start"
+                        name="<?php echo esc_attr( $option_name ); ?>[active_start_time]"
+                        value="<?php echo esc_attr( $settings['active_start_time'] ); ?>"
+                />
+                <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                <label for="gn-tsiartas-spin-end" class="screen-reader-text"><?php esc_html_e( 'End time', 'gn-tsiartas-spin-to-win' ); ?></label>
+                <input
+                        type="time"
+                        id="gn-tsiartas-spin-end"
+                        name="<?php echo esc_attr( $option_name ); ?>[active_end_time]"
+                        value="<?php echo esc_attr( $settings['active_end_time'] ); ?>"
+                />
+                <p class="description">
+                        <?php esc_html_e( 'Choose the day and local time window when the wheel should appear. Outside of this range the shortcode will remain hidden.', 'gn-tsiartas-spin-to-win' ); ?>
+                </p>
+                <?php
+        }
+
+        /**
+         * Render the cashier notice field.
+         *
+         * @since    1.3.3
+         * @return   void
+         */
+        public function render_cashier_notice_field() {
+                $settings    = $this->get_settings();
+                $option_name = $this->get_option_name();
+                ?>
+                <textarea
+                        id="gn-tsiartas-spin-cashier-notice"
+                        name="<?php echo esc_attr( $option_name ); ?>[cashier_notice]"
+                        rows="3"
+                        cols="50"
+                        class="large-text"
+                ><?php echo esc_textarea( $settings['cashier_notice'] ); ?></textarea>
+                <p class="description">
+                        <?php esc_html_e( 'Displayed alongside the wheel so shoppers remember to spin it in front of the cashier.', 'gn-tsiartas-spin-to-win' ); ?>
+                </p>
+                <?php
+        }
+
+        /**
+         * Sanitize and validate the plugin settings.
+         *
+         * @since    1.3.3
+         *
+         * @param    array $settings Submitted settings.
+         *
+         * @return   array
+         */
+        public function sanitize_settings( $settings ) {
+                $defaults    = self::get_default_settings();
+                $option_name = $this->get_option_name();
+
+                if ( ! is_array( $settings ) ) {
+                        $settings = array();
+                }
+
+                $sanitized = array();
+
+                $spin_duration = isset( $settings['spin_duration'] ) ? absint( $settings['spin_duration'] ) : 0;
+                if ( $spin_duration < 1000 ) {
+                        $sanitized['spin_duration'] = $defaults['spin_duration'];
+                        add_settings_error(
+                                $option_name,
+                                $option_name . '_spin_duration',
+                                __( 'Please enter a spin duration of at least 1000 milliseconds.', 'gn-tsiartas-spin-to-win' )
+                        );
+                } else {
+                        $sanitized['spin_duration'] = $spin_duration;
+                }
+
+                $allowed_days = array_keys( $this->get_weekday_options() );
+                $active_day   = isset( $settings['active_day'] ) ? strtolower( sanitize_text_field( $settings['active_day'] ) ) : '';
+                if ( ! in_array( $active_day, $allowed_days, true ) ) {
+                        $active_day = $defaults['active_day'];
+                        add_settings_error(
+                                $option_name,
+                                $option_name . '_active_day',
+                                __( 'Please choose a valid day of the week.', 'gn-tsiartas-spin-to-win' )
+                        );
+                }
+                $sanitized['active_day'] = $active_day;
+
+                $start_time = isset( $settings['active_start_time'] ) ? $this->sanitize_time_field( $settings['active_start_time'] ) : false;
+                if ( false === $start_time ) {
+                        $start_time = $defaults['active_start_time'];
+                        add_settings_error(
+                                $option_name,
+                                $option_name . '_start_time',
+                                __( 'Please provide a valid start time.', 'gn-tsiartas-spin-to-win' )
+                        );
+                }
+                $sanitized['active_start_time'] = $start_time;
+
+                $end_time = isset( $settings['active_end_time'] ) ? $this->sanitize_time_field( $settings['active_end_time'] ) : false;
+                if ( false === $end_time ) {
+                        $end_time = $defaults['active_end_time'];
+                        add_settings_error(
+                                $option_name,
+                                $option_name . '_end_time',
+                                __( 'Please provide a valid end time.', 'gn-tsiartas-spin-to-win' )
+                        );
+                }
+                $sanitized['active_end_time'] = $end_time;
+
+                $notice = isset( $settings['cashier_notice'] ) ? sanitize_textarea_field( $settings['cashier_notice'] ) : '';
+                if ( '' === $notice ) {
+                        $notice = $defaults['cashier_notice'];
+                }
+                $sanitized['cashier_notice'] = $notice;
+
+                $this->settings = null;
+
+                return $sanitized;
+        }
+
+        /**
+         * Retrieve the saved settings merged with defaults.
+         *
+         * @since    1.3.3
+         *
+         * @return   array
+         */
+        private function get_settings() {
+                if ( null !== $this->settings ) {
+                        return $this->settings;
+                }
+
+                $saved = get_option( $this->get_option_name(), array() );
+                if ( ! is_array( $saved ) ) {
+                        $saved = array();
+                }
+
+                $this->settings = wp_parse_args( $saved, self::get_default_settings() );
+
+                return $this->settings;
+        }
+
+        /**
+         * Convert a submitted time string into a normalised value.
+         *
+         * @since    1.3.3
+         *
+         * @param    string $value Raw time input.
+         *
+         * @return   string|false  Time in H:i format or false on failure.
+         */
+        private function sanitize_time_field( $value ) {
+                $value = trim( (string) $value );
+                if ( '' === $value ) {
+                        return false;
+                }
+
+                $time = date_create_from_format( 'H:i', $value );
+                if ( ! $time ) {
+                        $time = date_create_from_format( 'G:i', $value );
+                }
+
+                if ( ! $time ) {
+                        return false;
+                }
+
+                return $time->format( 'H:i' );
+        }
+
+        /**
+         * Return an array of weekday options.
+         *
+         * @since    1.3.3
+         *
+         * @return   array
+         */
+        private function get_weekday_options() {
+                return array(
+                        'monday'    => __( 'Monday', 'gn-tsiartas-spin-to-win' ),
+                        'tuesday'   => __( 'Tuesday', 'gn-tsiartas-spin-to-win' ),
+                        'wednesday' => __( 'Wednesday', 'gn-tsiartas-spin-to-win' ),
+                        'thursday'  => __( 'Thursday', 'gn-tsiartas-spin-to-win' ),
+                        'friday'    => __( 'Friday', 'gn-tsiartas-spin-to-win' ),
+                        'saturday'  => __( 'Saturday', 'gn-tsiartas-spin-to-win' ),
+                        'sunday'    => __( 'Sunday', 'gn-tsiartas-spin-to-win' ),
+                );
+        }
+
+        /**
+         * Retrieve the name of the option used to store settings.
+         *
+         * @since    1.3.3
+         *
+         * @return   string
+         */
+        private function get_option_name() {
+                return defined( 'GN_TSIARTAS_SPIN_TO_WIN_OPTION_NAME' ) ? GN_TSIARTAS_SPIN_TO_WIN_OPTION_NAME : 'gn_tsiartas_spin_to_win_settings';
+        }
 
 	/**
 	 * Register the stylesheets for the admin area.

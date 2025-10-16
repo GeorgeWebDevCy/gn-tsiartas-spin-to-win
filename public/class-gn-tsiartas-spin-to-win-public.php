@@ -61,6 +61,15 @@ class Gn_Tsiartas_Spin_To_Win_Public {
         );
 
         /**
+         * Cached copy of plugin-level settings.
+         *
+         * @since    1.3.3
+         * @access   private
+         * @var      array|null
+         */
+        private $plugin_settings = null;
+
+        /**
          * Initialize the class and set its properties.
          *
          * @since    1.0.0
@@ -141,6 +150,12 @@ class Gn_Tsiartas_Spin_To_Win_Public {
          * @return   string               HTML output for the front-end experience.
          */
         public function render_spin_to_win_shortcode( $atts, $content = null ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+                $settings = $this->get_plugin_settings();
+
+                if ( ! $this->is_within_active_window( $settings ) ) {
+                        return '';
+                }
+
                 $this->instance_counter++;
                 $instance_id = 'gn-tsiartas-spin-to-win-' . $this->instance_counter;
 
@@ -154,7 +169,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
 
                 $configuration = $this->prepare_frontend_configuration( $instance_id, $atts );
                 $this->localized_data['instances'][ $instance_id ] = $configuration;
-                $this->localized_data['settings']                 = $this->get_global_settings();
+                $this->localized_data['settings']                 = $this->get_global_settings( $settings );
 
                 // Ensure public assets are present and data is localized for the script.
                 wp_enqueue_style( $this->plugin_name );
@@ -186,6 +201,11 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                         <p class="gn-tsiartas-spin-to-win__message-text" data-role="message-text">
                                                 <?php echo isset( $messages['prompt'] ) ? esc_html( $messages['prompt'] ) : esc_html__( 'Try your luck and spin the wheel!', 'gn-tsiartas-spin-to-win' ); ?>
                                         </p>
+                                        <?php if ( ! empty( $settings['cashier_notice'] ) ) : ?>
+                                                <p class="gn-tsiartas-spin-to-win__cashier-notice">
+                                                        <?php echo esc_html( $settings['cashier_notice'] ); ?>
+                                                </p>
+                                        <?php endif; ?>
                                 </div>
                                 <div class="gn-tsiartas-spin-to-win__prize-list-wrapper">
                                         <h2 class="gn-tsiartas-spin-to-win__heading"><?php echo esc_html__( 'Available prizes', 'gn-tsiartas-spin-to-win' ); ?></h2>
@@ -320,12 +340,119 @@ class Gn_Tsiartas_Spin_To_Win_Public {
          *
          * @return   array
          */
-        private function get_global_settings() {
+        private function get_global_settings( $settings = null ) {
+                if ( null === $settings ) {
+                        $settings = $this->get_plugin_settings();
+                }
+
+                $spin_duration = isset( $settings['spin_duration'] ) ? (int) $settings['spin_duration'] : 4600;
+
                 return array(
-                        'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
-                        'nonce'     => wp_create_nonce( 'gn-tsiartas-spin-to-win' ),
-                        'pluginUrl' => plugin_dir_url( __FILE__ ),
+                        'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
+                        'nonce'         => wp_create_nonce( 'gn-tsiartas-spin-to-win' ),
+                        'pluginUrl'     => plugin_dir_url( __FILE__ ),
+                        'spinDuration'  => $spin_duration,
+                        'activeWindow'  => array(
+                                'day'   => isset( $settings['active_day'] ) ? $settings['active_day'] : '',
+                                'start' => isset( $settings['active_start_time'] ) ? $settings['active_start_time'] : '',
+                                'end'   => isset( $settings['active_end_time'] ) ? $settings['active_end_time'] : '',
+                        ),
+                        'cashierNotice' => isset( $settings['cashier_notice'] ) ? $settings['cashier_notice'] : '',
                 );
+        }
+
+        /**
+         * Retrieve the saved plugin settings.
+         *
+         * @since    1.3.3
+         *
+         * @return   array
+         */
+        private function get_plugin_settings() {
+                if ( null !== $this->plugin_settings ) {
+                        return $this->plugin_settings;
+                }
+
+                $defaults = array(
+                        'spin_duration'      => 4600,
+                        'active_day'         => 'friday',
+                        'active_start_time'  => '08:00',
+                        'active_end_time'    => '20:00',
+                        'cashier_notice'     => __( 'Please spin the wheel in front of the cashier.', 'gn-tsiartas-spin-to-win' ),
+                );
+
+                if ( class_exists( 'Gn_Tsiartas_Spin_To_Win_Admin' ) ) {
+                        $defaults = Gn_Tsiartas_Spin_To_Win_Admin::get_default_settings();
+                }
+
+                $option_name = defined( 'GN_TSIARTAS_SPIN_TO_WIN_OPTION_NAME' ) ? GN_TSIARTAS_SPIN_TO_WIN_OPTION_NAME : 'gn_tsiartas_spin_to_win_settings';
+
+                $saved = get_option( $option_name, array() );
+                if ( ! is_array( $saved ) ) {
+                        $saved = array();
+                }
+
+                $this->plugin_settings = wp_parse_args( $saved, $defaults );
+
+                return $this->plugin_settings;
+        }
+
+        /**
+         * Determine if the current request falls within the configured active window.
+         *
+         * @since    1.3.3
+         *
+         * @param    array $settings Plugin settings.
+         *
+         * @return   bool
+         */
+        private function is_within_active_window( $settings ) {
+                $configured_day = isset( $settings['active_day'] ) ? strtolower( $settings['active_day'] ) : '';
+                if ( '' === $configured_day ) {
+                        return true;
+                }
+
+                $timestamp   = current_time( 'timestamp' );
+                $current_day = strtolower( wp_date( 'l', $timestamp ) );
+                if ( $configured_day !== $current_day ) {
+                        return false;
+                }
+
+                $current_minutes = $this->convert_time_to_minutes( wp_date( 'H:i', $timestamp ) );
+                $start_minutes   = $this->convert_time_to_minutes( isset( $settings['active_start_time'] ) ? $settings['active_start_time'] : '' );
+                $end_minutes     = $this->convert_time_to_minutes( isset( $settings['active_end_time'] ) ? $settings['active_end_time'] : '' );
+
+                if ( null === $current_minutes || null === $start_minutes || null === $end_minutes ) {
+                        return true;
+                }
+
+                if ( $start_minutes <= $end_minutes ) {
+                        return ( $current_minutes >= $start_minutes && $current_minutes <= $end_minutes );
+                }
+
+                return ( $current_minutes >= $start_minutes || $current_minutes <= $end_minutes );
+        }
+
+        /**
+         * Convert a time string (H:i) into total minutes.
+         *
+         * @since    1.3.3
+         *
+         * @param    string $time Time string.
+         *
+         * @return   int|null
+         */
+        private function convert_time_to_minutes( $time ) {
+                if ( empty( $time ) ) {
+                        return null;
+                }
+
+                $parsed = date_create_from_format( 'H:i', $time );
+                if ( ! $parsed ) {
+                        return null;
+                }
+
+                return ( (int) $parsed->format( 'H' ) * 60 ) + (int) $parsed->format( 'i' );
         }
 
         /**
