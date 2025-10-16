@@ -21,5 +21,11 @@ GitHub releases for stable distributions.
 3. Activate **GN Tsiartas Spin to Win** from the WordPress admin.
 4. Adjust assets in the `public/` and `admin/` directories to match current campaign requirements.
 
+## Release notes
+
+### 1.2.0
+- Documented the `[tsiartas_spin_to_win]` shortcode for embedding the promotional wheel markup and localized messages.
+- Highlighted the bundled front-end assets that render the interactive spin-to-win wheel experience on the page.
+
 ## License
 Released under the GPLv2 or later. See `LICENSE.txt` for details.
