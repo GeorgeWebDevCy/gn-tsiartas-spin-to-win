@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,6 +52,10 @@ provided by the Plugin Update Checker library.
 
 == Changelog ==
 
+= 1.3.1 =
+* Defaulted the spinning and winning audio cues to the bundled `spin.mp3` and `win.mp3` files so each state plays the correct sound.
+* Updated plugin version metadata to 1.3.1 across the codebase and documentation.
+
 = 1.3.0 =
 * Synchronized plugin headers, documentation, and distribution notes for the 1.3.0 release package.
 
@@ -66,6 +70,9 @@ provided by the Plugin Update Checker library.
 * Initial release of the GN Tsiartas Spin to Win experience.
 
 == Upgrade Notice ==
+
+= 1.3.1 =
+Update to ensure the correct MP3 cues play while spinning and upon winning, and to stay current with the 1.3.1 metadata bump.
 
 = 1.3.0 =
 Install this version to ensure the plugin metadata and readme references match the 1.3.0 release.
