@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.3.6
+Stable tag: 1.3.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,6 +52,11 @@ provided by the Plugin Update Checker library.
 
 == Changelog ==
 
+= 1.3.7 =
+* Tuned the wheel layout so slice offsets, label widths, and typography respond gracefully to any viewport or container size.
+* Reworked the slice labels with wedge-shaped overlays that rest on the wheel segments instead of floating above them.
+* Updated plugin metadata to 1.3.7 for the responsive styling refresh.
+
 = 1.3.6 =
 * Added verbose console logging across the admin and public scripts so every lifecycle step is visible while debugging.
 * Updated plugin metadata to 1.3.6 to package the enhanced diagnostics release.
@@ -90,6 +95,9 @@ provided by the Plugin Update Checker library.
 * Initial release of the GN Tsiartas Spin to Win experience.
 
 == Upgrade Notice ==
+
+= 1.3.7 =
+Install this release to get responsive wheel sizing and on-slice labels that follow each segment while staying current with the 1.3.7 metadata bump.
 
 = 1.3.6 =
 Install this update to surface detailed console output across the admin and front-end experiences, making it easier to locate spin bugs while staying current with the 1.3.6 release metadata.

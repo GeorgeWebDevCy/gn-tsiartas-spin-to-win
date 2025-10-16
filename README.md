@@ -23,6 +23,11 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 1.3.7
+- Made the wheel layout responsive by dynamically sizing slice offsets and typography as the container changes.
+- Restyled prize labels so they sit directly on each slice with wedge-shaped backgrounds that follow the spin.
+- Bumped plugin metadata to version 1.3.7 for this responsive styling release.
+
 ### 1.3.6
 - Expanded admin and public JavaScript logging to trace configuration changes and front-end lifecycle events for debugging.
 - Bumped plugin metadata to version 1.3.6 for this diagnostics update.

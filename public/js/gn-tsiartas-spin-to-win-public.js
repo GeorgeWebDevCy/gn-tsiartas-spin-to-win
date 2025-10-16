@@ -337,11 +337,76 @@
                         this.$wheel[ 0 ].style.setProperty( '--gn-tsiartas-spin-duration', this.spinDuration + 'ms' );
                 }
 
+                this.setupWheelResizeHandling();
+
                 // eslint-disable-next-line no-console
                 console.log( '[SpinToWin] Wheel rendered', {
                         instanceId: this.config.id,
                         baseRotation: this.baseRotation,
                 } );
+        };
+
+        SpinToWin.prototype.setupWheelResizeHandling = function() {
+                if ( ! this.$wheel.length ) {
+                        return;
+                }
+
+                var _this = this;
+
+                this.updateWheelLayout();
+
+                if ( window.requestAnimationFrame ) {
+                        window.requestAnimationFrame( function() {
+                                _this.updateWheelLayout();
+                        } );
+                }
+
+                if ( 'ResizeObserver' in window ) {
+                        if ( this.wheelResizeObserver ) {
+                                this.wheelResizeObserver.disconnect();
+                        }
+
+                        this.wheelResizeObserver = new window.ResizeObserver( function() {
+                                _this.updateWheelLayout();
+                        } );
+
+                        this.wheelResizeObserver.observe( this.$wheel[ 0 ] );
+                        return;
+                }
+
+                if ( this.boundResizeHandler ) {
+                        $( window ).off( 'resize.gnSpinToWin-' + this.config.id, this.boundResizeHandler );
+                }
+
+                this.boundResizeHandler = function() {
+                        window.requestAnimationFrame( function() {
+                                _this.updateWheelLayout();
+                        } );
+                };
+
+                $( window ).on( 'resize.gnSpinToWin-' + this.config.id, this.boundResizeHandler );
+        };
+
+        SpinToWin.prototype.updateWheelLayout = function() {
+                if ( ! this.$wheel.length ) {
+                        return;
+                }
+
+                var wheelElement = this.$wheel[ 0 ];
+                var diameter = wheelElement.getBoundingClientRect().width;
+
+                if ( ! diameter ) {
+                        return;
+                }
+
+                var radius = diameter / 2;
+                var labelDistance = radius * 0.68;
+                var labelWidth = Math.max( 96, Math.min( diameter * 0.42, radius * 1.25 ) );
+                var fontSize = Math.max( 12, Math.min( 16, diameter * 0.04 ) );
+
+                wheelElement.style.setProperty( '--slice-distance', labelDistance + 'px' );
+                wheelElement.style.setProperty( '--slice-label-width', labelWidth + 'px' );
+                wheelElement.style.setProperty( '--slice-font-size', fontSize + 'px' );
         };
 
         SpinToWin.prototype.highlightAvailablePrizes = function() {
