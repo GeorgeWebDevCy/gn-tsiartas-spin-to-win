@@ -16,7 +16,7 @@
  * Plugin Name:       GN Tsiartas Spin to WIN
  * Plugin URI:        https://https://www.georgenicolaou.me/plugins/gn-tsiartas-spin-to-win
  * Description:       A spin to win plugin built for Tsiartas Supermarket
- * Version:           1.0.0
+ * Version:           1.1.0
  * Author:            George Nicolaou
  * Author URI:        https://https://www.georgenicolaou.me//
  * License:           GPL-2.0+
@@ -35,7 +35,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'GN_TSIARTAS_SPIN_TO_WIN_VERSION', '1.0.0' );
+define( 'GN_TSIARTAS_SPIN_TO_WIN_VERSION', '1.1.0' );
 
 /**
  * The code that runs during plugin activation.
@@ -63,6 +63,26 @@ register_deactivation_hook( __FILE__, 'deactivate_gn_tsiartas_spin_to_win' );
  * admin-specific hooks, and public-facing site hooks.
  */
 require plugin_dir_path( __FILE__ ) . 'includes/class-gn-tsiartas-spin-to-win.php';
+
+/**
+ * Register automatic updates for the plugin using the GitHub repository.
+ *
+ * @see https://github.com/YahnisElsts/plugin-update-checker
+ */
+require_once plugin_dir_path( __FILE__ ) . 'includes/plugin-update-checker/plugin-update-checker.php';
+$gn_tsiartas_spin_to_win_updater = Puc_v5_Factory::buildUpdateChecker(
+	'https://github.com/GeorgeWebDevCy/gn-tsiartas-spin-to-win/',
+	__FILE__,
+	'gn-tsiartas-spin-to-win'
+);
+
+$gn_tsiartas_spin_to_win_updater->setBranch( 'main' );
+
+$gn_tsiartas_spin_to_win_vcs_api = $gn_tsiartas_spin_to_win_updater->getVcsApi();
+
+if ( $gn_tsiartas_spin_to_win_vcs_api && method_exists( $gn_tsiartas_spin_to_win_vcs_api, 'enableReleaseAssets' ) ) {
+	$gn_tsiartas_spin_to_win_vcs_api->enableReleaseAssets();
+}
 
 /**
  * Begins execution of the plugin.
