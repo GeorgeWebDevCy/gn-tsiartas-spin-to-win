@@ -23,6 +23,10 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 1.3.6
+- Expanded admin and public JavaScript logging to trace configuration changes and front-end lifecycle events for debugging.
+- Bumped plugin metadata to version 1.3.6 for this diagnostics update.
+
 ### 1.3.5
 - Added detailed console logging to the spin workflow so debugging stuck wheels is easier.
 - Updated plugin metadata to version 1.3.5 for this diagnostic release.
