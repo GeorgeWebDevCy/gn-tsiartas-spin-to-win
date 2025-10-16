@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,6 +52,9 @@ provided by the Plugin Update Checker library.
 
 == Changelog ==
 
+= 1.2.0 =
+* Documented the `[tsiartas_spin_to_win]` shortcode flow and the interactive wheel experience for this release.
+
 = 1.1.0 =
 * Added automatic update support through the Plugin Update Checker library.
 * Bundled the library inside the plugin for easier distribution.
@@ -60,6 +63,9 @@ provided by the Plugin Update Checker library.
 * Initial release of the GN Tsiartas Spin to Win experience.
 
 == Upgrade Notice ==
+
+= 1.2.0 =
+Review the refreshed documentation on the `[tsiartas_spin_to_win]` shortcode to quickly embed the promotional wheel.
 
 = 1.1.0 =
 Enable this update to receive future releases automatically from GitHub without manual uploads.
