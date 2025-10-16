@@ -23,6 +23,10 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 1.3.5
+- Added detailed console logging to the spin workflow so debugging stuck wheels is easier.
+- Updated plugin metadata to version 1.3.5 for this diagnostic release.
+
 ### 1.3.4
 - Simplified the sidebar prize list by removing description rows so only the headline rewards display.
 - Synced the wheel animation duration with the configured spin timing so each play visibly rotates the wheel.
