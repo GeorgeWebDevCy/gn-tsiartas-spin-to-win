@@ -406,14 +406,28 @@
                         return;
                 }
 
+                var prize = this.findPrizeById( persisted.prizeId );
+                if ( ! prize ) {
+                        // eslint-disable-next-line no-console
+                        console.log( '[SpinToWin] Stored prize missing, clearing state', {
+                                instanceId: this.config.id,
+                                persisted: persisted,
+                        } );
+
+                        this.clearStorage();
+                        this.state = {
+                                hasSpun: false,
+                                prizeId: null,
+                        };
+
+                        this.$root.removeClass( 'has-spun' );
+                        this.$spinButton.removeClass( 'is-disabled' ).removeAttr( 'disabled' );
+                        return;
+                }
+
                 this.state = persisted;
                 this.$root.addClass( 'has-spun' );
                 this.$spinButton.addClass( 'is-disabled' ).attr( 'disabled', 'disabled' );
-
-                var prize = this.findPrizeById( persisted.prizeId );
-                if ( ! prize ) {
-                        return;
-                }
 
                 this.setWheelToPrize( prize );
                 this.showResult( prize, { silent: true } );
@@ -453,6 +467,20 @@
                 } catch ( error ) {
                         // eslint-disable-next-line no-console
                         console.warn( 'Unable to persist spin state', error );
+                }
+        };
+
+        SpinToWin.prototype.clearStorage = function() {
+                try {
+                        // eslint-disable-next-line no-console
+                        console.log( '[SpinToWin] Clearing stored state', {
+                                instanceId: this.config.id,
+                                storageKey: this.storageKey,
+                        } );
+                        window.sessionStorage.removeItem( this.storageKey );
+                } catch ( error ) {
+                        // eslint-disable-next-line no-console
+                        console.warn( 'Unable to clear stored spin state', error );
                 }
         };
 
