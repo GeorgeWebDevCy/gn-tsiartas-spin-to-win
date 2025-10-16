@@ -69,10 +69,29 @@
                 }
 
                 this.spinDuration = this.reducedMotion ? 600 : configuredDuration;
+
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Instance constructed', {
+                        instanceId: this.config.id,
+                        prizeCount: Array.isArray( this.config.prizes ) ? this.config.prizes.length : 0,
+                        settings: this.settings,
+                        reducedMotion: this.reducedMotion,
+                        spinDuration: this.spinDuration,
+                } );
         }
 
         SpinToWin.prototype.init = function() {
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Initialising instance', {
+                        instanceId: this.config.id,
+                        hasPrizes: Array.isArray( this.config.prizes ) && this.config.prizes.length > 0,
+                } );
+
                 if ( ! Array.isArray( this.config.prizes ) || ! this.config.prizes.length ) {
+                        // eslint-disable-next-line no-console
+                        console.log( '[SpinToWin] Initialization aborted: no prizes configured', {
+                                instanceId: this.config.id,
+                        } );
                         return;
                 }
 
@@ -84,6 +103,12 @@
         };
 
         SpinToWin.prototype.prepareAudio = function( audioConfig ) {
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Preparing audio configuration', {
+                        instanceId: this.config.id,
+                        audioConfig: audioConfig,
+                } );
+
                 var audio = {};
 
                 [ 'spin', 'win', 'lose' ].forEach( function( type ) {
@@ -110,6 +135,13 @@
         };
 
         SpinToWin.prototype.playAudio = function( type ) {
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Attempting to play audio', {
+                        instanceId: this.config.id,
+                        type: type,
+                        hasElement: !! this.audio[ type ],
+                } );
+
                 var element = this.audio[ type ];
                 if ( ! element ) {
                         return;
@@ -125,6 +157,13 @@
         };
 
         SpinToWin.prototype.stopAudio = function( type ) {
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Attempting to stop audio', {
+                        instanceId: this.config.id,
+                        type: type,
+                        hasElement: !! this.audio[ type ],
+                } );
+
                 var element = this.audio[ type ];
                 if ( ! element ) {
                         return;
@@ -140,6 +179,12 @@
         };
 
         SpinToWin.prototype.calculateWeights = function() {
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Calculating prize weights', {
+                        instanceId: this.config.id,
+                        prizeCount: this.config.prizes.length,
+                } );
+
                 var prizes = this.config.prizes;
                 var totalWeight = 0;
                 var hasFifty = false;
@@ -205,6 +250,13 @@
                 }
 
                 this.totalWeight = totalWeight;
+
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Prize weights computed', {
+                        instanceId: this.config.id,
+                        prizeWeights: this.prizeWeights,
+                        totalWeight: this.totalWeight,
+                } );
         };
 
         function extractEuroValue( prize ) {
@@ -243,6 +295,12 @@
         }
 
         SpinToWin.prototype.renderWheel = function() {
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Rendering wheel', {
+                        instanceId: this.config.id,
+                        prizeCount: this.config.prizes.length,
+                } );
+
                 var prizes = this.config.prizes;
                 var segmentCount = prizes.length;
                 var anglePerSegment = 360 / segmentCount;
@@ -278,9 +336,21 @@
                 if ( this.$wheel.length ) {
                         this.$wheel[ 0 ].style.setProperty( '--gn-tsiartas-spin-duration', this.spinDuration + 'ms' );
                 }
+
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Wheel rendered', {
+                        instanceId: this.config.id,
+                        baseRotation: this.baseRotation,
+                } );
         };
 
         SpinToWin.prototype.highlightAvailablePrizes = function() {
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Highlighting available prizes', {
+                        instanceId: this.config.id,
+                        hasPrizeList: this.$prizeList.length > 0,
+                } );
+
                 if ( ! this.$prizeList.length ) {
                         return;
                 }
@@ -295,6 +365,13 @@
 
         SpinToWin.prototype.bindEvents = function() {
                 var _this = this;
+
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Binding events', {
+                        instanceId: this.config.id,
+                        hasSpinButton: this.$spinButton.length > 0,
+                        hasModal: this.$modal.length > 0,
+                } );
 
                 this.$spinButton.on( 'click', function( event ) {
                         event.preventDefault();
@@ -314,8 +391,18 @@
         };
 
         SpinToWin.prototype.restoreState = function() {
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Restoring state from storage', {
+                        instanceId: this.config.id,
+                } );
+
                 var persisted = this.readStorage();
                 if ( ! persisted || ! persisted.hasSpun || ! persisted.prizeId ) {
+                        // eslint-disable-next-line no-console
+                        console.log( '[SpinToWin] No stored state found or state incomplete', {
+                                instanceId: this.config.id,
+                                persisted: persisted,
+                        } );
                         return;
                 }
 
@@ -336,14 +423,32 @@
         SpinToWin.prototype.readStorage = function() {
                 try {
                         var raw = window.sessionStorage.getItem( this.storageKey );
+                        // eslint-disable-next-line no-console
+                        console.log( '[SpinToWin] Storage read', {
+                                instanceId: this.config.id,
+                                storageKey: this.storageKey,
+                                hasValue: !! raw,
+                        } );
                         return raw ? JSON.parse( raw ) : null;
                 } catch ( error ) {
+                        // eslint-disable-next-line no-console
+                        console.log( '[SpinToWin] Unable to read storage', {
+                                instanceId: this.config.id,
+                                storageKey: this.storageKey,
+                                error: error,
+                        } );
                         return null;
                 }
         };
 
         SpinToWin.prototype.writeStorage = function( data ) {
                 try {
+                        // eslint-disable-next-line no-console
+                        console.log( '[SpinToWin] Writing storage', {
+                                instanceId: this.config.id,
+                                storageKey: this.storageKey,
+                                data: data,
+                        } );
                         window.sessionStorage.setItem( this.storageKey, JSON.stringify( data ) );
                 } catch ( error ) {
                         // eslint-disable-next-line no-console
@@ -462,6 +567,12 @@
         };
 
         SpinToWin.prototype.completeSpin = function( prize ) {
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Completing spin', {
+                        instanceId: this.config.id,
+                        prize: prize,
+                } );
+
                 this.stopAudio( 'spin' );
                 this.state = {
                         hasSpun: true,
@@ -477,6 +588,12 @@
         };
 
         SpinToWin.prototype.setWheelToPrize = function( prize ) {
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Setting wheel to prize', {
+                        instanceId: this.config.id,
+                        prize: prize,
+                } );
+
                 var index = -1;
                 for ( var i = 0; i < this.config.prizes.length; i++ ) {
                         if ( this.config.prizes[ i ].id === prize.id ) {
@@ -503,6 +620,13 @@
         };
 
         SpinToWin.prototype.showResult = function( prize, options ) {
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Showing result', {
+                        instanceId: this.config.id,
+                        prize: prize,
+                        options: options,
+                } );
+
                 options = options || {};
                 var tryAgain = this.isTryAgainPrize( prize );
                 var messages = this.config.messages || {};
@@ -539,6 +663,13 @@
         };
 
         SpinToWin.prototype.highlightPrize = function( prizeId ) {
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Highlighting prize', {
+                        instanceId: this.config.id,
+                        prizeId: prizeId,
+                        hasPrizeList: this.$prizeList.length > 0,
+                } );
+
                 if ( ! this.$prizeList.length ) {
                         return;
                 }
@@ -548,6 +679,12 @@
         };
 
         SpinToWin.prototype.findPrizeById = function( prizeId ) {
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Searching for prize by id', {
+                        instanceId: this.config.id,
+                        prizeId: prizeId,
+                } );
+
                 for ( var i = 0; i < this.config.prizes.length; i++ ) {
                         if ( this.config.prizes[ i ].id === prizeId ) {
                                 return this.config.prizes[ i ];
@@ -567,6 +704,12 @@
         };
 
         SpinToWin.prototype.triggerIntegrationHook = function( prize ) {
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Triggering integration hooks', {
+                        instanceId: this.config.id,
+                        prize: prize,
+                } );
+
                 var eventData = {
                         instanceId: this.config.id,
                         prize: prize,
@@ -584,6 +727,13 @@
         };
 
         SpinToWin.prototype.openModal = function( title, message ) {
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Opening modal', {
+                        instanceId: this.config.id,
+                        title: title,
+                        message: message,
+                } );
+
                 if ( ! this.$modal.length ) {
                         return;
                 }
@@ -598,6 +748,11 @@
         };
 
         SpinToWin.prototype.closeModal = function() {
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Closing modal', {
+                        instanceId: this.config.id,
+                } );
+
                 if ( ! this.$modal.length ) {
                         return;
                 }
@@ -633,6 +788,11 @@
         }
 
         function bootstrap() {
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Bootstrapping', {
+                        hasConfig: 'undefined' !== typeof window.gnTsiartasSpinToWinConfig,
+                } );
+
                 if ( 'undefined' === typeof window.gnTsiartasSpinToWinConfig ) {
                         return;
                 }
@@ -641,9 +801,22 @@
                 var settings = config.settings || {};
                 var instances = config.instances || {};
 
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Initialising instances', {
+                        settings: settings,
+                        instanceIds: Object.keys( instances ),
+                } );
+
                 Object.keys( instances ).forEach( function( id ) {
                         var instanceConfig = instances[ id ];
                         var $root = $( '[data-gn-tsiartas-spin-instance="' + id + '"]' );
+
+                        // eslint-disable-next-line no-console
+                        console.log( '[SpinToWin] Preparing instance root lookup', {
+                                instanceId: id,
+                                rootFound: $root.length > 0,
+                        } );
+
                         if ( ! $root.length ) {
                                 return;
                         }
