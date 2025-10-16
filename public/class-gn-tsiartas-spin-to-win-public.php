@@ -291,6 +291,10 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         )
                 );
 
+                if ( empty( $audio_settings['spin'] ) ) {
+                        $audio_settings['spin'] = plugins_url( 'public/audio/spin-loop.php', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE );
+                }
+
                 return array(
                         'id'         => $instance_id,
                         'prizes'     => ! empty( $prizes ) ? $prizes : $this->get_default_prizes(),
