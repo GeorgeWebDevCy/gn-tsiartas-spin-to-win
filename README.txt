@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.1.1
+Stable tag: 2.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,10 @@ provided by the Plugin Update Checker library.
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+= 2.1.2 =
+* Removed the sidebar heading and prize list markup so the wheel interface focuses solely on the spin interaction.
+* Bumped plugin metadata and documentation to version 2.1.2.
 
 = 2.1.1 =
 * Updated the plugin metadata and translation template for the 2.1.1 maintenance release.

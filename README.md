@@ -23,6 +23,10 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 2.1.2
+- Removed the sidebar prize heading and list markup so the public experience highlights the interactive wheel.
+- Updated plugin metadata and documentation to version 2.1.2.
+
 ### 2.1.1
 - Bumped the plugin metadata and translation template to package the 2.1.1 maintenance update.
 
