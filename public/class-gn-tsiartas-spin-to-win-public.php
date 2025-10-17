@@ -395,6 +395,11 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         );
                 }
 
+                $active_day = isset( $settings['active_day'] ) ? $settings['active_day'] : '';
+                if ( 'any' === $active_day ) {
+                        $active_day = '';
+                }
+
                 return array(
                         'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
                         'nonce'         => wp_create_nonce( 'gn-tsiartas-spin-to-win' ),
@@ -402,7 +407,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         'spinDuration'  => $spin_duration,
                         'ajaxAction'    => 'gn_tsiartas_spin_to_win_spin',
                         'activeWindow'  => array(
-                                'day'   => isset( $settings['active_day'] ) ? $settings['active_day'] : '',
+                                'day'   => $active_day,
                                 'start' => isset( $settings['active_start_time'] ) ? $settings['active_start_time'] : '',
                                 'end'   => isset( $settings['active_end_time'] ) ? $settings['active_end_time'] : '',
                         ),
@@ -431,9 +436,9 @@ class Gn_Tsiartas_Spin_To_Win_Public {
 
                 $defaults = array(
                         'spin_duration'      => 4600,
-                        'active_day'         => 'friday',
-                        'active_start_time'  => '07:00',
-                        'active_end_time'    => '20:00',
+                        'active_day'         => 'any',
+                        'active_start_time'  => '00:00',
+                        'active_end_time'    => '23:59',
                         'cashier_notice'     => __( 'Please spin the wheel in front of the cashier.', 'gn-tsiartas-spin-to-win' ),
                         'voucher_quotas'     => array(),
                 );
@@ -512,6 +517,10 @@ class Gn_Tsiartas_Spin_To_Win_Public {
          * @return   int|null
          */
         private function get_weekday_index( $day ) {
+                if ( 'any' === $day ) {
+                        return null;
+                }
+
                 if ( is_numeric( $day ) ) {
                         $index = (int) $day;
 
