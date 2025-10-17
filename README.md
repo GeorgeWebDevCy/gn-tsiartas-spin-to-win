@@ -23,6 +23,10 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 1.4.4
+- Removed the sidebar heading and static prize list so the layout focuses on the spin CTA and dynamic messaging.
+- Bumped the plugin metadata to version 1.4.4 for this correction release.
+
 ### 1.4.3
 - Removed the "Try Again" slice from the default wheel prizes so every segment awards a voucher.
 - Bumped plugin metadata to version 1.4.3 for this prize lineup update.
