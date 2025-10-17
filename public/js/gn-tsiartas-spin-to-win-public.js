@@ -75,28 +75,11 @@
 
                 this.spinDuration = this.reducedMotion ? 600 : configuredDuration;
 
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Instance constructed', {
-                        instanceId: this.config.id,
-                        prizeCount: Array.isArray( this.config.prizes ) ? this.config.prizes.length : 0,
-                        settings: this.settings,
-                        reducedMotion: this.reducedMotion,
-                        spinDuration: this.spinDuration,
-                } );
         }
 
         SpinToWin.prototype.init = function() {
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Initialising instance', {
-                        instanceId: this.config.id,
-                        hasPrizes: Array.isArray( this.config.prizes ) && this.config.prizes.length > 0,
-                } );
 
                 if ( ! Array.isArray( this.config.prizes ) || ! this.config.prizes.length ) {
-                        // eslint-disable-next-line no-console
-                        console.log( '[SpinToWin] Initialization aborted: no prizes configured', {
-                                instanceId: this.config.id,
-                        } );
                         return;
                 }
 
@@ -109,11 +92,6 @@
         };
 
         SpinToWin.prototype.prepareAudio = function( audioConfig ) {
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Preparing audio configuration', {
-                        instanceId: this.config.id,
-                        audioConfig: audioConfig,
-                } );
 
                 var audio = {};
 
@@ -132,8 +110,7 @@
 
                                 audio[ type ] = element;
                         } catch ( error ) {
-                                // eslint-disable-next-line no-console
-                                console.warn( 'Unable to initialise audio for', type, error );
+                        // Intentionally ignore errors to keep the experience smooth.
                         }
                 } );
 
@@ -141,12 +118,6 @@
         };
 
         SpinToWin.prototype.playAudio = function( type ) {
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Attempting to play audio', {
-                        instanceId: this.config.id,
-                        type: type,
-                        hasElement: !! this.audio[ type ],
-                } );
 
                 var element = this.audio[ type ];
                 if ( ! element ) {
@@ -157,18 +128,11 @@
                         element.currentTime = 0;
                         element.play();
                 } catch ( error ) {
-                        // eslint-disable-next-line no-console
-                        console.warn( 'Unable to play audio:', type, error );
+                // Intentionally ignore errors to keep the experience smooth.
                 }
         };
 
         SpinToWin.prototype.stopAudio = function( type ) {
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Attempting to stop audio', {
-                        instanceId: this.config.id,
-                        type: type,
-                        hasElement: !! this.audio[ type ],
-                } );
 
                 var element = this.audio[ type ];
                 if ( ! element ) {
@@ -179,17 +143,11 @@
                         element.pause();
                         element.currentTime = 0;
                 } catch ( error ) {
-                        // eslint-disable-next-line no-console
-                        console.warn( 'Unable to stop audio:', type, error );
+                // Intentionally ignore errors to keep the experience smooth.
                 }
         };
 
         SpinToWin.prototype.calculateWeights = function() {
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Calculating prize weights', {
-                        instanceId: this.config.id,
-                        prizeCount: this.config.prizes.length,
-                } );
 
                 var prizes = this.config.prizes;
                 var totalWeight = 0;
@@ -257,12 +215,6 @@
 
                 this.totalWeight = totalWeight;
 
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Prize weights computed', {
-                        instanceId: this.config.id,
-                        prizeWeights: this.prizeWeights,
-                        totalWeight: this.totalWeight,
-                } );
         };
 
         function extractEuroValue( prize ) {
@@ -301,11 +253,6 @@
         }
 
         SpinToWin.prototype.renderWheel = function() {
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Rendering wheel', {
-                        instanceId: this.config.id,
-                        prizeCount: this.config.prizes.length,
-                } );
 
                 var prizes = this.config.prizes;
                 var segmentCount = prizes.length;
@@ -374,11 +321,6 @@
 
                 this.setupWheelResizeHandling();
 
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Wheel rendered', {
-                        instanceId: this.config.id,
-                        baseRotation: this.baseRotation,
-                } );
         };
 
         SpinToWin.prototype.setupWheelResizeHandling = function() {
@@ -445,11 +387,6 @@
         };
 
         SpinToWin.prototype.highlightAvailablePrizes = function() {
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Highlighting available prizes', {
-                        instanceId: this.config.id,
-                        hasPrizeList: this.$prizeList.length > 0,
-                } );
 
                 if ( ! this.$prizeList.length ) {
                         return;
@@ -468,12 +405,6 @@
         SpinToWin.prototype.bindEvents = function() {
                 var _this = this;
 
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Binding events', {
-                        instanceId: this.config.id,
-                        hasSpinButton: this.$spinButton.length > 0,
-                        hasModal: this.$modal.length > 0,
-                } );
 
                 this.$spinButton.on( 'click', function( event ) {
                         event.preventDefault();
@@ -556,28 +487,14 @@
         };
 
         SpinToWin.prototype.restoreState = function() {
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Restoring state from storage', {
-                        instanceId: this.config.id,
-                } );
 
                 var persisted = this.readStorage();
                 if ( ! persisted || ! persisted.hasSpun || ! persisted.prizeId ) {
-                        // eslint-disable-next-line no-console
-                        console.log( '[SpinToWin] No stored state found or state incomplete', {
-                                instanceId: this.config.id,
-                                persisted: persisted,
-                        } );
                         return;
                 }
 
                 var prize = this.findPrizeById( persisted.prizeId );
                 if ( ! prize ) {
-                        // eslint-disable-next-line no-console
-                        console.log( '[SpinToWin] Stored prize missing, clearing state', {
-                                instanceId: this.config.id,
-                                persisted: persisted,
-                        } );
 
                         this.clearStorage();
                         this.state = {
@@ -602,78 +519,40 @@
         SpinToWin.prototype.readStorage = function() {
                 try {
                         var raw = window.sessionStorage.getItem( this.storageKey );
-                        // eslint-disable-next-line no-console
-                        console.log( '[SpinToWin] Storage read', {
-                                instanceId: this.config.id,
-                                storageKey: this.storageKey,
-                                hasValue: !! raw,
-                        } );
                         return raw ? JSON.parse( raw ) : null;
                 } catch ( error ) {
-                        // eslint-disable-next-line no-console
-                        console.log( '[SpinToWin] Unable to read storage', {
-                                instanceId: this.config.id,
-                                storageKey: this.storageKey,
-                                error: error,
-                        } );
                         return null;
                 }
         };
 
         SpinToWin.prototype.writeStorage = function( data ) {
                 try {
-                        // eslint-disable-next-line no-console
-                        console.log( '[SpinToWin] Writing storage', {
-                                instanceId: this.config.id,
-                                storageKey: this.storageKey,
-                                data: data,
-                        } );
                         window.sessionStorage.setItem( this.storageKey, JSON.stringify( data ) );
                 } catch ( error ) {
-                        // eslint-disable-next-line no-console
-                        console.warn( 'Unable to persist spin state', error );
+                // Intentionally ignore errors to keep the experience smooth.
                 }
         };
 
         SpinToWin.prototype.clearStorage = function() {
                 try {
-                        // eslint-disable-next-line no-console
-                        console.log( '[SpinToWin] Clearing stored state', {
-                                instanceId: this.config.id,
-                                storageKey: this.storageKey,
-                        } );
                         window.sessionStorage.removeItem( this.storageKey );
                 } catch ( error ) {
-                        // eslint-disable-next-line no-console
-                        console.warn( 'Unable to clear stored spin state', error );
+                // Intentionally ignore errors to keep the experience smooth.
                 }
         };
 
         SpinToWin.prototype.handleSpin = function() {
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] handleSpin triggered', {
-                        isAnimating: this.isAnimating,
-                        hasSpun: this.state.hasSpun,
-                        prizeCount: this.config.prizes.length,
-                        spinDuration: this.spinDuration,
-                } );
 
                 if ( this.isAnimating ) {
-                        // eslint-disable-next-line no-console
-                        console.log( '[SpinToWin] Spin blocked: animation already in progress' );
                         return;
                 }
 
                 if ( this.state.hasSpun ) {
-                        // eslint-disable-next-line no-console
-                        console.log( '[SpinToWin] Spin blocked: wheel already spun for this session' );
                         this.showAlreadyPlayedMessage();
                         return;
                 }
 
                 if ( ! this.config.prizes.length ) {
-                        // eslint-disable-next-line no-console
-                        console.log( '[SpinToWin] Spin blocked: no prizes configured' );
                         return;
                 }
 
@@ -685,18 +564,9 @@
                 var selectedPrize = this.selectPrize();
                 var targetRotation = this.computeTargetRotation( selectedPrize );
 
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Starting spin', {
-                        selectedPrize: selectedPrize,
-                        targetRotation: targetRotation,
-                        baseRotation: this.baseRotation,
-                        currentRotation: this.currentRotation,
-                } );
 
                 window.requestAnimationFrame( function() {
                         if ( ! this.$wheel.length ) {
-                                // eslint-disable-next-line no-console
-                                console.log( '[SpinToWin] Unable to rotate wheel: element not found' );
                                 return;
                         }
 
@@ -717,18 +587,10 @@
                         accumulator += this.prizeWeights[ prize.id ];
 
                         if ( random <= accumulator ) {
-                                // eslint-disable-next-line no-console
-                                console.log( '[SpinToWin] Prize selected', {
-                                        prize: prize,
-                                        random: random,
-                                        accumulator: accumulator,
-                                } );
                                 return prize;
                         }
                 }
 
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Fallback prize selected', this.config.prizes[ this.config.prizes.length - 1 ] );
                 return this.config.prizes[ this.config.prizes.length - 1 ];
         };
 
@@ -745,26 +607,11 @@
                 var targetRotation = rotations * 360 + ( anglePerSegment * index ) + this.baseRotation + randomOffset;
                 this.currentRotation = targetRotation % 360;
 
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Computed target rotation', {
-                        prizeId: prize.id,
-                        index: index,
-                        rotations: rotations,
-                        anglePerSegment: anglePerSegment,
-                        randomOffset: randomOffset,
-                        targetRotation: targetRotation,
-                        currentRotation: this.currentRotation,
-                } );
 
                 return targetRotation;
         };
 
         SpinToWin.prototype.completeSpin = function( prize ) {
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Completing spin', {
-                        instanceId: this.config.id,
-                        prize: prize,
-                } );
 
                 this.stopAudio( 'spin' );
                 this.state = {
@@ -781,11 +628,6 @@
         };
 
         SpinToWin.prototype.setWheelToPrize = function( prize ) {
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Setting wheel to prize', {
-                        instanceId: this.config.id,
-                        prize: prize,
-                } );
 
                 var index = -1;
                 for ( var i = 0; i < this.config.prizes.length; i++ ) {
@@ -813,12 +655,6 @@
         };
 
         SpinToWin.prototype.showResult = function( prize, options ) {
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Showing result', {
-                        instanceId: this.config.id,
-                        prize: prize,
-                        options: options,
-                } );
 
                 options = options || {};
                 var tryAgain = this.isTryAgainPrize( prize );
@@ -856,12 +692,6 @@
         };
 
         SpinToWin.prototype.highlightPrize = function( prizeId ) {
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Highlighting prize', {
-                        instanceId: this.config.id,
-                        prizeId: prizeId,
-                        hasPrizeList: this.$prizeList.length > 0,
-                } );
 
                 if ( ! this.$prizeList.length ) {
                         return;
@@ -872,11 +702,6 @@
         };
 
         SpinToWin.prototype.findPrizeById = function( prizeId ) {
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Searching for prize by id', {
-                        instanceId: this.config.id,
-                        prizeId: prizeId,
-                } );
 
                 for ( var i = 0; i < this.config.prizes.length; i++ ) {
                         if ( this.config.prizes[ i ].id === prizeId ) {
@@ -897,11 +722,6 @@
         };
 
         SpinToWin.prototype.triggerIntegrationHook = function( prize ) {
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Triggering integration hooks', {
-                        instanceId: this.config.id,
-                        prize: prize,
-                } );
 
                 var eventData = {
                         instanceId: this.config.id,
@@ -920,12 +740,6 @@
         };
 
         SpinToWin.prototype.openModal = function( title, message ) {
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Opening modal', {
-                        instanceId: this.config.id,
-                        title: title,
-                        message: message,
-                } );
 
                 if ( ! this.$modal.length ) {
                         return;
@@ -941,10 +755,6 @@
         };
 
         SpinToWin.prototype.closeModal = function() {
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Closing modal', {
-                        instanceId: this.config.id,
-                } );
 
                 if ( ! this.$modal.length ) {
                         return;
@@ -981,10 +791,6 @@
         }
 
         function bootstrap() {
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Bootstrapping', {
-                        hasConfig: 'undefined' !== typeof window.gnTsiartasSpinToWinConfig,
-                } );
 
                 if ( 'undefined' === typeof window.gnTsiartasSpinToWinConfig ) {
                         return;
@@ -994,21 +800,11 @@
                 var settings = config.settings || {};
                 var instances = config.instances || {};
 
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Initialising instances', {
-                        settings: settings,
-                        instanceIds: Object.keys( instances ),
-                } );
 
                 Object.keys( instances ).forEach( function( id ) {
                         var instanceConfig = instances[ id ];
                         var $root = $( '[data-gn-tsiartas-spin-instance="' + id + '"]' );
 
-                        // eslint-disable-next-line no-console
-                        console.log( '[SpinToWin] Preparing instance root lookup', {
-                                instanceId: id,
-                                rootFound: $root.length > 0,
-                        } );
 
                         if ( ! $root.length ) {
                                 return;

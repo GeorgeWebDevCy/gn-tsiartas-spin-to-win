@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.0
+Stable tag: 2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,9 @@ provided by the Plugin Update Checker library.
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+= 2.1 =
+* Removed the verbose admin and public console logging and updated the plugin metadata to version 2.1.
 
 = 2.0 =
 * Reverted the plugin to the proven 1.4.1 codebase while preparing the next major release cycle under the 2.0 version number.
@@ -115,6 +118,9 @@ provided by the Plugin Update Checker library.
 * Initial release of the GN Tsiartas Spin to Win experience.
 
 == Upgrade Notice ==
+
+= 2.1 =
+Update to remove the diagnostic console logging from the admin and public scripts while receiving the 2.1 metadata bump.
 
 = 2.0 =
 Install this major release to stay aligned with the stable 1.4.1 codebase while receiving the refreshed 2.0 metadata.
