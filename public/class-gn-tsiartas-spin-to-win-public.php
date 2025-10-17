@@ -180,6 +180,11 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 $prizes   = isset( $configuration['prizes'] ) ? $configuration['prizes'] : array();
                 $messages = isset( $configuration['messages'] ) ? $configuration['messages'] : array();
 
+                $logo_url = plugins_url(
+                        'public/images/TSIARTAS-logo-transparent.png',
+                        dirname( __DIR__ ) . '/gn-tsiartas-spin-to-win.php'
+                );
+
                 ob_start();
                 ?>
                 <section
@@ -194,7 +199,15 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                         <span class="gn-tsiartas-spin-to-win__date-label"><?php echo esc_html__( 'Current date:', 'gn-tsiartas-spin-to-win' ); ?></span>
                                         <span class="gn-tsiartas-spin-to-win__date-value" data-role="date-value" aria-live="polite"></span>
                                 </p>
-                                <div class="gn-tsiartas-spin-to-win__wheel" data-role="wheel" aria-live="polite"></div>
+                                <div class="gn-tsiartas-spin-to-win__wheel" data-role="wheel" aria-live="polite">
+                                        <div class="gn-tsiartas-spin-to-win__logo">
+                                                <img
+                                                        class="gn-tsiartas-spin-to-win__logo-image"
+                                                        src="<?php echo esc_url( $logo_url ); ?>"
+                                                        alt="<?php echo esc_attr__( 'Tsiartas Supermarkets logo', 'gn-tsiartas-spin-to-win' ); ?>"
+                                                />
+                                        </div>
+                                </div>
                                 <button type="button" class="gn-tsiartas-spin-to-win__spin-button" data-action="spin">
                                         <span class="gn-tsiartas-spin-to-win__spin-pointer" aria-hidden="true"></span>
                                         <span class="gn-tsiartas-spin-to-win__spin-label"><?php echo esc_html__( 'Spin the wheel', 'gn-tsiartas-spin-to-win' ); ?></span>
