@@ -23,6 +23,9 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 2.1.1
+- Bumped the plugin metadata and translation template to package the 2.1.1 maintenance update.
+
 ### 2.1
 - Removed the verbose admin and front-end console logging while bumping the plugin metadata to version 2.1.
 
