@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.4.15
+Stable tag: 2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,22 +52,8 @@ provided by the Plugin Update Checker library.
 
 == Changelog ==
 
-= 1.4.15 =
-* Rolled the plugin codebase back to the proven 1.4.5 implementation to resolve regressions from later releases.
-* Bumped the plugin metadata to 1.4.15 for this rollback build.
-
-= 1.4.5 =
-* Fixed the wheel slice label width so the CSS variable resolves to exactly 37.261755px across all layouts.
-* Bumped the plugin metadata to 1.4.5 for this layout correction.
-
-= 1.4.4 =
-* Removed the sidebar heading and static prize list so the wheel layout focuses on the spin interaction and dynamic messaging.
-* Bumped the plugin metadata to 1.4.4 for this corrective release.
-
-= 1.4.2 =
-* Updated the in-app campaign date so the wheel and modal highlight the refreshed schedule for the latest giveaway window.
-* Swapped the modal and wheel logo assets to the new supermarket branding for the 2025 promotion.
-* Raised the default voucher quotas to mirror the latest daily allocation shared by the marketing team.
+= 2.0 =
+* Reverted the plugin to the proven 1.4.1 codebase while preparing the next major release cycle under the 2.0 version number.
 
 = 1.4.1 =
 * Trimmed the default prize labels so the wheel shows only the euro value for each reward both on the wheel and in the sidebar.
@@ -130,11 +116,8 @@ provided by the Plugin Update Checker library.
 
 == Upgrade Notice ==
 
-= 1.4.15 =
-Install this rollback build to restore the stable 1.4.5 experience while keeping version numbers ahead of previous releases.
-
-= 1.4.2 =
-Install this update to refresh the campaign date copy, roll out the new supermarket logo artwork, and load the latest voucher quotas.
+= 2.0 =
+Install this major release to stay aligned with the stable 1.4.1 codebase while receiving the refreshed 2.0 metadata.
 
 = 1.4.1 =
 Install this release to present only the euro amounts on each prize and keep translations aligned with the 1.4.1 metadata bump.

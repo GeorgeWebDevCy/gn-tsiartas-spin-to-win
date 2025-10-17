@@ -54,8 +54,6 @@
                 this.$modal = $root.find( '[data-role="result-modal"]' );
                 this.$modalTitle = this.$modal.find( '[data-role="modal-title"]' );
                 this.$modalMessage = this.$modal.find( '[data-role="modal-message"]' );
-                this.$dateValue = $root.find( '[data-role="date-value"]' );
-                this.$modalDate = this.$modal.find( '[data-role="modal-date"]' );
                 this.$desktopNotice = $root.find( '[data-role="desktop-notice"]' );
                 this.storageKey = STORAGE_PREFIX + this.config.id;
                 this.baseRotation = 0;
@@ -64,13 +62,7 @@
                 this.state = {
                         hasSpun: false,
                         prizeId: null,
-                        meta: null,
                 };
-                this.ajaxUrl = this.settings && this.settings.ajaxUrl;
-                this.ajaxAction = this.settings && this.settings.ajaxAction;
-                this.nonce = this.settings && this.settings.nonce;
-                this.lastSpinMeta = null;
-                this.pendingSpinMeta = null;
                 this.desktopRestrictionAddedDisable = false;
                 this.reducedMotion = window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
 
@@ -100,9 +92,6 @@
                         hasPrizes: Array.isArray( this.config.prizes ) && this.config.prizes.length > 0,
                 } );
 
-                this.updateDateDisplay();
-                this.updateModalDate();
-
                 if ( ! Array.isArray( this.config.prizes ) || ! this.config.prizes.length ) {
                         // eslint-disable-next-line no-console
                         console.log( '[SpinToWin] Initialization aborted: no prizes configured', {
@@ -111,47 +100,12 @@
                         return;
                 }
 
+                this.calculateWeights();
                 this.renderWheel();
                 this.highlightAvailablePrizes();
                 this.restoreState();
                 this.bindEvents();
                 this.enforceDeviceAvailability();
-        };
-
-        SpinToWin.prototype.getCurrentDateText = function() {
-                if ( ! this.settings ) {
-                        return '';
-                }
-
-                return this.settings.currentDate || '';
-        };
-
-        SpinToWin.prototype.updateDateDisplay = function() {
-                var dateText = this.getCurrentDateText();
-
-                if ( this.$dateValue && this.$dateValue.length ) {
-                        this.$dateValue.text( dateText );
-
-                        if ( this.settings && this.settings.currentDateIso ) {
-                                this.$dateValue.attr( 'data-iso-date', this.settings.currentDateIso );
-                        } else {
-                                this.$dateValue.removeAttr( 'data-iso-date' );
-                        }
-                }
-        };
-
-        SpinToWin.prototype.updateModalDate = function() {
-                var dateText = this.getCurrentDateText();
-
-                if ( this.$modalDate && this.$modalDate.length ) {
-                        this.$modalDate.text( dateText );
-
-                        if ( this.settings && this.settings.currentDateIso ) {
-                                this.$modalDate.attr( 'data-iso-date', this.settings.currentDateIso );
-                        } else {
-                                this.$modalDate.removeAttr( 'data-iso-date' );
-                        }
-                }
         };
 
         SpinToWin.prototype.prepareAudio = function( audioConfig ) {
@@ -482,7 +436,7 @@
 
                 var radius = diameter / 2;
                 var labelDistance = radius * 0.68;
-                var labelWidth = 37.261755;
+                var labelWidth = Math.max( 96, Math.min( diameter * 0.42, radius * 1.25 ) );
                 var fontSize = Math.max( 12, Math.min( 16, diameter * 0.04 ) );
 
                 wheelElement.style.setProperty( '--slice-distance', labelDistance + 'px' );
@@ -629,7 +583,6 @@
                         this.state = {
                                 hasSpun: false,
                                 prizeId: null,
-                                meta: null,
                         };
 
                         this.$root.removeClass( 'has-spun' );
@@ -637,12 +590,7 @@
                         return;
                 }
 
-                this.state = {
-                        hasSpun: !! persisted.hasSpun,
-                        prizeId: persisted.prizeId,
-                        meta: persisted.meta || null,
-                };
-                this.lastSpinMeta = this.state.meta;
+                this.state = persisted;
                 this.$root.addClass( 'has-spun' );
                 this.$spinButton.addClass( 'is-disabled' ).attr( 'disabled', 'disabled' );
 
@@ -730,75 +678,20 @@
                 }
 
                 this.isAnimating = true;
-                this.$root.addClass( 'is-requesting-spin' );
+                this.$root.addClass( 'is-spinning' );
                 this.$spinButton.addClass( 'is-disabled' ).attr( 'disabled', 'disabled' );
-
-                this.requestSpinOutcome()
-                        .done( function( response ) {
-                                var data = response && response.data ? response.data : null;
-
-                                if ( ! response || ! response.success || ! data || ! data.prize_id ) {
-                                        var fallbackMessage = data && data.message ? data.message : null;
-                                        this.handleSpinError( fallbackMessage, true );
-                                        return;
-                                }
-
-                                var prize = this.findPrizeById( data.prize_id );
-                                if ( ! prize ) {
-                                        // eslint-disable-next-line no-console
-                                        console.warn( '[SpinToWin] Prize from server not found locally', data );
-                                        this.handleSpinError( data.message || this.getDefaultErrorMessage(), true );
-                                        return;
-                                }
-
-                                this.startSpinAnimation( prize, data );
-                        }.bind( this ) )
-                        .fail( function( jqXHR ) {
-                                var message = this.extractErrorMessage( jqXHR );
-                                var canSpinAgain = this.extractCanSpinAgain( jqXHR );
-                                this.handleSpinError( message, canSpinAgain );
-                        }.bind( this ) );
-        };
-
-        SpinToWin.prototype.requestSpinOutcome = function() {
-                if ( ! this.ajaxUrl || ! this.ajaxAction ) {
-                        var fallback = $.Deferred();
-                        fallback.reject( {
-                                responseJSON: {
-                                        data: {
-                                                message: this.getDefaultErrorMessage(),
-                                                can_spin_again: false,
-                                        },
-                                },
-                        } );
-                        return fallback.promise();
-                }
-
-                return $.ajax( {
-                        url: this.ajaxUrl,
-                        method: 'POST',
-                        dataType: 'json',
-                        data: {
-                                action: this.ajaxAction,
-                                nonce: this.nonce,
-                                instance_id: this.config.id,
-                        },
-                } );
-        };
-
-        SpinToWin.prototype.startSpinAnimation = function( prize, data ) {
-                // eslint-disable-next-line no-console
-                console.log( '[SpinToWin] Starting server-assigned spin', {
-                        instanceId: this.config.id,
-                        prize: prize,
-                        meta: data,
-                } );
-
-                this.pendingSpinMeta = data || {};
-                this.$root.removeClass( 'is-requesting-spin' ).addClass( 'is-spinning' );
                 this.playAudio( 'spin' );
 
-                var targetRotation = this.computeTargetRotation( prize );
+                var selectedPrize = this.selectPrize();
+                var targetRotation = this.computeTargetRotation( selectedPrize );
+
+                // eslint-disable-next-line no-console
+                console.log( '[SpinToWin] Starting spin', {
+                        selectedPrize: selectedPrize,
+                        targetRotation: targetRotation,
+                        baseRotation: this.baseRotation,
+                        currentRotation: this.currentRotation,
+                } );
 
                 window.requestAnimationFrame( function() {
                         if ( ! this.$wheel.length ) {
@@ -811,79 +704,8 @@
                 }.bind( this ) );
 
                 window.setTimeout( function() {
-                        var meta = this.pendingSpinMeta || {};
-                        this.pendingSpinMeta = null;
-                        this.completeSpin( prize, meta );
+                        this.completeSpin( selectedPrize );
                 }.bind( this ), this.spinDuration + 350 );
-        };
-
-        SpinToWin.prototype.handleSpinError = function( message, canSpinAgain ) {
-                // eslint-disable-next-line no-console
-                console.warn( '[SpinToWin] Handling spin error', {
-                        instanceId: this.config.id,
-                        message: message,
-                        canSpinAgain: canSpinAgain,
-                } );
-
-                this.stopAudio( 'spin' );
-                this.isAnimating = false;
-                this.pendingSpinMeta = null;
-                this.$root.removeClass( 'is-requesting-spin is-spinning' );
-
-                if ( canSpinAgain ) {
-                        this.$spinButton.removeClass( 'is-disabled' ).removeAttr( 'disabled' );
-                } else {
-                        this.$spinButton.addClass( 'is-disabled' ).attr( 'disabled', 'disabled' );
-                }
-
-                var errorMessage = message || this.getDefaultErrorMessage();
-                if ( this.$message.length ) {
-                        this.$message.text( errorMessage );
-                }
-
-                this.updateModalDate();
-                this.openModal( this.getErrorTitle(), errorMessage );
-        };
-
-        SpinToWin.prototype.extractErrorMessage = function( jqXHR ) {
-                if ( jqXHR && jqXHR.responseJSON && jqXHR.responseJSON.data && jqXHR.responseJSON.data.message ) {
-                        return jqXHR.responseJSON.data.message;
-                }
-
-                if ( jqXHR && jqXHR.responseJSON && jqXHR.responseJSON.message ) {
-                        return jqXHR.responseJSON.message;
-                }
-
-                return this.getDefaultErrorMessage();
-        };
-
-        SpinToWin.prototype.extractCanSpinAgain = function( jqXHR ) {
-                if (
-                        jqXHR &&
-                        jqXHR.responseJSON &&
-                        jqXHR.responseJSON.data &&
-                        typeof jqXHR.responseJSON.data.can_spin_again !== 'undefined'
-                ) {
-                        return !! jqXHR.responseJSON.data.can_spin_again;
-                }
-
-                return true;
-        };
-
-        SpinToWin.prototype.getDefaultErrorMessage = function() {
-                if ( this.config && this.config.messages && this.config.messages.error ) {
-                        return this.config.messages.error;
-                }
-
-                return 'Παρουσιάστηκε σφάλμα. Παρακαλούμε δοκιμάστε ξανά σύντομα.';
-        };
-
-        SpinToWin.prototype.getErrorTitle = function() {
-                if ( this.config && this.config.messages && this.config.messages.errorTitle ) {
-                        return this.config.messages.errorTitle;
-                }
-
-                return 'Σφάλμα';
         };
 
         SpinToWin.prototype.selectPrize = function() {
@@ -937,28 +759,24 @@
                 return targetRotation;
         };
 
-        SpinToWin.prototype.completeSpin = function( prize, meta ) {
+        SpinToWin.prototype.completeSpin = function( prize ) {
                 // eslint-disable-next-line no-console
                 console.log( '[SpinToWin] Completing spin', {
                         instanceId: this.config.id,
                         prize: prize,
-                        meta: meta,
                 } );
 
                 this.stopAudio( 'spin' );
-                var payload = meta || {};
                 this.state = {
                         hasSpun: true,
                         prizeId: prize.id,
-                        meta: payload,
                 };
-                this.lastSpinMeta = payload;
 
                 this.writeStorage( this.state );
-                this.$root.removeClass( 'is-requesting-spin is-spinning' ).addClass( 'has-spun' );
+                this.$root.removeClass( 'is-spinning' ).addClass( 'has-spun' );
                 this.showResult( prize );
                 this.highlightPrize( prize.id );
-                this.triggerIntegrationHook( prize, payload );
+                this.triggerIntegrationHook( prize );
                 this.isAnimating = false;
         };
 
@@ -1024,7 +842,6 @@
                                 this.playAudio( 'win' );
                         }
 
-                        this.updateModalDate();
                         this.openModal( headline, formattedMessage );
                 }
         };
@@ -1035,7 +852,6 @@
                         this.$message.text( alreadyMessage );
                 }
 
-                this.updateModalDate();
                 this.openModal( 'Ήδη παίξατε', alreadyMessage );
         };
 
@@ -1080,24 +896,17 @@
                 } );
         };
 
-        SpinToWin.prototype.triggerIntegrationHook = function( prize, meta ) {
+        SpinToWin.prototype.triggerIntegrationHook = function( prize ) {
                 // eslint-disable-next-line no-console
                 console.log( '[SpinToWin] Triggering integration hooks', {
                         instanceId: this.config.id,
                         prize: prize,
-                        meta: meta,
                 } );
-
-                var parsedTimestamp = meta && meta.timestamp ? Date.parse( meta.timestamp ) : NaN;
-                if ( isNaN( parsedTimestamp ) ) {
-                        parsedTimestamp = Date.now();
-                }
 
                 var eventData = {
                         instanceId: this.config.id,
                         prize: prize,
-                        timestamp: parsedTimestamp,
-                        serverMeta: meta || {},
+                        timestamp: Date.now(),
                 };
 
                 this.$root.trigger( 'gnTsiartasSpinToWin:prizeAwarded', [ eventData ] );
