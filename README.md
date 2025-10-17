@@ -23,6 +23,10 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 1.4.1
+- Trimmed the default prize labels so the wheel only displays the euro value for each reward.
+- Synced the translation template and plugin metadata with the 1.4.1 release.
+
 ### 1.4.0
 - Introduced a desktop-only overlay that explains how to access the promotion by scanning the in-store QR code on mobile.
 - Simplified the prize list markup by removing the unused wrapper container while retaining styling.
