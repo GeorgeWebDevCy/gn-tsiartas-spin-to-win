@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.2.4
+Stable tag: 2.2.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,11 @@ provided by the Plugin Update Checker library.
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+= 2.2.5 =
+* Refreshed the wheel header date/time so the public experience always reflects the current store schedule.
+* Added a direct **Settings** link in the Plugins list for quicker access to spin-to-win configuration.
+* Tweaked wheel colours to better align with the latest Tsiartas branding accents.
 
 = 2.2.4 =
 * Fix Friday voucher quota persistence so guaranteed spins stay accurate after restarts.
