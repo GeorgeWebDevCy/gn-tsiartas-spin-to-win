@@ -296,6 +296,14 @@
 
                 var gradientStops = [];
                 var currentAngle = 0;
+                var $preservedHub = this.$wheel.find( '[data-role="wheel-hub"]' ).first();
+
+                if ( $preservedHub.length ) {
+                        $preservedHub = $preservedHub.detach();
+                } else {
+                        $preservedHub = null;
+                }
+
                 this.$wheel.empty();
 
                 prizes.forEach( function( prize, index ) {
@@ -344,6 +352,10 @@
 
                         this.$wheel.append( $label );
                 }.bind( this ) );
+
+                if ( $preservedHub ) {
+                        this.$wheel.append( $preservedHub );
+                }
 
                 var gradient = 'conic-gradient(' + gradientStops.join( ', ' ) + ')';
                 this.$wheel.css( {

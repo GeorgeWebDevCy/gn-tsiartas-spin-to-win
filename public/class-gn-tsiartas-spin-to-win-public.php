@@ -190,6 +190,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 $show_cta = filter_var( $atts['show_cta'], FILTER_VALIDATE_BOOLEAN );
                 $prizes   = isset( $configuration['prizes'] ) ? $configuration['prizes'] : array();
                 $messages = isset( $configuration['messages'] ) ? $configuration['messages'] : array();
+                $wheel_logo_url = plugins_url( 'public/images/TSIARTAS-logo-transparent.png', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE );
 
                 ob_start();
                 ?>
@@ -204,7 +205,14 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 <p class="gn-tsiartas-spin-to-win__current-date" data-role="current-date">
                                         <?php echo esc_html( $formatted_date ); ?>
                                 </p>
-                                <div class="gn-tsiartas-spin-to-win__wheel" data-role="wheel" aria-live="polite"></div>
+                                <div class="gn-tsiartas-spin-to-win__wheel" data-role="wheel" aria-live="polite">
+                                        <img
+                                                class="gn-tsiartas-spin-to-win__wheel-logo"
+                                                src="<?php echo esc_url( $wheel_logo_url ); ?>"
+                                                alt="<?php echo esc_attr__( 'Tsiartas Supermarket logo', 'gn-tsiartas-spin-to-win' ); ?>"
+                                                data-role="wheel-hub"
+                                        />
+                                </div>
                                 <button type="button" class="gn-tsiartas-spin-to-win__spin-button" data-action="spin">
                                         <span class="gn-tsiartas-spin-to-win__spin-pointer" aria-hidden="true"></span>
                                         <span class="gn-tsiartas-spin-to-win__spin-label"><?php echo esc_html__( 'Spin the wheel', 'gn-tsiartas-spin-to-win' ); ?></span>

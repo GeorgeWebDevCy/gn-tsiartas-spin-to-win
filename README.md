@@ -23,6 +23,9 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 2.2.2
+- Embedded the Tsiartas logo within the wheel hub so branding stays visible across wheel redraws.
+
 ### 2.2.1
 - Surfaced the current store date above the wheel header and inside the modal footer so players know which day's draw is active.
 - Localised the formatted date through the shortcode payload and AJAX responses for accurate, per-instance updates.
