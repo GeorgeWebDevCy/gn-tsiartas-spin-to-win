@@ -62,9 +62,11 @@
                 this.state = {
                         hasSpun: false,
                         prizeId: null,
+                        serverData: null,
                 };
                 this.desktopRestrictionAddedDisable = false;
                 this.reducedMotion = window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+                this.pendingSpinData = null;
 
                 var configuredDuration = DEFAULT_SPIN_DURATION;
                 var providedDuration = parseInt( this.settings && this.settings.spinDuration, 10 );
@@ -83,7 +85,6 @@
                         return;
                 }
 
-                this.calculateWeights();
                 this.renderWheel();
                 this.highlightAvailablePrizes();
                 this.restoreState();
@@ -499,6 +500,7 @@
                         this.state = {
                                 hasSpun: false,
                                 prizeId: null,
+                                serverData: null,
                         };
 
                         this.$root.removeClass( 'has-spun' );
@@ -507,6 +509,9 @@
                 }
 
                 this.state = persisted;
+                if ( 'undefined' === typeof this.state.serverData ) {
+                        this.state.serverData = null;
+                }
                 this.$root.addClass( 'has-spun' );
                 this.$spinButton.addClass( 'is-disabled' ).attr( 'disabled', 'disabled' );
 
@@ -560,9 +565,72 @@
                 this.$spinButton.addClass( 'is-disabled' ).attr( 'disabled', 'disabled' );
                 this.playAudio( 'spin' );
 
-                var selectedPrize = this.selectPrize();
-                var targetRotation = this.computeTargetRotation( selectedPrize );
+                this.requestSpinResult();
+        };
 
+        SpinToWin.prototype.requestSpinResult = function() {
+                var _this = this;
+
+                $.ajax( {
+                        url: this.settings.ajaxUrl,
+                        method: 'POST',
+                        dataType: 'json',
+                        data: {
+                                action: 'gn_tsiartas_spin_to_win_spin',
+                                nonce: this.settings.nonce,
+                                instance: this.config.id,
+                        },
+                } )
+                        .done( function( response ) {
+                                if ( response && true === response.success && response.data ) {
+                                        _this.processSpinSuccess( response.data );
+                                        return;
+                                }
+
+                                var payload = ( response && response.data ) || {};
+                                if ( response && response.message && ! payload.message ) {
+                                        payload.message = response.message;
+                                }
+                                _this.handleSpinError( payload );
+                        } )
+                        .fail( function( jqXHR ) {
+                                var payload = {};
+
+                                if ( jqXHR && jqXHR.responseJSON ) {
+                                        payload = jqXHR.responseJSON.data || {};
+                                        if ( jqXHR.responseJSON.message ) {
+                                                payload.message = jqXHR.responseJSON.message;
+                                        }
+                                }
+
+                                _this.handleSpinError( payload );
+                        } );
+        };
+
+        SpinToWin.prototype.processSpinSuccess = function( data ) {
+                var prize = this.findPrizeById( data.prizeId );
+
+                if ( ! prize ) {
+                        prize = this.findPrizeById( 'try-again' ) || this.config.prizes[ 0 ] || {};
+                }
+
+                var resolvedPrize = $.extend( true, {}, prize );
+
+                if ( data.label ) {
+                        resolvedPrize.label = data.label;
+                }
+
+                if ( data.description ) {
+                        resolvedPrize.description = data.description;
+                }
+
+                resolvedPrize.serverData = data;
+                this.pendingSpinData = {
+                        prize: resolvedPrize,
+                        serverData: data,
+                };
+
+                var targetRotation = this.computeTargetRotation( resolvedPrize );
 
                 window.requestAnimationFrame( function() {
                         if ( ! this.$wheel.length ) {
@@ -573,24 +641,41 @@
                 }.bind( this ) );
 
                 window.setTimeout( function() {
-                        this.completeSpin( selectedPrize );
+                        this.completeSpin( resolvedPrize, data );
                 }.bind( this ), this.spinDuration + 350 );
         };
 
-        SpinToWin.prototype.selectPrize = function() {
-                var random = Math.random() * this.totalWeight;
-                var accumulator = 0;
+        SpinToWin.prototype.handleSpinError = function( payload ) {
+                payload = payload || {};
 
-                for ( var i = 0; i < this.config.prizes.length; i++ ) {
-                        var prize = this.config.prizes[ i ];
-                        accumulator += this.prizeWeights[ prize.id ];
+                this.stopAudio( 'spin' );
+                this.isAnimating = false;
+                this.$root.removeClass( 'is-spinning' );
+                this.pendingSpinData = null;
 
-                        if ( random <= accumulator ) {
-                                return prize;
+                var messages = this.config.messages || {};
+                var isDepleted = !! payload.depleted;
+                var message;
+                var title;
+
+                if ( isDepleted ) {
+                        message = messages.depleted || payload.message || 'Όλες οι δωροεπιταγές έχουν διατεθεί για σήμερα.';
+                        title = messages.depletedTitle || 'Δεν υπάρχουν διαθέσιμα δώρα';
+                        this.$spinButton.addClass( 'is-disabled' ).attr( 'disabled', 'disabled' );
+                } else {
+                        message = payload.message || messages.error || 'Η κλήρωση δεν ήταν διαθέσιμη. Προσπαθήστε ξανά αργότερα.';
+                        title = messages.errorTitle || 'Προσωρινό ζήτημα';
+
+                        if ( ! this.state.hasSpun ) {
+                                this.$spinButton.removeClass( 'is-disabled' ).prop( 'disabled', false ).removeAttr( 'disabled' );
                         }
                 }
 
-                return this.config.prizes[ this.config.prizes.length - 1 ];
+                if ( this.$message.length ) {
+                        this.$message.text( message );
+                }
+
+                this.openModal( title, message );
         };
 
         SpinToWin.prototype.computeTargetRotation = function( prize ) {
@@ -610,19 +695,21 @@
                 return targetRotation;
         };
 
-        SpinToWin.prototype.completeSpin = function( prize ) {
+        SpinToWin.prototype.completeSpin = function( prize, serverData ) {
 
                 this.stopAudio( 'spin' );
                 this.state = {
                         hasSpun: true,
                         prizeId: prize.id,
+                        serverData: serverData || null,
                 };
 
                 this.writeStorage( this.state );
                 this.$root.removeClass( 'is-spinning' ).addClass( 'has-spun' );
                 this.showResult( prize );
                 this.highlightPrize( prize.id );
-                this.triggerIntegrationHook( prize );
+                this.triggerIntegrationHook( prize, serverData );
+                this.pendingSpinData = null;
                 this.isAnimating = false;
         };
 
@@ -720,12 +807,13 @@
                 } );
         };
 
-        SpinToWin.prototype.triggerIntegrationHook = function( prize ) {
+        SpinToWin.prototype.triggerIntegrationHook = function( prize, serverData ) {
 
                 var eventData = {
                         instanceId: this.config.id,
                         prize: prize,
                         timestamp: Date.now(),
+                        serverData: serverData || null,
                 };
 
                 this.$root.trigger( 'gnTsiartasSpinToWin:prizeAwarded', [ eventData ] );

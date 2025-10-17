@@ -70,6 +70,14 @@ class Gn_Tsiartas_Spin_To_Win_Public {
         private $plugin_settings = null;
 
         /**
+         * Option name storing tracking data for Friday spins.
+         *
+         * @since    2.2.0
+         * @var      string
+         */
+        private $tracking_option_name = 'gn_tsiartas_spin_to_win_friday_tracking';
+
+        /**
          * Initialize the class and set its properties.
          *
          * @since    1.0.0
@@ -278,8 +286,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
          * @return   array
          */
         private function prepare_frontend_configuration( $instance_id, $atts ) {
-                $prizes_option = get_option( 'gn_tsiartas_spin_to_win_prizes', array() );
-                $prizes        = $this->normalise_prizes( $prizes_option );
+                $prizes = $this->get_prize_pool();
 
                 $messages = get_option( 'gn_tsiartas_spin_to_win_messages', array() );
                 if ( ! is_array( $messages ) ) {
@@ -311,7 +318,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
 
                 return array(
                         'id'         => $instance_id,
-                        'prizes'     => ! empty( $prizes ) ? $prizes : $this->get_default_prizes(),
+                        'prizes'     => $prizes,
                         'messages'   => $messages,
                         'ctas'       => $ctas,
                         'audio'      => array(
@@ -321,6 +328,24 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         ),
                         'attributes' => $atts,
                 );
+        }
+
+        /**
+         * Retrieve the configured prize pool.
+         *
+         * @since    2.2.0
+         *
+         * @return   array
+         */
+        private function get_prize_pool() {
+                $prizes_option = get_option( 'gn_tsiartas_spin_to_win_prizes', array() );
+                $prizes        = $this->normalise_prizes( $prizes_option );
+
+                if ( empty( $prizes ) ) {
+                        return $this->get_default_prizes();
+                }
+
+                return $prizes;
         }
 
         /**
@@ -336,6 +361,8 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 }
 
                 $spin_duration = isset( $settings['spin_duration'] ) ? (int) $settings['spin_duration'] : 4600;
+                $quotas        = $this->get_friday_quotas( $settings );
+                $store_hours   = $this->get_friday_store_hours();
 
                 return array(
                         'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
@@ -348,6 +375,86 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'end'   => isset( $settings['active_end_time'] ) ? $settings['active_end_time'] : '',
                         ),
                         'cashierNotice' => isset( $settings['cashier_notice'] ) ? $settings['cashier_notice'] : '',
+                        'quotas'        => $quotas,
+                        'storeHours'    => $store_hours,
+                );
+        }
+
+        /**
+         * AJAX handler that assigns prizes server-side.
+         *
+         * @since    2.2.0
+         * @return   void
+         */
+        public function handle_spin_request() {
+                check_ajax_referer( 'gn-tsiartas-spin-to-win', 'nonce' );
+
+                $settings = $this->get_plugin_settings();
+
+                if ( ! $this->is_friday_active_window( $settings ) ) {
+                        wp_send_json_error(
+                                array(
+                                        'code'    => 'inactive_window',
+                                        'message' => __( 'The promotion is only available on Friday between 07:00 and 20:00.', 'gn-tsiartas-spin-to-win' ),
+                                ),
+                                403
+                        );
+                }
+
+                $timestamp = current_time( 'timestamp' );
+                $quotas    = $this->get_friday_quotas( $settings );
+
+                if ( empty( array_filter( $quotas ) ) ) {
+                        wp_send_json_error(
+                                array(
+                                        'code'    => 'quotas_not_configured',
+                                        'message' => __( 'Voucher quotas have not been configured for this promotion.', 'gn-tsiartas-spin-to-win' ),
+                                ),
+                                500
+                        );
+                }
+
+                $tracking = $this->get_tracking_state( $timestamp );
+                $prizes   = $this->get_prize_pool();
+
+                $spin_number = (int) $tracking['total_spins'] + 1;
+
+                $prize = $this->determine_prize_for_spin( $spin_number, $quotas, $tracking, $timestamp, $prizes );
+
+                if ( is_wp_error( $prize ) ) {
+                        $error_data = $prize->get_error_data();
+                        $status     = isset( $error_data['status'] ) ? (int) $error_data['status'] : 400;
+                        $payload    = array(
+                                'code'    => $prize->get_error_code(),
+                                'message' => $prize->get_error_message(),
+                        );
+
+                        if ( isset( $error_data['data'] ) && is_array( $error_data['data'] ) ) {
+                                $payload = array_merge( $payload, $error_data['data'] );
+                        }
+
+                        wp_send_json_error( $payload, $status );
+                }
+
+                $tracking['total_spins'] = $spin_number;
+                $this->update_tracking_totals( $tracking, $prize );
+                $this->append_tracking_log( $tracking, $prize, $timestamp, $spin_number );
+                $this->save_tracking_state( $tracking );
+
+                $remaining = $this->build_remaining_quota_summary( $quotas, $tracking['totals'] );
+
+                wp_send_json_success(
+                        array(
+                                'spinNumber'       => $spin_number,
+                                'prizeId'          => $prize['id'],
+                                'label'            => isset( $prize['label'] ) ? $prize['label'] : '',
+                                'description'      => isset( $prize['description'] ) ? $prize['description'] : '',
+                                'value'            => isset( $prize['value'] ) ? $prize['value'] : null,
+                                'isVoucher'        => ! empty( $prize['is_voucher'] ),
+                                'timestamp'        => $timestamp,
+                                'remainingQuotas'  => $remaining,
+                                'awardedDenomination' => isset( $prize['denomination'] ) ? $prize['denomination'] : null,
+                        )
                 );
         }
 
@@ -366,9 +473,16 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 $defaults = array(
                         'spin_duration'      => 4600,
                         'active_day'         => 'friday',
-                        'active_start_time'  => '08:00',
+                        'active_start_time'  => '07:00',
                         'active_end_time'    => '20:00',
                         'cashier_notice'     => __( 'Please spin the wheel in front of the cashier.', 'gn-tsiartas-spin-to-win' ),
+                        'friday_quotas'      => array(
+                                '5'   => 0,
+                                '10'  => 0,
+                                '15'  => 0,
+                                '50'  => 1,
+                                '100' => 1,
+                        ),
                 );
 
                 if ( class_exists( 'Gn_Tsiartas_Spin_To_Win_Admin' ) ) {
@@ -385,6 +499,626 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 $this->plugin_settings = wp_parse_args( $saved, $defaults );
 
                 return $this->plugin_settings;
+        }
+
+        /**
+         * Retrieve the configured Friday voucher quotas.
+         *
+         * @since    2.2.0
+         *
+         * @param    array|null $settings Optional settings array.
+         *
+         * @return   array
+         */
+        private function get_friday_quotas( $settings = null ) {
+                if ( null === $settings ) {
+                        $settings = $this->get_plugin_settings();
+                }
+
+                $defaults = array(
+                        '5'   => 0,
+                        '10'  => 0,
+                        '15'  => 0,
+                        '50'  => 1,
+                        '100' => 1,
+                );
+
+                $configured = isset( $settings['friday_quotas'] ) && is_array( $settings['friday_quotas'] ) ? $settings['friday_quotas'] : array();
+                $quotas     = array();
+
+                foreach ( $defaults as $denomination => $default ) {
+                        $value = isset( $configured[ $denomination ] ) ? $configured[ $denomination ] : $default;
+                        $value = max( 0, (int) $value );
+
+                        if ( in_array( $denomination, array( '50', '100' ), true ) ) {
+                                $value = max( 1, $value );
+                        }
+
+                        $quotas[ $denomination ] = $value;
+                }
+
+                return $quotas;
+        }
+
+        /**
+         * Retrieve the store opening window for the Friday promotion.
+         *
+         * @since    2.2.0
+         *
+         * @return   array
+         */
+        private function get_friday_store_hours() {
+                return array(
+                        'start' => '07:00',
+                        'end'   => '20:00',
+                );
+        }
+
+        /**
+         * Check whether the promotion is currently active for Friday spins.
+         *
+         * @since    2.2.0
+         *
+         * @param    array $settings Plugin settings.
+         *
+         * @return   bool
+         */
+        private function is_friday_active_window( $settings ) {
+                if ( ! $this->is_within_active_window( $settings ) ) {
+                        return false;
+                }
+
+                $timestamp = current_time( 'timestamp' );
+                $day       = strtolower( wp_date( 'l', $timestamp ) );
+
+                if ( 'friday' !== $day ) {
+                        return false;
+                }
+
+                $hours      = $this->get_friday_store_hours();
+                $start_time = $this->get_window_boundary_timestamp( $timestamp, $hours['start'] );
+                $end_time   = $this->get_window_boundary_timestamp( $timestamp, $hours['end'] );
+
+                return ( $timestamp >= $start_time && $timestamp <= $end_time );
+        }
+
+        /**
+         * Retrieve and normalise the weekly tracking state for Friday spins.
+         *
+         * @since    2.2.0
+         *
+         * @param    int $timestamp Current timestamp.
+         *
+         * @return   array
+         */
+        private function get_tracking_state( $timestamp ) {
+                $state = get_option( $this->tracking_option_name, array() );
+                if ( ! is_array( $state ) ) {
+                        $state = array();
+                }
+
+                $current_week = $this->get_current_week_key( $timestamp );
+
+                if ( ! isset( $state['week_key'] ) || $state['week_key'] !== $current_week ) {
+                        $state = $this->get_default_tracking_state( $current_week, $timestamp );
+                }
+
+                if ( ! isset( $state['totals'] ) || ! is_array( $state['totals'] ) ) {
+                        $state['totals'] = array();
+                }
+
+                $totals_defaults = array(
+                        '5'         => 0,
+                        '10'        => 0,
+                        '15'        => 0,
+                        '50'        => 0,
+                        '100'       => 0,
+                        'try-again' => 0,
+                );
+
+                $state['totals'] = wp_parse_args( $state['totals'], $totals_defaults );
+
+                if ( ! isset( $state['spins'] ) || ! is_array( $state['spins'] ) ) {
+                        $state['spins'] = array();
+                }
+
+                if ( ! isset( $state['total_spins'] ) ) {
+                        $state['total_spins'] = 0;
+                }
+
+                return $state;
+        }
+
+        /**
+         * Persist the tracking state option.
+         *
+         * @since    2.2.0
+         *
+         * @param    array $state Tracking state to save.
+         *
+         * @return   void
+         */
+        private function save_tracking_state( $state ) {
+                update_option( $this->tracking_option_name, $state, false );
+        }
+
+        /**
+         * Provide the default tracking structure for a new week.
+         *
+         * @since    2.2.0
+         *
+         * @param    string $week_key  Week identifier.
+         * @param    int    $timestamp Current timestamp.
+         *
+         * @return   array
+         */
+        private function get_default_tracking_state( $week_key, $timestamp ) {
+                return array(
+                        'week_key'    => $week_key,
+                        'total_spins' => 0,
+                        'totals'      => array(
+                                '5'         => 0,
+                                '10'        => 0,
+                                '15'        => 0,
+                                '50'        => 0,
+                                '100'       => 0,
+                                'try-again' => 0,
+                        ),
+                        'spins'       => array(),
+                        'last_reset'  => $timestamp,
+                );
+        }
+
+        /**
+         * Build a unique week identifier.
+         *
+         * @since    2.2.0
+         *
+         * @param    int $timestamp Current timestamp.
+         *
+         * @return   string
+         */
+        private function get_current_week_key( $timestamp ) {
+                return wp_date( 'o-\WW', $timestamp );
+        }
+
+        /**
+         * Update aggregated totals following a spin.
+         *
+         * @since    2.2.0
+         *
+         * @param    array $tracking Tracking state (passed by reference).
+         * @param    array $prize    Awarded prize payload.
+         *
+         * @return   void
+         */
+        private function update_tracking_totals( array &$tracking, array $prize ) {
+                $key = 'try-again';
+
+                if ( ! empty( $prize['is_voucher'] ) && isset( $prize['denomination'] ) ) {
+                        $key = (string) $prize['denomination'];
+                }
+
+                if ( ! isset( $tracking['totals'][ $key ] ) ) {
+                        $tracking['totals'][ $key ] = 0;
+                }
+
+                $tracking['totals'][ $key ]++;
+        }
+
+        /**
+         * Append a spin log entry to the tracking state.
+         *
+         * @since    2.2.0
+         *
+         * @param    array $tracking   Tracking state (passed by reference).
+         * @param    array $prize      Awarded prize payload.
+         * @param    int   $timestamp  Current timestamp.
+         * @param    int   $spin_index Sequential spin index for the week.
+         *
+         * @return   void
+         */
+        private function append_tracking_log( array &$tracking, array $prize, $timestamp, $spin_index ) {
+                $tracking['spins'][] = array(
+                        'spin'         => $spin_index,
+                        'timestamp'    => $timestamp,
+                        'prize_id'     => isset( $prize['id'] ) ? $prize['id'] : '',
+                        'denomination' => isset( $prize['denomination'] ) ? $prize['denomination'] : null,
+                        'label'        => isset( $prize['label'] ) ? $prize['label'] : '',
+                );
+
+                // Keep the log from growing unbounded.
+                if ( count( $tracking['spins'] ) > 250 ) {
+                        $tracking['spins'] = array_slice( $tracking['spins'], -250 );
+                }
+        }
+
+        /**
+         * Calculate remaining quotas after a spin.
+         *
+         * @since    2.2.0
+         *
+         * @param    array $quotas Configured quotas.
+         * @param    array $totals Awarded totals.
+         *
+         * @return   array
+         */
+        private function build_remaining_quota_summary( array $quotas, array $totals ) {
+                $summary = array();
+
+                foreach ( $quotas as $denomination => $quota ) {
+                        $awarded = isset( $totals[ $denomination ] ) ? (int) $totals[ $denomination ] : 0;
+                        $summary[ $denomination ] = max( 0, (int) $quota - $awarded );
+                }
+
+                return $summary;
+        }
+
+        /**
+         * Determine the appropriate prize for the current spin.
+         *
+         * @since    2.2.0
+         *
+         * @param    int   $spin_number Sequential spin index.
+         * @param    array $quotas      Configured quotas.
+         * @param    array $tracking    Current tracking state.
+         * @param    int   $timestamp   Current timestamp.
+         * @param    array $prizes      Available prize configuration.
+         *
+         * @return   array|WP_Error
+         */
+        private function determine_prize_for_spin( $spin_number, array $quotas, array $tracking, $timestamp, array $prizes ) {
+                $prize_map = $this->map_prizes_by_value( $prizes );
+                $totals    = isset( $tracking['totals'] ) ? $tracking['totals'] : array();
+
+                $forced_spins = array(
+                        50  => '50',
+                        100 => '100',
+                );
+
+                if ( isset( $forced_spins[ $spin_number ] ) ) {
+                        $denomination = $forced_spins[ $spin_number ];
+                        $remaining    = isset( $quotas[ $denomination ] ) ? (int) $quotas[ $denomination ] : 0;
+                        $awarded      = isset( $totals[ $denomination ] ) ? (int) $totals[ $denomination ] : 0;
+
+                        if ( $remaining <= $awarded ) {
+                                return new WP_Error(
+                                        'quota_exhausted',
+                                        __( 'The guaranteed voucher for this spin has already been awarded.', 'gn-tsiartas-spin-to-win' ),
+                                        array(
+                                                'status' => 410,
+                                                'data'   => array(
+                                                        'depleted' => true,
+                                                ),
+                                        )
+                                );
+                        }
+
+                        $prize = $this->pick_prize_by_value( $denomination, $prize_map );
+
+                        if ( is_wp_error( $prize ) ) {
+                                return $prize;
+                        }
+
+                        return $prize;
+                }
+
+                $remaining_quota_total = 0;
+                foreach ( array( '5', '10', '15' ) as $value ) {
+                        $quota   = isset( $quotas[ $value ] ) ? (int) $quotas[ $value ] : 0;
+                        $awarded = isset( $totals[ $value ] ) ? (int) $totals[ $value ] : 0;
+                        $remaining_quota_total += max( 0, $quota - $awarded );
+                }
+
+                if ( $remaining_quota_total <= 0 ) {
+                        return $this->handle_quota_depletion( $prize_map );
+                }
+
+                $ratio      = $this->calculate_elapsed_ratio( $timestamp );
+                $candidates = array();
+
+                foreach ( array( '5', '10', '15' ) as $value ) {
+                        $quota   = isset( $quotas[ $value ] ) ? (int) $quotas[ $value ] : 0;
+                        $awarded = isset( $totals[ $value ] ) ? (int) $totals[ $value ] : 0;
+
+                        if ( $quota <= 0 || $awarded >= $quota ) {
+                                continue;
+                        }
+
+                        $allowed = $this->calculate_allowed_awards( $quota, $ratio );
+
+                        if ( $awarded >= $allowed && $allowed < $quota ) {
+                                continue;
+                        }
+
+                        $remaining = max( 0, $quota - $awarded );
+                        $allowed_now = max( 1, $allowed - $awarded );
+                        $weight = min( $remaining, $allowed_now );
+                        $weight = max( 1, $weight );
+
+                        $candidates[] = array(
+                                'value'  => $value,
+                                'weight' => $weight,
+                        );
+                }
+
+                if ( empty( $candidates ) ) {
+                        $try_again = $this->pick_try_again_prize( $prize_map );
+
+                        if ( is_wp_error( $try_again ) ) {
+                                return $try_again;
+                        }
+
+                        return $try_again;
+                }
+
+                $total_weight = array_sum( wp_list_pluck( $candidates, 'weight' ) );
+                $random       = wp_rand( 1, (int) $total_weight );
+                $accumulator  = 0;
+                $selected     = null;
+
+                foreach ( $candidates as $candidate ) {
+                        $accumulator += (int) $candidate['weight'];
+                        if ( $random <= $accumulator ) {
+                                $selected = $candidate['value'];
+                                break;
+                        }
+                }
+
+                if ( null === $selected ) {
+                        $last_candidate = end( $candidates );
+                        $selected       = isset( $last_candidate['value'] ) ? $last_candidate['value'] : $candidates[0]['value'];
+                }
+
+                $prize = $this->pick_prize_by_value( $selected, $prize_map );
+
+                if ( is_wp_error( $prize ) ) {
+                        return $prize;
+                }
+
+                return $prize;
+        }
+
+        /**
+         * Handle the outcome when quotas are fully exhausted.
+         *
+         * @since    2.2.0
+         *
+         * @param    array $prize_map Prize map grouped by value.
+         *
+         * @return   array|WP_Error
+         */
+        private function handle_quota_depletion( array $prize_map ) {
+                $try_again = $this->pick_try_again_prize( $prize_map );
+
+                if ( is_wp_error( $try_again ) ) {
+                        return new WP_Error(
+                                'quotas_depleted',
+                                __( 'All voucher quotas have been claimed for today.', 'gn-tsiartas-spin-to-win' ),
+                                array(
+                                        'status' => 410,
+                                        'data'   => array(
+                                                'depleted' => true,
+                                        ),
+                                )
+                        );
+                }
+
+                return $try_again;
+        }
+
+        /**
+         * Calculate how many vouchers can be released based on elapsed time.
+         *
+         * @since    2.2.0
+         *
+         * @param    int   $quota Total quota for the denomination.
+         * @param    float $ratio Elapsed ratio between 0 and 1.
+         *
+         * @return   int
+         */
+        private function calculate_allowed_awards( $quota, $ratio ) {
+                $ratio = max( 0, min( 1, $ratio ) );
+                $allowed = (int) floor( $quota * $ratio );
+
+                if ( $quota > 0 ) {
+                        $allowed = max( 1, $allowed );
+                }
+
+                return min( $quota, $allowed );
+        }
+
+        /**
+         * Calculate the ratio of elapsed time within the Friday window.
+         *
+         * @since    2.2.0
+         *
+         * @param    int $timestamp Current timestamp.
+         *
+         * @return   float
+         */
+        private function calculate_elapsed_ratio( $timestamp ) {
+                $hours      = $this->get_friday_store_hours();
+                $start_time = $this->get_window_boundary_timestamp( $timestamp, $hours['start'] );
+                $end_time   = $this->get_window_boundary_timestamp( $timestamp, $hours['end'] );
+
+                if ( $timestamp <= $start_time ) {
+                        return 0.0;
+                }
+
+                if ( $timestamp >= $end_time ) {
+                        return 1.0;
+                }
+
+                $duration = $end_time - $start_time;
+
+                if ( $duration <= 0 ) {
+                        return 1.0;
+                }
+
+                return ( $timestamp - $start_time ) / $duration;
+        }
+
+        /**
+         * Group prizes by voucher denomination.
+         *
+         * @since    2.2.0
+         *
+         * @param    array $prizes Prize configuration array.
+         *
+         * @return   array
+         */
+        private function map_prizes_by_value( array $prizes ) {
+                $map = array(
+                        '5'         => array(),
+                        '10'        => array(),
+                        '15'        => array(),
+                        '50'        => array(),
+                        '100'       => array(),
+                        'try-again' => array(),
+                );
+
+                foreach ( $prizes as $prize ) {
+                        $denomination = $this->extract_prize_denomination( $prize );
+
+                        if ( null !== $denomination ) {
+                                $prize['denomination'] = $denomination;
+                                $prize['value']        = (int) $denomination;
+                                $prize['is_voucher']   = true;
+                                $map[ (string) $denomination ][] = $prize;
+                                continue;
+                        }
+
+                        $id = isset( $prize['id'] ) ? $prize['id'] : '';
+
+                        if ( 'try-again' === $id ) {
+                                $prize['is_voucher'] = false;
+                                $map['try-again'][]   = $prize;
+                        }
+                }
+
+                return $map;
+        }
+
+        /**
+         * Extract a denomination value from a prize configuration.
+         *
+         * @since    2.2.0
+         *
+         * @param    array $prize Prize configuration.
+         *
+         * @return   string|null
+         */
+        private function extract_prize_denomination( array $prize ) {
+                if ( isset( $prize['value'] ) && is_numeric( $prize['value'] ) ) {
+                        return (string) absint( $prize['value'] );
+                }
+
+                $fields = array( 'label', 'description' );
+
+                foreach ( $fields as $field ) {
+                        if ( empty( $prize[ $field ] ) || ! is_string( $prize[ $field ] ) ) {
+                                continue;
+                        }
+
+                        if ( preg_match( '/€\s*(\d+)/u', $prize[ $field ], $matches ) ) {
+                                return (string) absint( $matches[1] );
+                        }
+
+                        if ( preg_match( '/(\d+)\s*€/u', $prize[ $field ], $matches ) ) {
+                                return (string) absint( $matches[1] );
+                        }
+                }
+
+                return null;
+        }
+
+        /**
+         * Select a prize for a given denomination.
+         *
+         * @since    2.2.0
+         *
+         * @param    string $value     Denomination value.
+         * @param    array  $prize_map Prize map grouped by value.
+         *
+         * @return   array|WP_Error
+         */
+        private function pick_prize_by_value( $value, array $prize_map ) {
+                if ( empty( $prize_map[ $value ] ) ) {
+                        return new WP_Error(
+                                'prize_unavailable',
+                                __( 'No matching prize configuration was found.', 'gn-tsiartas-spin-to-win' ),
+                                array(
+                                        'status' => 500,
+                                )
+                        );
+                }
+
+                $pool = $prize_map[ $value ];
+                $index = array_rand( $pool );
+
+                return $pool[ $index ];
+        }
+
+        /**
+         * Select a "try again" style prize.
+         *
+         * @since    2.2.0
+         *
+         * @param    array $prize_map Prize map grouped by value.
+         *
+         * @return   array|WP_Error
+         */
+        private function pick_try_again_prize( array $prize_map ) {
+                if ( empty( $prize_map['try-again'] ) ) {
+                        return new WP_Error(
+                                'try_again_unavailable',
+                                __( 'No fallback outcome is available at the moment.', 'gn-tsiartas-spin-to-win' ),
+                                array(
+                                        'status' => 500,
+                                )
+                        );
+                }
+
+                $pool = $prize_map['try-again'];
+                $index = array_rand( $pool );
+                $prize = $pool[ $index ];
+                $prize['denomination'] = null;
+                $prize['value']        = null;
+                $prize['is_voucher']   = false;
+
+                return $prize;
+        }
+
+        /**
+         * Convert a time string to the relevant timestamp for the current day.
+         *
+         * @since    2.2.0
+         *
+         * @param    int    $timestamp Reference timestamp.
+         * @param    string $time      Time string (H:i).
+         *
+         * @return   int
+         */
+        private function get_window_boundary_timestamp( $timestamp, $time ) {
+                try {
+                        $timezone = wp_timezone();
+                        $date     = new DateTimeImmutable( '@' . $timestamp );
+                        $date     = $date->setTimezone( $timezone );
+
+                        if ( false === strpos( $time, ':' ) ) {
+                                $time .= ':00';
+                        }
+
+                        list( $hours, $minutes ) = array_pad( explode( ':', $time ), 2, '00' );
+                        $boundary = $date->setTime( (int) $hours, (int) $minutes, 0 );
+
+                        return $boundary->getTimestamp();
+                } catch ( Exception $exception ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+                        // Fall back to the provided timestamp on failure.
+                }
+
+                return $timestamp;
         }
 
         /**
@@ -648,6 +1382,11 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         'prompt' => __( 'Spin the wheel for a chance to win exclusive rewards!', 'gn-tsiartas-spin-to-win' ),
                         'win'    => __( 'Congratulations! You won %s.', 'gn-tsiartas-spin-to-win' ),
                         'lose'   => __( 'Thanks for playing! Try again soon.', 'gn-tsiartas-spin-to-win' ),
+                        'alreadyPlayed' => __( 'You have already played this week. Please visit us again next Friday!', 'gn-tsiartas-spin-to-win' ),
+                        'error'         => __( 'The spin could not be completed. Please try again shortly.', 'gn-tsiartas-spin-to-win' ),
+                        'errorTitle'    => __( 'Something went wrong', 'gn-tsiartas-spin-to-win' ),
+                        'depleted'      => __( 'All vouchers have been claimed for today. Please come back next Friday.', 'gn-tsiartas-spin-to-win' ),
+                        'depletedTitle' => __( 'No vouchers remaining', 'gn-tsiartas-spin-to-win' ),
                 );
         }
 

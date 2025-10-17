@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.1.2
+Stable tag: 2.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,11 @@ provided by the Plugin Update Checker library.
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+= 2.2.0 =
+* Added Friday voucher quota controls with guaranteed €50 and €100 allocations and exposed the configuration to the public script.
+* Introduced server-side spin assignment with weekly tracking, quota pacing across the 07:00–20:00 window, and AJAX-powered prize responses.
+* Documented manual QA steps that cover pacing behaviour, quota exhaustion messaging, and the forced €50/€100 spins.
 
 = 2.1.2 =
 * Removed the sidebar heading and prize list markup so the wheel interface focuses solely on the spin interaction.
@@ -167,3 +172,19 @@ Review the refreshed documentation on the `[tsiartas_spin_to_win]` shortcode to 
 
 = 1.1.0 =
 Enable this update to receive future releases automatically from GitHub without manual uploads.
+
+== Manual QA ==
+
+The following checklist covers the pacing, quota, and forced-spin safeguards added in version 2.2.0:
+
+1. **Reset state and configure quotas**
+   - Run `wp option delete gn_tsiartas_spin_to_win_friday_tracking` to clear previous logs.
+   - In **Spin & Win → Settings**, set Friday quotas (for example, €5=3, €10=3, €15=3, €50=1, €100=1) and save.
+2. **Validate pacing and quota exhaustion**
+   - Load the public wheel on a Friday between 07:00 and 20:00.
+   - Use the browser console to trigger spins with `fetch( gnTsiartasSpinToWinConfig.settings.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: new URLSearchParams( { action: 'gn_tsiartas_spin_to_win_spin', nonce: gnTsiartasSpinToWinConfig.settings.nonce } ) } )`.
+   - Confirm the JSON response reports decreasing `remainingQuotas` for €5/€10/€15 and, once they reach zero, includes `depleted: true` while the UI disables the spin button.
+3. **Verify guaranteed €50/€100 spins**
+   - After generating tracking data, run `wp option patch update gn_tsiartas_spin_to_win_friday_tracking total_spins 49` and `wp option patch update gn_tsiartas_spin_to_win_friday_tracking totals.50 0`.
+   - Trigger another spin and confirm the response shows `awardedDenomination: "50"`.
+   - Repeat by setting `total_spins` to `99` and `totals.100` to `0`; the next spin must report the €100 voucher.
