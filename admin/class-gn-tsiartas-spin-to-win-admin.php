@@ -74,9 +74,16 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                 return array(
                         'spin_duration'      => 4600,
                         'active_day'         => 'friday',
-                        'active_start_time'  => '08:00',
+                        'active_start_time'  => '07:00',
                         'active_end_time'    => '20:00',
                         'cashier_notice'     => __( 'Please spin the wheel in front of the cashier.', 'gn-tsiartas-spin-to-win' ),
+                        'friday_quotas'      => array(
+                                '5'   => 0,
+                                '10'  => 0,
+                                '15'  => 0,
+                                '50'  => 1,
+                                '100' => 1,
+                        ),
                 );
         }
 
@@ -156,6 +163,14 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                         'gn_tsiartas_spin_to_win_cashier_notice',
                         __( 'Cashier notification', 'gn-tsiartas-spin-to-win' ),
                         array( $this, 'render_cashier_notice_field' ),
+                        'gn_tsiartas_spin_to_win',
+                        'gn_tsiartas_spin_to_win_general'
+                );
+
+                add_settings_field(
+                        'gn_tsiartas_spin_to_win_friday_quotas',
+                        __( 'Friday voucher quotas', 'gn-tsiartas-spin-to-win' ),
+                        array( $this, 'render_friday_quotas_field' ),
                         'gn_tsiartas_spin_to_win',
                         'gn_tsiartas_spin_to_win_general'
                 );
@@ -258,6 +273,59 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
         }
 
         /**
+         * Render the Friday voucher quotas field.
+         *
+         * @since    2.2.0
+         * @return   void
+         */
+        public function render_friday_quotas_field() {
+                $settings    = $this->get_settings();
+                $option_name = $this->get_option_name();
+                $quotas      = isset( $settings['friday_quotas'] ) && is_array( $settings['friday_quotas'] ) ? $settings['friday_quotas'] : array();
+                $defaults    = self::get_default_settings();
+                $quotas      = wp_parse_args( $quotas, $defaults['friday_quotas'] );
+
+                $denominations = array(
+                        '5'   => __( '€5 vouchers', 'gn-tsiartas-spin-to-win' ),
+                        '10'  => __( '€10 vouchers', 'gn-tsiartas-spin-to-win' ),
+                        '15'  => __( '€15 vouchers', 'gn-tsiartas-spin-to-win' ),
+                        '50'  => __( '€50 vouchers', 'gn-tsiartas-spin-to-win' ),
+                        '100' => __( '€100 vouchers', 'gn-tsiartas-spin-to-win' ),
+                );
+                ?>
+                <fieldset class="gn-tsiartas-spin-to-win__friday-quotas">
+                        <legend class="screen-reader-text"><?php esc_html_e( 'Friday voucher quotas', 'gn-tsiartas-spin-to-win' ); ?></legend>
+                        <p class="description">
+                                <?php esc_html_e( 'Set how many vouchers of each value can be awarded each Friday. Higher value vouchers default to one guaranteed win.', 'gn-tsiartas-spin-to-win' ); ?>
+                        </p>
+                        <table class="form-table">
+                                <tbody>
+                                        <?php foreach ( $denominations as $value => $label ) :
+                                                $field_id = 'gn-tsiartas-spin-friday-quota-' . $value;
+                                                ?>
+                                                <tr>
+                                                        <th scope="row">
+                                                                <label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $label ); ?></label>
+                                                        </th>
+                                                        <td>
+                                                                <input
+                                                                        type="number"
+                                                                        class="small-text"
+                                                                        id="<?php echo esc_attr( $field_id ); ?>"
+                                                                        name="<?php echo esc_attr( $option_name ); ?>[friday_quotas][<?php echo esc_attr( $value ); ?>]"
+                                                                        value="<?php echo esc_attr( isset( $quotas[ $value ] ) ? (int) $quotas[ $value ] : 0 ); ?>"
+                                                                        min="<?php echo in_array( $value, array( '50', '100' ), true ) ? '1' : '0'; ?>"
+                                                                />
+                                                        </td>
+                                                </tr>
+                                        <?php endforeach; ?>
+                                </tbody>
+                        </table>
+                </fieldset>
+                <?php
+        }
+
+        /**
          * Sanitize and validate the plugin settings.
          *
          * @since    1.3.3
@@ -328,7 +396,51 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                 }
                 $sanitized['cashier_notice'] = $notice;
 
+                $sanitized['friday_quotas'] = $this->sanitize_friday_quotas( isset( $settings['friday_quotas'] ) ? $settings['friday_quotas'] : array(), $option_name );
+
                 $this->settings = null;
+
+                return $sanitized;
+        }
+
+        /**
+         * Sanitize the configured Friday voucher quotas.
+         *
+         * @since    2.2.0
+         *
+         * @param    array  $input       Submitted quota values.
+         * @param    string $option_name Option name used for settings errors.
+         *
+         * @return   array
+         */
+        private function sanitize_friday_quotas( $input, $option_name ) {
+                $defaults = self::get_default_settings();
+                $defaults = isset( $defaults['friday_quotas'] ) ? $defaults['friday_quotas'] : array();
+
+                if ( ! is_array( $input ) ) {
+                        $input = array();
+                }
+
+                $sanitized = array();
+                foreach ( $defaults as $value => $default_quota ) {
+                        $raw = isset( $input[ $value ] ) ? $input[ $value ] : $default_quota;
+                        $quota = max( 0, absint( $raw ) );
+
+                        if ( in_array( $value, array( '50', '100' ), true ) && $quota < 1 ) {
+                                $quota = 1;
+                                add_settings_error(
+                                        $option_name,
+                                        $option_name . '_friday_quota_' . $value,
+                                        sprintf(
+                                                /* translators: %s: voucher value */
+                                                __( 'At least one %s voucher must be available each Friday to honour the guaranteed spins.', 'gn-tsiartas-spin-to-win' ),
+                                                '€' . $value
+                                        )
+                                );
+                        }
+
+                        $sanitized[ $value ] = $quota;
+                }
 
                 return $sanitized;
         }
