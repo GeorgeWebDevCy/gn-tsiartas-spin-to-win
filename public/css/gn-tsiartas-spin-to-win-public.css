@@ -182,7 +182,8 @@
 
 .gn-tsiartas-spin-to-win__spin-pointer {
         position: absolute;
-        inset: -1.75rem auto auto -1.1rem;
+        top: -1.75rem;
+        left: 50%;
         width: 0;
         height: 0;
         border-left: 1.1rem solid transparent;
@@ -196,12 +197,13 @@
         content: '';
         position: absolute;
         top: 1.55rem;
-        left: -1.1rem;
+        left: 50%;
         width: 2.2rem;
         height: 0.45rem;
         background: linear-gradient(90deg, rgba(217, 4, 41, 0.9), rgba(27, 67, 50, 0.9));
         border-radius: 999px;
         box-shadow: inset 0 0 0.2rem rgba(255, 255, 255, 0.45);
+        transform: translateX(-50%);
 }
 
 .gn-tsiartas-spin-to-win__spin-label {
@@ -457,8 +459,7 @@
         }
 
         .gn-tsiartas-spin-to-win__spin-pointer {
-                left: 50%;
-                inset: -2rem auto auto 50%;
+                top: -2rem;
         }
 
         .gn-tsiartas-spin-to-win__wheel {
