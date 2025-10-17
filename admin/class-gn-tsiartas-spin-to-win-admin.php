@@ -74,9 +74,27 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                 return array(
                         'spin_duration'      => 4600,
                         'active_day'         => 'friday',
-                        'active_start_time'  => '08:00',
+                        'active_start_time'  => '07:00',
                         'active_end_time'    => '20:00',
                         'cashier_notice'     => __( 'Please spin the wheel in front of the cashier.', 'gn-tsiartas-spin-to-win' ),
+                        'voucher_quotas'     => self::get_default_voucher_quotas(),
+                );
+        }
+
+        /**
+         * Retrieve the default voucher quota configuration.
+         *
+         * @since    1.4.0
+         *
+         * @return   array
+         */
+        public static function get_default_voucher_quotas() {
+                return array(
+                        '5'   => 0,
+                        '10'  => 0,
+                        '15'  => 0,
+                        '50'  => 1,
+                        '100' => 1,
                 );
         }
 
@@ -151,6 +169,14 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                         'gn_tsiartas_spin_to_win_cashier_notice',
                         __( 'Cashier notification', 'gn-tsiartas-spin-to-win' ),
                         array( $this, 'render_cashier_notice_field' ),
+                        'gn_tsiartas_spin_to_win',
+                        'gn_tsiartas_spin_to_win_general'
+                );
+
+                add_settings_field(
+                        'gn_tsiartas_spin_to_win_voucher_quotas',
+                        __( 'Friday voucher quotas', 'gn-tsiartas-spin-to-win' ),
+                        array( $this, 'render_voucher_quota_field' ),
                         'gn_tsiartas_spin_to_win',
                         'gn_tsiartas_spin_to_win_general'
                 );
@@ -253,6 +279,50 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
         }
 
         /**
+         * Render voucher quota fields.
+         *
+         * @since    1.4.0
+         * @return   void
+         */
+        public function render_voucher_quota_field() {
+                $settings    = $this->get_settings();
+                $option_name = $this->get_option_name();
+                $quotas      = isset( $settings['voucher_quotas'] ) && is_array( $settings['voucher_quotas'] ) ? $settings['voucher_quotas'] : self::get_default_voucher_quotas();
+                $labels      = array(
+                        '5'   => __( '€5 vouchers', 'gn-tsiartas-spin-to-win' ),
+                        '10'  => __( '€10 vouchers', 'gn-tsiartas-spin-to-win' ),
+                        '15'  => __( '€15 vouchers', 'gn-tsiartas-spin-to-win' ),
+                        '50'  => __( '€50 vouchers', 'gn-tsiartas-spin-to-win' ),
+                        '100' => __( '€100 vouchers', 'gn-tsiartas-spin-to-win' ),
+                );
+                ?>
+                <fieldset>
+                        <legend class="screen-reader-text"><?php esc_html_e( 'Set the number of vouchers available each Friday.', 'gn-tsiartas-spin-to-win' ); ?></legend>
+                        <?php foreach ( $labels as $value => $label ) :
+                                $field_id = sprintf( 'gn-tsiartas-spin-to-win-quota-%s', $value );
+                                $current  = isset( $quotas[ $value ] ) ? (int) $quotas[ $value ] : 0;
+                                ?>
+                                <p>
+                                        <label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $label ); ?></label>
+                                        <input
+                                                type="number"
+                                                id="<?php echo esc_attr( $field_id ); ?>"
+                                                class="small-text"
+                                                name="<?php echo esc_attr( $option_name ); ?>[voucher_quotas][<?php echo esc_attr( $value ); ?>]"
+                                                min="0"
+                                                step="1"
+                                                value="<?php echo esc_attr( $current ); ?>"
+                                        />
+                                </p>
+                        <?php endforeach; ?>
+                        <p class="description">
+                                <?php esc_html_e( 'Set how many vouchers are awarded each Friday. €50 and €100 vouchers default to 1 per week.', 'gn-tsiartas-spin-to-win' ); ?>
+                        </p>
+                </fieldset>
+                <?php
+        }
+
+        /**
          * Sanitize and validate the plugin settings.
          *
          * @since    1.3.3
@@ -323,6 +393,9 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                 }
                 $sanitized['cashier_notice'] = $notice;
 
+                $quotas = isset( $settings['voucher_quotas'] ) ? $settings['voucher_quotas'] : array();
+                $sanitized['voucher_quotas'] = $this->sanitize_voucher_quotas( $quotas );
+
                 $this->settings = null;
 
                 return $sanitized;
@@ -346,8 +419,59 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                 }
 
                 $this->settings = wp_parse_args( $saved, self::get_default_settings() );
+                $this->settings['voucher_quotas'] = $this->merge_voucher_quotas( isset( $this->settings['voucher_quotas'] ) ? $this->settings['voucher_quotas'] : array() );
 
                 return $this->settings;
+        }
+
+        /**
+         * Sanitize voucher quota values.
+         *
+         * @since    1.4.0
+         *
+         * @param    mixed $value Raw quota values.
+         *
+         * @return   array
+         */
+        private function sanitize_voucher_quotas( $value ) {
+                $defaults = self::get_default_voucher_quotas();
+                if ( ! is_array( $value ) ) {
+                        return $defaults;
+                }
+
+                $sanitized = array();
+                foreach ( $defaults as $key => $default ) {
+                        $sanitized[ $key ] = isset( $value[ $key ] ) ? max( 0, (int) $value[ $key ] ) : (int) $default;
+                }
+
+                return $sanitized;
+        }
+
+        /**
+         * Merge stored voucher quotas with defaults.
+         *
+         * @since    1.4.0
+         *
+         * @param    mixed $value Saved quota values.
+         *
+         * @return   array
+         */
+        private function merge_voucher_quotas( $value ) {
+                $defaults = self::get_default_voucher_quotas();
+                if ( ! is_array( $value ) ) {
+                        return $defaults;
+                }
+
+                foreach ( $defaults as $key => $default ) {
+                        if ( ! isset( $value[ $key ] ) ) {
+                                $value[ $key ] = $default;
+                                continue;
+                        }
+
+                        $value[ $key ] = max( 0, (int) $value[ $key ] );
+                }
+
+                return $value;
         }
 
         /**
