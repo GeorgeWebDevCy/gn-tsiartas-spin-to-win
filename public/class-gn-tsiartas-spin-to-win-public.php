@@ -61,15 +61,6 @@ class Gn_Tsiartas_Spin_To_Win_Public {
         );
 
         /**
-         * Whether the front-end data has already been localised during this request.
-         *
-         * @since    1.4.13
-         * @access   private
-         * @var      bool
-         */
-        private $has_localized_data = false;
-
-        /**
          * Cached copy of plugin-level settings.
          *
          * @since    1.3.3
@@ -183,6 +174,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 // Ensure public assets are present and data is localized for the script.
                 wp_enqueue_style( $this->plugin_name );
                 wp_enqueue_script( $this->plugin_name );
+                wp_localize_script( $this->plugin_name, 'gnTsiartasSpinToWinConfig', $this->localized_data );
 
                 $show_cta = filter_var( $atts['show_cta'], FILTER_VALIDATE_BOOLEAN );
                 $prizes   = isset( $configuration['prizes'] ) ? $configuration['prizes'] : array();
@@ -262,42 +254,6 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 </section>
                 <?php
                 return (string) ob_get_clean();
-        }
-
-        /**
-         * Localize the aggregated front-end data for the public script.
-         *
-         * @since    1.4.13
-         *
-         * @return   void
-         */
-        public function localize_script_data() {
-                if ( $this->has_localized_data ) {
-                        return;
-                }
-
-                if ( ! wp_script_is( $this->plugin_name, 'enqueued' ) ) {
-                        return;
-                }
-
-                if ( empty( $this->localized_data['instances'] ) ) {
-                        return;
-                }
-
-                if ( empty( $this->localized_data['settings'] ) ) {
-                        $this->localized_data['settings'] = $this->get_global_settings();
-                }
-
-                wp_localize_script(
-                        $this->plugin_name,
-                        'gnTsiartasSpinToWinConfig',
-                        array(
-                                'instances' => $this->localized_data['instances'],
-                                'settings'  => $this->localized_data['settings'],
-                        )
-                );
-
-                $this->has_localized_data = true;
         }
 
         /**
@@ -407,41 +363,15 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         $date_format = 'F j, Y';
                 }
 
-                $time_format = get_option( 'time_format' );
-                if ( empty( $time_format ) ) {
-                        $time_format = 'g:i a';
-                }
-
                 $localized_date = wp_date( $date_format, $current_timestamp );
-                $localized_time = wp_date( $time_format, $current_timestamp );
                 $iso_date       = wp_date( DATE_ATOM, $current_timestamp );
 
                 if ( false === $localized_date ) {
                         $localized_date = '';
                 }
 
-                if ( false === $localized_time ) {
-                        $localized_time = '';
-                }
-
                 if ( false === $iso_date ) {
                         $iso_date = '';
-                }
-
-                $localized_datetime = $localized_date;
-
-                if ( '' !== $localized_time ) {
-                        $localized_datetime = sprintf(
-                                /* translators: 1: localized current date, 2: localized current time */
-                                _x( '%1$s at %2$s', 'current date/time format', 'gn-tsiartas-spin-to-win' ),
-                                $localized_date,
-                                $localized_time
-                        );
-                }
-
-                $active_day = isset( $settings['active_day'] ) ? $settings['active_day'] : '';
-                if ( 'any' === $active_day ) {
-                        $active_day = '';
                 }
 
                 return array(
@@ -451,7 +381,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         'spinDuration'  => $spin_duration,
                         'ajaxAction'    => 'gn_tsiartas_spin_to_win_spin',
                         'activeWindow'  => array(
-                                'day'   => $active_day,
+                                'day'   => isset( $settings['active_day'] ) ? $settings['active_day'] : '',
                                 'start' => isset( $settings['active_start_time'] ) ? $settings['active_start_time'] : '',
                                 'end'   => isset( $settings['active_end_time'] ) ? $settings['active_end_time'] : '',
                         ),
@@ -461,7 +391,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         ),
                         'voucherQuotas' => $this->prepare_voucher_quotas( isset( $settings['voucher_quotas'] ) ? $settings['voucher_quotas'] : array() ),
                         'cashierNotice' => isset( $settings['cashier_notice'] ) ? $settings['cashier_notice'] : '',
-                        'currentDate'   => $localized_datetime,
+                        'currentDate'   => $localized_date,
                         'currentDateIso' => $iso_date,
                 );
         }
@@ -480,9 +410,9 @@ class Gn_Tsiartas_Spin_To_Win_Public {
 
                 $defaults = array(
                         'spin_duration'      => 4600,
-                        'active_day'         => 'any',
-                        'active_start_time'  => '00:00',
-                        'active_end_time'    => '23:59',
+                        'active_day'         => 'friday',
+                        'active_start_time'  => '07:00',
+                        'active_end_time'    => '20:00',
                         'cashier_notice'     => __( 'Please spin the wheel in front of the cashier.', 'gn-tsiartas-spin-to-win' ),
                         'voucher_quotas'     => array(),
                 );
@@ -514,23 +444,15 @@ class Gn_Tsiartas_Spin_To_Win_Public {
          * @return   bool
          */
         private function is_within_active_window( $settings ) {
-                $configured_day       = isset( $settings['active_day'] ) ? $settings['active_day'] : '';
-                $configured_day_index = $this->get_weekday_index( $configured_day );
+                $configured_day = isset( $settings['active_day'] ) ? strtolower( $settings['active_day'] ) : '';
+                if ( '' === $configured_day ) {
+                        return true;
+                }
 
-                $timestamp = current_time( 'timestamp' );
-
-                if ( null !== $configured_day_index ) {
-                        $current_day_value = wp_date( 'w', $timestamp );
-
-                        if ( false === $current_day_value ) {
-                                return true;
-                        }
-
-                        $current_day_index = (int) $current_day_value;
-
-                        if ( $configured_day_index !== $current_day_index ) {
-                                return false;
-                        }
+                $timestamp   = current_time( 'timestamp' );
+                $current_day = strtolower( wp_date( 'l', $timestamp ) );
+                if ( $configured_day !== $current_day ) {
+                        return false;
                 }
 
                 $current_minutes = $this->convert_time_to_minutes( wp_date( 'H:i', $timestamp ) );
@@ -546,54 +468,6 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 }
 
                 return ( $current_minutes >= $start_minutes || $current_minutes <= $end_minutes );
-        }
-
-        /**
-         * Convert a configured weekday value into an ISO-8601 numeric index.
-         *
-         * This normalises translated day names saved in the settings so we can reliably
-         * compare them with the numeric value returned by wp_date( 'w' ).
-         *
-         * @since    1.4.8
-         *
-         * @param    string|int $day Configured weekday value.
-         *
-         * @return   int|null
-         */
-        private function get_weekday_index( $day ) {
-                if ( 'any' === $day ) {
-                        return null;
-                }
-
-                if ( is_numeric( $day ) ) {
-                        $index = (int) $day;
-
-                        if ( $index >= 0 && $index <= 6 ) {
-                                return $index;
-                        }
-                }
-
-                if ( ! is_string( $day ) || '' === trim( $day ) ) {
-                        return null;
-                }
-
-                $map = array(
-                        'sunday'    => 0,
-                        'monday'    => 1,
-                        'tuesday'   => 2,
-                        'wednesday' => 3,
-                        'thursday'  => 4,
-                        'friday'    => 5,
-                        'saturday'  => 6,
-                );
-
-                $normalized = strtolower( trim( $day ) );
-
-                if ( isset( $map[ $normalized ] ) ) {
-                        return $map[ $normalized ];
-                }
-
-                return null;
         }
 
         /**

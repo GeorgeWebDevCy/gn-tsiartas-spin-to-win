@@ -16,7 +16,7 @@
  * Plugin Name:       GN Tsiartas Spin to WIN
  * Plugin URI:        https://https://www.georgenicolaou.me/plugins/gn-tsiartas-spin-to-win
  * Description:       A spin to win plugin built for Tsiartas Supermarket
- * Version:           1.4.14
+ * Version:           1.4.15
  * Author:            George Nicolaou
  * Author URI:        https://https://www.georgenicolaou.me//
  * License:           GPL-2.0+
@@ -35,7 +35,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'GN_TSIARTAS_SPIN_TO_WIN_VERSION', '1.4.14' );
+define( 'GN_TSIARTAS_SPIN_TO_WIN_VERSION', '1.4.15' );
 
 if ( ! defined( 'GN_TSIARTAS_SPIN_TO_WIN_OPTION_NAME' ) ) {
         define( 'GN_TSIARTAS_SPIN_TO_WIN_OPTION_NAME', 'gn_tsiartas_spin_to_win_settings' );
@@ -85,45 +85,10 @@ if ( ! class_exists( 'Puc_v5_Factory' ) && class_exists( '\YahnisElsts\PluginUpd
 }
 
 $gn_tsiartas_spin_to_win_updater = Puc_v5_Factory::buildUpdateChecker(
-        'https://github.com/GeorgeWebDevCy/gn-tsiartas-spin-to-win/',
-        __FILE__,
-        'gn-tsiartas-spin-to-win'
+	'https://github.com/GeorgeWebDevCy/gn-tsiartas-spin-to-win/',
+	__FILE__,
+	'gn-tsiartas-spin-to-win'
 );
-
-/**
- * Retrieve the GitHub token used by the update checker, if provided.
- *
- * @since 1.4.11
- *
- * @return string The filtered token or an empty string when authentication is unavailable.
- */
-function gn_tsiartas_spin_to_win_get_github_token() {
-
-        $token = '';
-
-        if ( defined( 'GN_TSIARTAS_SPIN_TO_WIN_GITHUB_TOKEN' ) && GN_TSIARTAS_SPIN_TO_WIN_GITHUB_TOKEN ) {
-                $token = GN_TSIARTAS_SPIN_TO_WIN_GITHUB_TOKEN;
-        } elseif ( getenv( 'GN_TSIARTAS_SPIN_TO_WIN_GITHUB_TOKEN' ) ) {
-                $token = getenv( 'GN_TSIARTAS_SPIN_TO_WIN_GITHUB_TOKEN' );
-        }
-
-        /**
-         * Filter the GitHub token used to authenticate automatic update checks.
-         *
-         * @since 1.4.11
-         *
-         * @param string $token The token sourced from constants or environment variables.
-         */
-        $token = apply_filters( 'gn_tsiartas_spin_to_win_github_token', $token );
-
-        return is_string( $token ) ? trim( $token ) : '';
-}
-
-$gn_tsiartas_spin_to_win_token = gn_tsiartas_spin_to_win_get_github_token();
-
-if ( '' !== $gn_tsiartas_spin_to_win_token ) {
-        $gn_tsiartas_spin_to_win_updater->setAuthentication( $gn_tsiartas_spin_to_win_token );
-}
 
 $gn_tsiartas_spin_to_win_updater->setBranch( 'main' );
 

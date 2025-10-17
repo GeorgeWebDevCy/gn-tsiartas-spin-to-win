@@ -13,10 +13,7 @@ front-end assets and WordPress hooks required to display the experience on any p
 The plugin ships with the [Plugin Update Checker](https://github.com/YahnisElsts/plugin-update-checker) library.
 WordPress will detect new releases from https://github.com/GeorgeWebDevCy/gn-tsiartas-spin-to-win/ whenever you publish
 an updated tag or push to the `main` branch. Release assets are supported, so you can attach packaged ZIP files to
-GitHub releases for stable distributions. If GitHub rate limits your site, define the
-`GN_TSIARTAS_SPIN_TO_WIN_GITHUB_TOKEN` constant (or environment variable) with a personal access token and the update checker
-will authenticate future requests automatically. Advanced setups can override the token with the
-`gn_tsiartas_spin_to_win_github_token` filter.
+GitHub releases for stable distributions.
 
 ## Development
 1. Clone this repository into `wp-content/plugins/`.
@@ -26,44 +23,9 @@ will authenticate future requests automatically. Advanced setups can override th
 
 ## Release notes
 
-### 1.4.14
-- Preserve the wheel's static branding by detaching it before regenerating slices and restoring it once the new labels are in place.
-- Raise the logo stacking order so the supermarket emblem always sits above the rebuilt slice labels.
-- Bump the plugin metadata to version 1.4.14 for this wheel rendering fix.
-
-### 1.4.13
-- Delay script localisation until the footer so the JavaScript bootstrap always sees populated shortcode instances before it runs.
-- Bump the plugin metadata to version 1.4.13 for this initialization fix.
-
-### 1.4.12
-- Always expose an empty front-end configuration so the public script can bootstrap without console warnings on pages that omit the shortcode.
-- Bump the plugin metadata to version 1.4.12 for this stability release.
-
-### 1.4.11
-- Authenticate GitHub update checks using tokens sourced from constants, environment variables, or filters to prevent 403 errors.
-- Bump the plugin metadata to version 1.4.11 for this reliability release.
-
-### 1.4.10
-- Bump the plugin metadata to version 1.4.10 for this maintenance release.
-
-### 1.4.9
-- Default the active window to every day, all day, so the shortcode always renders until store-specific hours are configured.
-- Add an "Every day" option in the admin so managers can intentionally remove the weekday restriction without hacks.
-- Bump the plugin metadata to version 1.4.9 for this availability update.
-
-### 1.4.8
-- Fix the active window weekday comparison so the wheel appears even when WordPress outputs translated day names.
-- Bump the plugin metadata to version 1.4.8 for this localisation fix.
-
-### 1.4.7
-- Surface the current time next to the localized date so the wheel and modal reflect the precise schedule shoppers see in-store.
-- Keep the wheel's centre branding visible by preserving the Tsiartas logo when rendering dynamic prize slices.
-- Updated plugin metadata to version 1.4.7 for this branding and scheduling refresh.
-
-### 1.4.6
-- Layered a repeating conic overlay on the wheel so each coloured slice has crisp highlights and shadows.
-- Dialled back the inner wheel glare so the slice colours stay saturated after the contrast boost.
-- Updated plugin metadata to version 1.4.6 for this visibility pass.
+### 1.4.15
+- Restored the plugin codebase to the stable 1.4.5 implementation to undo regressions introduced in later releases.
+- Bumped the plugin metadata to version 1.4.15 to publish this rollback build.
 
 ### 1.4.5
 - Fixed the wheel slice label width so the CSS variable always resolves to exactly 37.261755px.
