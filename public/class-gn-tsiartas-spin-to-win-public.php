@@ -61,6 +61,15 @@ class Gn_Tsiartas_Spin_To_Win_Public {
         );
 
         /**
+         * Whether the front-end data has already been localised during this request.
+         *
+         * @since    1.4.13
+         * @access   private
+         * @var      bool
+         */
+        private $has_localized_data = false;
+
+        /**
          * Cached copy of plugin-level settings.
          *
          * @since    1.3.3
@@ -125,16 +134,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                  * class.
                  */
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/gn-tsiartas-spin-to-win-public.js', array( 'jquery' ), $this->version, true );
-
-		wp_localize_script(
-			$this->plugin_name,
-			'gnTsiartasSpinToWinConfig',
-			array(
-				'instances' => array(),
-				'settings'  => array(),
-			)
-		);
+                wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/gn-tsiartas-spin-to-win-public.js', array( 'jquery' ), $this->version, true );
 
         }
 
@@ -183,7 +183,6 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 // Ensure public assets are present and data is localized for the script.
                 wp_enqueue_style( $this->plugin_name );
                 wp_enqueue_script( $this->plugin_name );
-                wp_localize_script( $this->plugin_name, 'gnTsiartasSpinToWinConfig', $this->localized_data );
 
                 $show_cta = filter_var( $atts['show_cta'], FILTER_VALIDATE_BOOLEAN );
                 $prizes   = isset( $configuration['prizes'] ) ? $configuration['prizes'] : array();
@@ -263,6 +262,42 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 </section>
                 <?php
                 return (string) ob_get_clean();
+        }
+
+        /**
+         * Localize the aggregated front-end data for the public script.
+         *
+         * @since    1.4.13
+         *
+         * @return   void
+         */
+        public function localize_script_data() {
+                if ( $this->has_localized_data ) {
+                        return;
+                }
+
+                if ( ! wp_script_is( $this->plugin_name, 'enqueued' ) ) {
+                        return;
+                }
+
+                if ( empty( $this->localized_data['instances'] ) ) {
+                        return;
+                }
+
+                if ( empty( $this->localized_data['settings'] ) ) {
+                        $this->localized_data['settings'] = $this->get_global_settings();
+                }
+
+                wp_localize_script(
+                        $this->plugin_name,
+                        'gnTsiartasSpinToWinConfig',
+                        array(
+                                'instances' => $this->localized_data['instances'],
+                                'settings'  => $this->localized_data['settings'],
+                        )
+                );
+
+                $this->has_localized_data = true;
         }
 
         /**
