@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.4.5
+Stable tag: 1.4.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,11 @@ provided by the Plugin Update Checker library.
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+= 1.4.6 =
+* Added a repeating conic overlay so adjacent wheel slices have defined highlights and shadows for better contrast.
+* Softened the inner wheel glare to keep the refreshed slice colours vivid.
+* Bumped the plugin metadata to 1.4.6 for this visibility update.
 
 = 1.4.5 =
 * Fixed the wheel slice label width so the CSS variable resolves to exactly 37.261755px across all layouts.
@@ -125,6 +130,9 @@ provided by the Plugin Update Checker library.
 * Initial release of the GN Tsiartas Spin to Win experience.
 
 == Upgrade Notice ==
+
+= 1.4.6 =
+Install this update to boost the contrast between wheel slices and keep the colour palette vibrant while staying current with the 1.4.6 metadata bump.
 
 = 1.4.2 =
 Install this update to refresh the campaign date copy, roll out the new supermarket logo artwork, and load the latest voucher quotas.
