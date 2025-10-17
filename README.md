@@ -23,6 +23,11 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 1.4.0
+- Introduced a desktop-only overlay that explains how to access the promotion by scanning the in-store QR code on mobile.
+- Simplified the prize list markup by removing the unused wrapper container while retaining styling.
+- Updated plugin metadata to version 1.4.0 for this mobile-experience release.
+
 ### 1.3.9
 - Refined the wheel pointer positioning and surrounding button spacing so the winning slice is emphasised more clearly.
 - Updated plugin metadata to version 1.3.9 to document these wheel tweaks.

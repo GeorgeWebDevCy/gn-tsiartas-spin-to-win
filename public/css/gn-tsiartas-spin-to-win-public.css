@@ -351,6 +351,73 @@
         margin-top: auto;
 }
 
+.gn-tsiartas-spin-to-win__desktop-notice {
+        position: absolute;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: clamp(1.75rem, 5vw, 3.5rem);
+        background: rgba(7, 59, 76, 0.82);
+        backdrop-filter: blur(12px) saturate(120%);
+        text-align: center;
+        z-index: 950;
+}
+
+.gn-tsiartas-spin-to-win__desktop-notice-card {
+        max-width: min(36rem, 92vw);
+        width: 100%;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05));
+        border: 0.08rem solid rgba(255, 255, 255, 0.32);
+        border-radius: 2.25rem;
+        padding: clamp(2rem, 4.5vw, 3rem);
+        box-shadow: 0 1.75rem 3.5rem -2rem rgba(0, 0, 0, 0.55);
+        color: #fff;
+        display: grid;
+        gap: 1rem;
+        place-items: center;
+}
+
+.gn-tsiartas-spin-to-win__desktop-notice-icon {
+        font-size: clamp(2.5rem, 6vmin, 3.5rem);
+        filter: drop-shadow(0 0.4rem 0.8rem rgba(7, 59, 76, 0.45));
+}
+
+.gn-tsiartas-spin-to-win__desktop-notice-title {
+        margin: 0;
+        font-size: clamp(1.65rem, 4vmin, 2rem);
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+}
+
+.gn-tsiartas-spin-to-win__desktop-notice-text {
+        margin: 0;
+        font-size: clamp(1.05rem, 2.8vmin, 1.2rem);
+        line-height: 1.6;
+        font-weight: 600;
+}
+
+.gn-tsiartas-spin-to-win__desktop-notice-subtext {
+        margin: 0;
+        font-size: clamp(0.95rem, 2.5vmin, 1.05rem);
+        line-height: 1.6;
+        opacity: 0.85;
+}
+
+.gn-tsiartas-spin-to-win.is-desktop-restricted .gn-tsiartas-spin-to-win__desktop-notice {
+        display: flex;
+}
+
+.gn-tsiartas-spin-to-win.is-desktop-restricted .gn-tsiartas-spin-to-win__wheel-area,
+.gn-tsiartas-spin-to-win.is-desktop-restricted .gn-tsiartas-spin-to-win__sidebar {
+        filter: blur(4px) saturate(75%);
+        opacity: 0.45;
+        pointer-events: none;
+        user-select: none;
+        transition: filter 220ms ease, opacity 220ms ease;
+}
+
 .gn-tsiartas-spin-to-win__cta-button {
         display: inline-flex;
         align-items: center;
