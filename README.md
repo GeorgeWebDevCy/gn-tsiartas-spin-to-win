@@ -23,7 +23,7 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
-### 2.2.6
+### 2.2.7
 - Ensure all public and admin date displays honour the WordPress site timezone instead of the underlying server configuration.
 
 ### 2.2.5

@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.2.6
+Stable tag: 2.2.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,7 +52,7 @@ provided by the Plugin Update Checker library.
 
 == Changelog ==
 
-= 2.2.6 =
+= 2.2.7 =
 * Ensure the wheel header and modal footer show the site's configured local time instead of the server timezone.
 
 = 2.2.5 =
