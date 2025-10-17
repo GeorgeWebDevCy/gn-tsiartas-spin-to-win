@@ -96,8 +96,8 @@
         position: absolute;
         inset: 12%;
         border-radius: 50%;
-        background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.45));
-        border: 0.25rem solid rgba(255, 255, 255, 0.65);
+        background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.24));
+        border: 0.25rem solid rgba(255, 255, 255, 0.45);
         box-shadow: inset 0 0 1rem rgba(7, 59, 76, 0.25);
         z-index: 2;
 }
@@ -107,10 +107,10 @@
         position: absolute;
         inset: 38%;
         border-radius: 50%;
-        background: linear-gradient(135deg, rgba(217, 4, 41, 0.95), rgba(27, 67, 50, 0.85));
-        box-shadow: inset 0 0 0 0.25rem rgba(255, 255, 255, 0.8), 0 1rem 2rem -1rem rgba(7, 59, 76, 0.45);
+        background: linear-gradient(135deg, rgba(217, 4, 41, 0.75), rgba(27, 67, 50, 0.6));
+        box-shadow: inset 0 0 0 0.25rem rgba(255, 255, 255, 0.7), 0 1rem 2rem -1rem rgba(7, 59, 76, 0.45);
         z-index: 3;
-        opacity: 0.95;
+        opacity: 0.85;
 }
 
 .gn-tsiartas-spin-to-win__wheel-logo {
@@ -186,7 +186,7 @@
         justify-content: center;
         line-height: 1;
         font-size: 1.45em;
-        color: #f94144;
+        color: #ff3b30;
         text-transform: none;
 }
 
@@ -324,7 +324,7 @@
         border-radius: 1rem;
         background: rgba(7, 59, 76, 0.04);
         border: 0.08rem solid transparent;
-        --prize-accent: rgba(217, 4, 41, 0.35);
+        --prize-accent: rgba(255, 59, 48, 0.45);
         transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
         position: relative;
         overflow: hidden;
@@ -355,8 +355,8 @@
 }
 
 .gn-tsiartas-spin-to-win__prize-item.is-active {
-        border-color: rgba(217, 4, 41, 0.65);
-        border-color: color-mix(in srgb, var(--prize-accent) 65%, rgba(217, 4, 41, 0.85));
+        border-color: rgba(255, 59, 48, 0.6);
+        border-color: color-mix(in srgb, var(--prize-accent) 65%, rgba(255, 59, 48, 0.9));
         background: rgba(255, 209, 102, 0.45);
         box-shadow: 0 1.25rem 3rem -2rem rgba(217, 4, 41, 0.55);
         color: var(--gn-tsiartas-deep);
