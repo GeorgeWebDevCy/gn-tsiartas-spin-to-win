@@ -23,6 +23,10 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 1.4.5
+- Fixed the wheel slice label width so the CSS variable always resolves to exactly 37.261755px.
+- Bumped the plugin metadata to version 1.4.5 for this layout correction.
+
 ### 1.4.4
 - Removed the sidebar heading and static prize list so the layout focuses on the spin CTA and dynamic messaging.
 - Bumped the plugin metadata to version 1.4.4 for this correction release.
