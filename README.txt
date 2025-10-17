@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.3.8
+Stable tag: 1.3.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,10 @@ provided by the Plugin Update Checker library.
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+= 1.3.9 =
+* Smoothed the wheel pointer alignment and button spacing so the indicator clearly highlights the winning slice.
+* Updated plugin metadata to 1.3.9 to package the latest wheel tweaks.
 
 = 1.3.8 =
 * Repositioned the spin pointer so it sits centred above the button and clearly indicates the winning slice.

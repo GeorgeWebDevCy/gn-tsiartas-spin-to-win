@@ -23,6 +23,10 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 1.3.9
+- Refined the wheel pointer positioning and surrounding button spacing so the winning slice is emphasised more clearly.
+- Updated plugin metadata to version 1.3.9 to document these wheel tweaks.
+
 ### 1.3.8
 - Centered the spin pointer directly above the button so the wheel indicator lines up with the winning segment.
 - Bumped plugin metadata to version 1.3.8 for this visual refinement.
