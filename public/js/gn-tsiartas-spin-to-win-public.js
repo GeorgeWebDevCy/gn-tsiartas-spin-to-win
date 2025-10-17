@@ -32,12 +32,15 @@
         var STORAGE_PREFIX = 'gn-tsiartas-spin-to-win:';
         var DEFAULT_SPIN_DURATION = 4600;
         var DEFAULT_COLOURS = [
-                '#d90429',
-                '#ef233c',
-                '#ffb703',
-                '#2a9d8f',
-                '#118ab2',
-                '#073b4c',
+                '#f94144',
+                '#f3722c',
+                '#f8961e',
+                '#f9c74f',
+                '#90be6d',
+                '#43aa8b',
+                '#577590',
+                '#277da1',
+                '#9b5de5',
         ];
 
         function SpinToWin( $root, config, settings ) {
@@ -450,9 +453,11 @@
                 }
 
                 var colourCount = DEFAULT_COLOURS.length;
+                var _this = this;
 
                 this.$prizeList.find( '.gn-tsiartas-spin-to-win__prize-item' ).each( function( index, element ) {
-                        var accent = DEFAULT_COLOURS[ index % colourCount ];
+                        var prize = _this.config.prizes[ index ] || {};
+                        var accent = prize.colour || prize.color || DEFAULT_COLOURS[ index % colourCount ];
                         element.style.setProperty( '--prize-accent', accent );
                 } );
         };
