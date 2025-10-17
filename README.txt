@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.3.9
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,11 @@ provided by the Plugin Update Checker library.
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+= 1.4.0 =
+* Added a desktop-only overlay that guides shoppers to scan the in-store QR code on their phone before playing.
+* Removed the unused prize list wrapper container while preserving the sidebar styling.
+* Updated plugin metadata to 1.4.0 for the mobile-exclusive experience release.
 
 = 1.3.9 =
 * Smoothed the wheel pointer alignment and button spacing so the indicator clearly highlights the winning slice.
@@ -103,6 +108,9 @@ provided by the Plugin Update Checker library.
 * Initial release of the GN Tsiartas Spin to Win experience.
 
 == Upgrade Notice ==
+
+= 1.4.0 =
+Install this release to guide desktop visitors toward the in-store QR code, streamline the prize list markup, and stay current with the 1.4.0 metadata bump.
 
 = 1.3.7 =
 Install this release to get responsive wheel sizing and on-slice labels that follow each segment while staying current with the 1.3.7 metadata bump.

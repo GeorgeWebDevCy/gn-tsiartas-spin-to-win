@@ -207,16 +207,14 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                                 </p>
                                         <?php endif; ?>
                                 </div>
-                                <div class="gn-tsiartas-spin-to-win__prize-list-wrapper">
-                                        <h2 class="gn-tsiartas-spin-to-win__heading"><?php echo esc_html__( 'Available prizes', 'gn-tsiartas-spin-to-win' ); ?></h2>
-                                        <ul class="gn-tsiartas-spin-to-win__prize-list" data-role="prize-list">
-                                                <?php foreach ( $prizes as $prize ) : ?>
-                                                        <li class="gn-tsiartas-spin-to-win__prize-item" data-prize-id="<?php echo esc_attr( $prize['id'] ); ?>">
-                                                                <span class="gn-tsiartas-spin-to-win__prize-label"><?php echo esc_html( $prize['label'] ); ?></span>
-                                                        </li>
-                                                <?php endforeach; ?>
-                                        </ul>
-                                </div>
+                               <h2 class="gn-tsiartas-spin-to-win__heading"><?php echo esc_html__( 'Available prizes', 'gn-tsiartas-spin-to-win' ); ?></h2>
+                               <ul class="gn-tsiartas-spin-to-win__prize-list" data-role="prize-list">
+                                       <?php foreach ( $prizes as $prize ) : ?>
+                                               <li class="gn-tsiartas-spin-to-win__prize-item" data-prize-id="<?php echo esc_attr( $prize['id'] ); ?>">
+                                                       <span class="gn-tsiartas-spin-to-win__prize-label"><?php echo esc_html( $prize['label'] ); ?></span>
+                                               </li>
+                                       <?php endforeach; ?>
+                               </ul>
                                 <?php if ( $show_cta ) : ?>
                                         <div class="gn-tsiartas-spin-to-win__ctas" data-role="cta-container">
                                                 <?php echo $this->render_cta_buttons( $configuration ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
@@ -230,6 +228,14 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                         <button type="button" class="gn-tsiartas-spin-to-win__modal-close" data-action="close-modal">
                                                 <span class="gn-tsiartas-spin-to-win__modal-close-label"><?php echo esc_html__( 'Close', 'gn-tsiartas-spin-to-win' ); ?></span>
                                         </button>
+                                </div>
+                        </div>
+                        <div class="gn-tsiartas-spin-to-win__desktop-notice" data-role="desktop-notice" aria-hidden="true">
+                                <div class="gn-tsiartas-spin-to-win__desktop-notice-card">
+                                        <span class="gn-tsiartas-spin-to-win__desktop-notice-icon" aria-hidden="true">📱</span>
+                                        <h2 class="gn-tsiartas-spin-to-win__desktop-notice-title"><?php echo esc_html__( 'Mobile exclusive experience', 'gn-tsiartas-spin-to-win' ); ?></h2>
+                                        <p class="gn-tsiartas-spin-to-win__desktop-notice-text"><?php echo esc_html__( 'This promotion is only available when you scan the in-store QR code on your phone.', 'gn-tsiartas-spin-to-win' ); ?></p>
+                                        <p class="gn-tsiartas-spin-to-win__desktop-notice-subtext"><?php echo esc_html__( 'Grab your smartphone, visit Tsiartas Supermarket, and scan the QR code at the entrance to start spinning!', 'gn-tsiartas-spin-to-win' ); ?></p>
                                 </div>
                         </div>
                 </section>

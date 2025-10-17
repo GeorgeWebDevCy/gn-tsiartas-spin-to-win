@@ -54,6 +54,7 @@
                 this.$modal = $root.find( '[data-role="result-modal"]' );
                 this.$modalTitle = this.$modal.find( '[data-role="modal-title"]' );
                 this.$modalMessage = this.$modal.find( '[data-role="modal-message"]' );
+                this.$desktopNotice = $root.find( '[data-role="desktop-notice"]' );
                 this.storageKey = STORAGE_PREFIX + this.config.id;
                 this.baseRotation = 0;
                 this.isAnimating = false;
@@ -62,6 +63,7 @@
                         hasSpun: false,
                         prizeId: null,
                 };
+                this.desktopRestrictionAddedDisable = false;
                 this.reducedMotion = window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
 
                 var configuredDuration = DEFAULT_SPIN_DURATION;
@@ -103,6 +105,7 @@
                 this.highlightAvailablePrizes();
                 this.restoreState();
                 this.bindEvents();
+                this.enforceDeviceAvailability();
         };
 
         SpinToWin.prototype.prepareAudio = function( audioConfig ) {
@@ -487,6 +490,69 @@
                         event.preventDefault();
                         _this.closeModal();
                 } );
+        };
+
+        SpinToWin.prototype.enforceDeviceAvailability = function() {
+                if ( ! this.$desktopNotice || ! this.$desktopNotice.length ) {
+                        return;
+                }
+
+                var _this = this;
+
+                var updateNotice = function() {
+                        var isMobile = _this.isLikelyMobileDevice();
+
+                        if ( isMobile ) {
+                                _this.$root.removeClass( 'is-desktop-restricted' );
+                                _this.$desktopNotice.attr( 'aria-hidden', 'true' );
+
+                                if ( _this.desktopRestrictionAddedDisable && ! _this.state.hasSpun ) {
+                                        _this.$spinButton.removeClass( 'is-disabled' ).prop( 'disabled', false ).removeAttr( 'disabled' );
+                                }
+
+                                _this.desktopRestrictionAddedDisable = false;
+                                return;
+                        }
+
+                        _this.$root.addClass( 'is-desktop-restricted' );
+                        _this.$desktopNotice.attr( 'aria-hidden', 'false' );
+
+                        var alreadyDisabled = _this.$spinButton.is( ':disabled' ) || _this.$spinButton.hasClass( 'is-disabled' );
+
+                        if ( alreadyDisabled ) {
+                                _this.desktopRestrictionAddedDisable = false;
+                                return;
+                        }
+
+                        _this.desktopRestrictionAddedDisable = true;
+                        _this.$spinButton.addClass( 'is-disabled' ).prop( 'disabled', true ).attr( 'disabled', 'disabled' );
+                };
+
+                updateNotice();
+
+                $( window ).on( 'resize.gnTsiartasSpinToWin orientationchange.gnTsiartasSpinToWin', function() {
+                        updateNotice();
+                } );
+        };
+
+        SpinToWin.prototype.isLikelyMobileDevice = function() {
+                var coarsePointer = false;
+
+                if ( window.matchMedia ) {
+                        try {
+                                coarsePointer = window.matchMedia( '(pointer: coarse)' ).matches;
+                        } catch ( error ) {
+                                coarsePointer = false;
+                        }
+                }
+
+                if ( coarsePointer ) {
+                        return true;
+                }
+
+                var userAgent = navigator.userAgent || navigator.vendor || ( window.opera && window.opera.toString() ) || '';
+
+                return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test( userAgent );
         };
 
         SpinToWin.prototype.restoreState = function() {
