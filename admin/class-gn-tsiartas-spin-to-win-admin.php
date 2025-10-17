@@ -283,7 +283,7 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                 $option_name = $this->get_option_name();
                 $quotas      = isset( $settings['friday_quotas'] ) && is_array( $settings['friday_quotas'] ) ? $settings['friday_quotas'] : array();
                 $defaults    = self::get_default_settings();
-                $quotas      = wp_parse_args( $quotas, $defaults['friday_quotas'] );
+                $quotas      = array_replace( $defaults['friday_quotas'], $quotas );
 
                 $denominations = array(
                         '5'   => __( '€5 vouchers', 'gn-tsiartas-spin-to-win' ),
