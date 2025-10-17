@@ -318,9 +318,38 @@
                         currentAngle += anglePerSegment;
 
                         var rotation = anglePerSegment * index + anglePerSegment / 2;
+                        var labelText = 'string' === typeof prize.label ? prize.label : '';
+                        var icon = prize.icon;
+                        if ( ! icon && 'try-again' === prize.id ) {
+                                icon = '✖';
+                        }
+
+                        var hasIcon = !! icon;
+                        var labelClass = 'gn-tsiartas-spin-to-win__slice-label';
+                        if ( hasIcon ) {
+                                labelClass += ' gn-tsiartas-spin-to-win__slice-label--has-icon';
+                        }
+
+                        var labelHtml = '<span class="gn-tsiartas-spin-to-win__slice-label-content">';
+                        if ( hasIcon ) {
+                                labelHtml +=
+                                        '<span class="gn-tsiartas-spin-to-win__slice-label-icon" aria-hidden="true">' +
+                                        escapeHtml( icon ) +
+                                        '</span>' +
+                                        '<span class="gn-tsiartas-spin-to-win__slice-label-text gn-tsiartas-spin-to-win__sr-only">' +
+                                        escapeHtml( labelText ) +
+                                        '</span>';
+                        } else {
+                                labelHtml +=
+                                        '<span class="gn-tsiartas-spin-to-win__slice-label-text">' +
+                                        escapeHtml( labelText ) +
+                                        '</span>';
+                        }
+                        labelHtml += '</span>';
+
                         var $label = $( '<span>', {
-                                class: 'gn-tsiartas-spin-to-win__slice-label',
-                                html: '<span>' + escapeHtml( prize.label ) + '</span>',
+                                class: labelClass,
+                                html: labelHtml,
                         } );
 
                         $label[ 0 ].style.setProperty( '--slice-rotation', rotation + 'deg' );
