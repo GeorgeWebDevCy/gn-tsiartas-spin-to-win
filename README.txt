@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.4.14
+Stable tag: 1.4.15
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,10 +42,8 @@ WordPress will offer the update automatically.
 
 = Do I need GitHub authentication? =
 
-Public access is usually sufficient. If GitHub rate limits your site or you make the repository private, define the
-`GN_TSIARTAS_SPIN_TO_WIN_GITHUB_TOKEN` constant (or the same-named environment variable) with a personal access token and the
-plugin will authenticate update checks automatically. You can also filter the token via
-`gn_tsiartas_spin_to_win_github_token` when a different storage location is preferred.
+No. Public access is sufficient. If you later make the repository private, you can configure authentication hooks
+provided by the Plugin Update Checker library.
 
 == Screenshots ==
 
@@ -54,37 +52,9 @@ plugin will authenticate update checks automatically. You can also filter the to
 
 == Changelog ==
 
-= 1.4.14 =
-* Detach and restore the wheel's static branding while regenerating slice labels so the logo always returns after a rebuild.
-* Increase the logo stacking order so it consistently displays above the refreshed wheel overlays.
-* Bumped the plugin metadata to 1.4.14 for this wheel rendering fix.
-
-= 1.4.13 =
-* Localize the aggregated shortcode data in the footer so the JavaScript bootstrap always receives populated instances before it runs.
-* Bumped the plugin metadata to 1.4.13 for this initialization fix.
-
-= 1.4.12 =
-* Localize an empty front-end configuration so the JavaScript bootstrap runs quietly on pages where the shortcode is absent.
-* Bumped the plugin metadata to 1.4.12 for this stability release.
-
-= 1.4.11 =
-* Add GitHub authentication support driven by constants, environment variables, or filters so update checks stop failing with
-403 errors.
-* Bumped the plugin metadata to 1.4.11 for this reliability release.
-
-= 1.4.8 =
-* Ensure the active window weekday comparison works with translated day names so the wheel appears on localized sites.
-* Bumped the plugin metadata to 1.4.8 for this localisation fix.
-
-= 1.4.7 =
-* Display the localized time alongside the current date so the wheel and modal reflect the precise in-store schedule.
-* Preserve the centre logo while rebuilding wheel slices so the Tsiartas branding stays visible after spins.
-* Bumped the plugin metadata to 1.4.7 for this combined branding and scheduling update.
-
-= 1.4.6 =
-* Added a repeating conic overlay so adjacent wheel slices have defined highlights and shadows for better contrast.
-* Softened the inner wheel glare to keep the refreshed slice colours vivid.
-* Bumped the plugin metadata to 1.4.6 for this visibility update.
+= 1.4.15 =
+* Rolled the plugin codebase back to the proven 1.4.5 implementation to resolve regressions from later releases.
+* Bumped the plugin metadata to 1.4.15 for this rollback build.
 
 = 1.4.5 =
 * Fixed the wheel slice label width so the CSS variable resolves to exactly 37.261755px across all layouts.
@@ -160,14 +130,8 @@ plugin will authenticate update checks automatically. You can also filter the to
 
 == Upgrade Notice ==
 
-= 1.4.11 =
-Install this update to unlock GitHub-authenticated checks and resolve the 403 errors that blocked automatic updates.
-
-= 1.4.8 =
-Install this release to restore the wheel on translated sites by fixing the weekday availability check while staying current with the 1.4.8 metadata bump.
-
-= 1.4.6 =
-Install this update to boost the contrast between wheel slices and keep the colour palette vibrant while staying current with the 1.4.6 metadata bump.
+= 1.4.15 =
+Install this rollback build to restore the stable 1.4.5 experience while keeping version numbers ahead of previous releases.
 
 = 1.4.2 =
 Install this update to refresh the campaign date copy, roll out the new supermarket logo artwork, and load the latest voucher quotas.
