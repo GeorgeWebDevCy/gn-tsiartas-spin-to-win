@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.4.7
+Stable tag: 1.4.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,10 @@ provided by the Plugin Update Checker library.
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+= 1.4.8 =
+* Ensure the active window weekday comparison works with translated day names so the wheel appears on localized sites.
+* Bumped the plugin metadata to 1.4.8 for this localisation fix.
 
 = 1.4.7 =
 * Display the localized time alongside the current date so the wheel and modal reflect the precise in-store schedule.
@@ -135,6 +139,9 @@ provided by the Plugin Update Checker library.
 * Initial release of the GN Tsiartas Spin to Win experience.
 
 == Upgrade Notice ==
+
+= 1.4.8 =
+Install this release to restore the wheel on translated sites by fixing the weekday availability check while staying current with the 1.4.8 metadata bump.
 
 = 1.4.6 =
 Install this update to boost the contrast between wheel slices and keep the colour palette vibrant while staying current with the 1.4.6 metadata bump.

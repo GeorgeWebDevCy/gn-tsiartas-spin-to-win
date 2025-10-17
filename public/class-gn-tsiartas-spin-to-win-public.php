@@ -465,15 +465,23 @@ class Gn_Tsiartas_Spin_To_Win_Public {
          * @return   bool
          */
         private function is_within_active_window( $settings ) {
-                $configured_day = isset( $settings['active_day'] ) ? strtolower( $settings['active_day'] ) : '';
-                if ( '' === $configured_day ) {
-                        return true;
-                }
+                $configured_day       = isset( $settings['active_day'] ) ? $settings['active_day'] : '';
+                $configured_day_index = $this->get_weekday_index( $configured_day );
 
-                $timestamp   = current_time( 'timestamp' );
-                $current_day = strtolower( wp_date( 'l', $timestamp ) );
-                if ( $configured_day !== $current_day ) {
-                        return false;
+                $timestamp = current_time( 'timestamp' );
+
+                if ( null !== $configured_day_index ) {
+                        $current_day_value = wp_date( 'w', $timestamp );
+
+                        if ( false === $current_day_value ) {
+                                return true;
+                        }
+
+                        $current_day_index = (int) $current_day_value;
+
+                        if ( $configured_day_index !== $current_day_index ) {
+                                return false;
+                        }
                 }
 
                 $current_minutes = $this->convert_time_to_minutes( wp_date( 'H:i', $timestamp ) );
@@ -489,6 +497,50 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 }
 
                 return ( $current_minutes >= $start_minutes || $current_minutes <= $end_minutes );
+        }
+
+        /**
+         * Convert a configured weekday value into an ISO-8601 numeric index.
+         *
+         * This normalises translated day names saved in the settings so we can reliably
+         * compare them with the numeric value returned by wp_date( 'w' ).
+         *
+         * @since    1.4.8
+         *
+         * @param    string|int $day Configured weekday value.
+         *
+         * @return   int|null
+         */
+        private function get_weekday_index( $day ) {
+                if ( is_numeric( $day ) ) {
+                        $index = (int) $day;
+
+                        if ( $index >= 0 && $index <= 6 ) {
+                                return $index;
+                        }
+                }
+
+                if ( ! is_string( $day ) || '' === trim( $day ) ) {
+                        return null;
+                }
+
+                $map = array(
+                        'sunday'    => 0,
+                        'monday'    => 1,
+                        'tuesday'   => 2,
+                        'wednesday' => 3,
+                        'thursday'  => 4,
+                        'friday'    => 5,
+                        'saturday'  => 6,
+                );
+
+                $normalized = strtolower( trim( $day ) );
+
+                if ( isset( $map[ $normalized ] ) ) {
+                        return $map[ $normalized ];
+                }
+
+                return null;
         }
 
         /**
