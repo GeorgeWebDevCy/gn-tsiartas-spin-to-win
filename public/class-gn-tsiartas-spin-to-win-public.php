@@ -377,7 +377,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
 
                 $spin_duration = isset( $settings['spin_duration'] ) ? (int) $settings['spin_duration'] : 4600;
                 $quotas        = $this->get_friday_quotas( $settings );
-                $store_hours   = $this->get_friday_store_hours();
+                $store_hours   = $this->get_configured_active_schedule( $settings );
 
                 return array(
                         'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
@@ -462,11 +462,11 @@ class Gn_Tsiartas_Spin_To_Win_Public {
 
                 $settings = $this->get_plugin_settings();
 
-                if ( ! $this->is_friday_active_window( $settings ) ) {
+                if ( ! $this->is_promotion_active_window( $settings ) ) {
                         wp_send_json_error(
                                 array(
                                         'code'    => 'inactive_window',
-                                        'message' => __( 'The promotion is only available on Friday between 07:00 and 20:00.', 'gn-tsiartas-spin-to-win' ),
+                                        'message' => $this->get_inactive_window_message( $settings ),
                                 ),
                                 403
                         );
@@ -613,21 +613,32 @@ class Gn_Tsiartas_Spin_To_Win_Public {
         }
 
         /**
-         * Retrieve the store opening window for the Friday promotion.
+         * Retrieve the configured active schedule for the promotion.
          *
          * @since    2.2.0
          *
+         * @param    array|null $settings Optional settings array.
+         *
          * @return   array
          */
-        private function get_friday_store_hours() {
+        private function get_configured_active_schedule( $settings = null ) {
+                if ( null === $settings ) {
+                        $settings = $this->get_plugin_settings();
+                }
+
+                $day   = isset( $settings['active_day'] ) ? sanitize_text_field( $settings['active_day'] ) : '';
+                $start = isset( $settings['active_start_time'] ) ? sanitize_text_field( $settings['active_start_time'] ) : '';
+                $end   = isset( $settings['active_end_time'] ) ? sanitize_text_field( $settings['active_end_time'] ) : '';
+
                 return array(
-                        'start' => '07:00',
-                        'end'   => '20:00',
+                        'day'   => $day,
+                        'start' => $start,
+                        'end'   => $end,
                 );
         }
 
         /**
-         * Check whether the promotion is currently active for Friday spins.
+         * Check whether the promotion is currently active based on the configured schedule.
          *
          * @since    2.2.0
          *
@@ -635,23 +646,53 @@ class Gn_Tsiartas_Spin_To_Win_Public {
          *
          * @return   bool
          */
-        private function is_friday_active_window( $settings ) {
-                if ( ! $this->is_within_active_window( $settings ) ) {
-                        return false;
+        private function is_promotion_active_window( $settings ) {
+                return $this->is_within_active_window( $settings );
+        }
+
+        /**
+         * Build an error message describing the configured active window.
+         *
+         * @since    2.2.7
+         *
+         * @param    array $settings Plugin settings.
+         *
+         * @return   string
+         */
+        private function get_inactive_window_message( $settings ) {
+                $schedule   = $this->get_configured_active_schedule( $settings );
+                $day        = '' !== $schedule['day'] ? ucfirst( strtolower( $schedule['day'] ) ) : '';
+                $start_time = $schedule['start'];
+                $end_time   = $schedule['end'];
+
+                if ( '' !== $day && '' !== $start_time && '' !== $end_time ) {
+                        return sprintf(
+                                /* translators: 1: Day of the week, 2: start time, 3: end time */
+                                __( 'The promotion is only available on %1$s between %2$s and %3$s.', 'gn-tsiartas-spin-to-win' ),
+                                $day,
+                                $start_time,
+                                $end_time
+                        );
                 }
 
-                $timestamp = $this->get_current_timestamp();
-                $day       = strtolower( wp_date( 'l', $timestamp ) );
-
-                if ( 'friday' !== $day ) {
-                        return false;
+                if ( '' !== $day && '' === $start_time && '' === $end_time ) {
+                        return sprintf(
+                                /* translators: %s: Day of the week */
+                                __( 'The promotion is only available on %s.', 'gn-tsiartas-spin-to-win' ),
+                                $day
+                        );
                 }
 
-                $hours      = $this->get_friday_store_hours();
-                $start_time = $this->get_window_boundary_timestamp( $timestamp, $hours['start'] );
-                $end_time   = $this->get_window_boundary_timestamp( $timestamp, $hours['end'] );
+                if ( '' === $day && '' !== $start_time && '' !== $end_time ) {
+                        return sprintf(
+                                /* translators: 1: start time, 2: end time */
+                                __( 'The promotion is only available between %1$s and %2$s.', 'gn-tsiartas-spin-to-win' ),
+                                $start_time,
+                                $end_time
+                        );
+                }
 
-                return ( $timestamp >= $start_time && $timestamp <= $end_time );
+                return __( 'The promotion is currently inactive.', 'gn-tsiartas-spin-to-win' );
         }
 
         /**
@@ -1001,7 +1042,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
         }
 
         /**
-         * Calculate the ratio of elapsed time within the Friday window.
+         * Calculate the ratio of elapsed time within the configured active window.
          *
          * @since    2.2.0
          *
@@ -1010,9 +1051,16 @@ class Gn_Tsiartas_Spin_To_Win_Public {
          * @return   float
          */
         private function calculate_elapsed_ratio( $timestamp ) {
-                $hours      = $this->get_friday_store_hours();
-                $start_time = $this->get_window_boundary_timestamp( $timestamp, $hours['start'] );
-                $end_time   = $this->get_window_boundary_timestamp( $timestamp, $hours['end'] );
+                $schedule = $this->get_configured_active_schedule();
+                $start    = isset( $schedule['start'] ) ? $schedule['start'] : '';
+                $end      = isset( $schedule['end'] ) ? $schedule['end'] : '';
+
+                if ( '' === $start || '' === $end ) {
+                        return 1.0;
+                }
+
+                $start_time = $this->get_window_boundary_timestamp( $timestamp, $start );
+                $end_time   = $this->get_window_boundary_timestamp( $timestamp, $end );
 
                 if ( $timestamp <= $start_time ) {
                         return 0.0;
