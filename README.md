@@ -77,5 +77,14 @@ GitHub releases for stable distributions.
 - Documented the `[tsiartas_spin_to_win]` shortcode for embedding the promotional wheel markup and localized messages.
 - Highlighted the bundled front-end assets that render the interactive spin-to-win wheel experience on the page.
 
+## Manual QA checklist
+Follow the steps below when validating campaign changes that touch the voucher logic.
+
+1. **Reset weekly tracking** – delete the `gn_tsiartas_spin_to_win_tracking` option (via WP-CLI or the database) so the new week starts with zero recorded spins.
+2. **Configure quotas** – in the admin settings screen set explicit Friday counts (for example €5 → 6, €10 → 4, €15 → 2, €50/€100 → 1) and confirm they save without validation errors.
+3. **Pacing guardrails** – during the first hour of availability trigger several spins and confirm the AJAX response limits low-value voucher usage (the `quota_usage` payload should only increment up to the allowable share for the elapsed window while returning “try again” outcomes afterwards).
+4. **Forced jackpot spins** – prime the tracker to spin 50 and 100 by updating the option so `spin_count` is one less than the target, then run the next spin and confirm the server awards the €50 or €100 voucher and marks the `special_spin` flag accordingly.
+5. **Quota exhaustion fallback** – continue spinning until the response shows zero `remaining` vouchers for every tier and verify the subsequent request returns an error message telling the shopper all vouchers have been claimed for the day.
+
 ## License
 Released under the GPLv2 or later. See `LICENSE.txt` for details.
