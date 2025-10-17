@@ -23,6 +23,11 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 1.4.6
+- Layered a repeating conic overlay on the wheel so each coloured slice has crisp highlights and shadows.
+- Dialled back the inner wheel glare so the slice colours stay saturated after the contrast boost.
+- Updated plugin metadata to version 1.4.6 for this visibility pass.
+
 ### 1.4.5
 - Fixed the wheel slice label width so the CSS variable always resolves to exactly 37.261755px.
 - Bumped the plugin metadata to version 1.4.5 for this layout correction.
