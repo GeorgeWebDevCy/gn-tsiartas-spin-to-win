@@ -23,6 +23,11 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 1.4.9
+- Default the active window to every day, all day, so the shortcode always renders until store-specific hours are configured.
+- Add an "Every day" option in the admin so managers can intentionally remove the weekday restriction without hacks.
+- Bump the plugin metadata to version 1.4.9 for this availability update.
+
 ### 1.4.8
 - Fix the active window weekday comparison so the wheel appears even when WordPress outputs translated day names.
 - Bump the plugin metadata to version 1.4.8 for this localisation fix.
