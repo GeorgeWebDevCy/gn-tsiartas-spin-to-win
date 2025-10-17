@@ -26,6 +26,11 @@ will authenticate future requests automatically. Advanced setups can override th
 
 ## Release notes
 
+### 1.4.14
+- Preserve the wheel's static branding by detaching it before regenerating slices and restoring it once the new labels are in place.
+- Raise the logo stacking order so the supermarket emblem always sits above the rebuilt slice labels.
+- Bump the plugin metadata to version 1.4.14 for this wheel rendering fix.
+
 ### 1.4.13
 - Delay script localisation until the footer so the JavaScript bootstrap always sees populated shortcode instances before it runs.
 - Bump the plugin metadata to version 1.4.13 for this initialization fix.
