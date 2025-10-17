@@ -27,6 +27,10 @@ GitHub releases for stable distributions.
 - Removed the sidebar heading and static prize list so the layout focuses on the spin CTA and dynamic messaging.
 - Bumped the plugin metadata to version 1.4.4 for this correction release.
 
+### 1.4.3
+- Removed the "Try Again" slice from the default wheel prizes so every segment awards a voucher.
+- Bumped plugin metadata to version 1.4.3 for this prize lineup update.
+
 ### 1.4.2
 - Updated the date copy surfaced on the wheel and modal so shoppers see the refreshed giveaway schedule.
 - Replaced the wheel and modal logos with the new 2025 supermarket branding.

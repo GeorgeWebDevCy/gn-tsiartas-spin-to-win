@@ -1295,15 +1295,6 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'color'       => '#90be6d',
                         ),
                         array(
-                                'id'          => 'try-again',
-                                'label'       => __( 'Try Again', 'gn-tsiartas-spin-to-win' ),
-                                'description' => __( 'Random probability outcome.', 'gn-tsiartas-spin-to-win' ),
-                                'icon'        => '✖',
-                                'weight'      => 1,
-                                'colour'      => '#43aa8b',
-                                'color'       => '#43aa8b',
-                        ),
-                        array(
                                 'id'          => 'voucher-5-b',
                                 'label'       => __( '€5', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Random probability reward.', 'gn-tsiartas-spin-to-win' ),

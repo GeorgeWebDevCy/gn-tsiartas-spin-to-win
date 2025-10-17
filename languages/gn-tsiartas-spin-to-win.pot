@@ -206,14 +206,6 @@ msgstr ""
 msgid "Awarded approximately every 100 spins."
 msgstr ""
 
-#: public/class-gn-tsiartas-spin-to-win-public.php:588
-msgid "Try Again"
-msgstr ""
-
-#: public/class-gn-tsiartas-spin-to-win-public.php:589
-msgid "Random probability outcome."
-msgstr ""
-
 #: public/class-gn-tsiartas-spin-to-win-public.php:623
 msgid "Spin the wheel for a chance to win exclusive rewards!"
 msgstr ""
