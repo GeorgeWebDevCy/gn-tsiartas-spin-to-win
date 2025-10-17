@@ -23,6 +23,10 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 1.4.8
+- Fix the active window weekday comparison so the wheel appears even when WordPress outputs translated day names.
+- Bump the plugin metadata to version 1.4.8 for this localisation fix.
+
 ### 1.4.7
 - Surface the current time next to the localized date so the wheel and modal reflect the precise schedule shoppers see in-store.
 - Keep the wheel's centre branding visible by preserving the Tsiartas logo when rendering dynamic prize slices.
