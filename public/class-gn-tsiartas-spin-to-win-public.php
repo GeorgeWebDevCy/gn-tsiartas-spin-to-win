@@ -585,8 +585,9 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         ),
                         array(
                                 'id'          => 'try-again',
-                                'label'       => __( 'Δοκιμάστε Ξανά', 'gn-tsiartas-spin-to-win' ),
+                                'label'       => __( 'Try Again', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Random probability outcome.', 'gn-tsiartas-spin-to-win' ),
+                                'icon'        => '✖',
                                 'weight'      => 1,
                         ),
                         array(

@@ -136,12 +136,45 @@
         transition: opacity 220ms ease;
 }
 
-.gn-tsiartas-spin-to-win__slice-label span {
+.gn-tsiartas-spin-to-win__slice-label-content {
         position: relative;
-        display: block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         width: 100%;
+        gap: 0.4em;
         transform: rotate(calc(-1 * var(--slice-rotation)));
         text-transform: uppercase;
+}
+
+.gn-tsiartas-spin-to-win__slice-label-text {
+        display: block;
+}
+
+.gn-tsiartas-spin-to-win__slice-label-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        font-size: 1.45em;
+        color: #f94144;
+        text-transform: none;
+}
+
+.gn-tsiartas-spin-to-win__slice-label--has-icon .gn-tsiartas-spin-to-win__slice-label-content {
+        gap: 0.5em;
+}
+
+.gn-tsiartas-spin-to-win__sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
 }
 
 .gn-tsiartas-spin-to-win__spin-button {
