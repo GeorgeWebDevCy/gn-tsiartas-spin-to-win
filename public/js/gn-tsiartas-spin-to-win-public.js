@@ -360,14 +360,25 @@
 
                 var gradientStops = [];
                 var currentAngle = 0;
+                var preservedChildren = $();
 
                 if ( this.$wheel.length ) {
+                        preservedChildren = this.$wheel
+                                .children()
+                                .not( '.gn-tsiartas-spin-to-win__slice-label' );
+
+                        if ( preservedChildren.length ) {
+                                preservedChildren = preservedChildren.detach();
+                        }
+
                         this.$wheel.children( '.gn-tsiartas-spin-to-win__slice-label' ).remove();
                 }
 
                 if ( this.$wheel.length ) {
                         this.$wheel[ 0 ].style.setProperty( '--segment-angle', anglePerSegment + 'deg' );
                 }
+
+                var fragment = document.createDocumentFragment();
 
                 prizes.forEach( function( prize, index ) {
                         var colour = prize.colour || prize.color || DEFAULT_COLOURS[ index % DEFAULT_COLOURS.length ];
@@ -413,7 +424,7 @@
 
                         $label[ 0 ].style.setProperty( '--slice-rotation', rotation + 'deg' );
 
-                        this.$wheel.append( $label );
+                        fragment.appendChild( $label[ 0 ] );
                 }.bind( this ) );
 
                 var highlightWidth = Math.max( Math.min( anglePerSegment * 0.18, 3 ), 0.65 );
@@ -458,6 +469,13 @@
                 }
 
                 this.$wheel.css( backgroundStyles );
+                if ( fragment.childNodes.length ) {
+                        this.$wheel.append( fragment );
+                }
+
+                if ( preservedChildren.length ) {
+                        this.$wheel.append( preservedChildren );
+                }
                 if ( this.$wheel.length ) {
                         this.$wheel[ 0 ].style.setProperty( '--gn-tsiartas-spin-duration', this.spinDuration + 'ms' );
                 }
