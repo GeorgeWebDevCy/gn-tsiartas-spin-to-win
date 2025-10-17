@@ -26,6 +26,10 @@ will authenticate future requests automatically. Advanced setups can override th
 
 ## Release notes
 
+### 1.4.13
+- Delay script localisation until the footer so the JavaScript bootstrap always sees populated shortcode instances before it runs.
+- Bump the plugin metadata to version 1.4.13 for this initialization fix.
+
 ### 1.4.12
 - Always expose an empty front-end configuration so the public script can bootstrap without console warnings on pages that omit the shortcode.
 - Bump the plugin metadata to version 1.4.12 for this stability release.

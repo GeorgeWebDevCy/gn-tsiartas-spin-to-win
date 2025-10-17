@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.4.12
+Stable tag: 1.4.13
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -53,6 +53,10 @@ plugin will authenticate update checks automatically. You can also filter the to
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+= 1.4.13 =
+* Localize the aggregated shortcode data in the footer so the JavaScript bootstrap always receives populated instances before it runs.
+* Bumped the plugin metadata to 1.4.13 for this initialization fix.
 
 = 1.4.12 =
 * Localize an empty front-end configuration so the JavaScript bootstrap runs quietly on pages where the shortcode is absent.
