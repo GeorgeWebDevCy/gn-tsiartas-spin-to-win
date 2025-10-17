@@ -13,7 +13,10 @@ front-end assets and WordPress hooks required to display the experience on any p
 The plugin ships with the [Plugin Update Checker](https://github.com/YahnisElsts/plugin-update-checker) library.
 WordPress will detect new releases from https://github.com/GeorgeWebDevCy/gn-tsiartas-spin-to-win/ whenever you publish
 an updated tag or push to the `main` branch. Release assets are supported, so you can attach packaged ZIP files to
-GitHub releases for stable distributions.
+GitHub releases for stable distributions. If GitHub rate limits your site, define the
+`GN_TSIARTAS_SPIN_TO_WIN_GITHUB_TOKEN` constant (or environment variable) with a personal access token and the update checker
+will authenticate future requests automatically. Advanced setups can override the token with the
+`gn_tsiartas_spin_to_win_github_token` filter.
 
 ## Development
 1. Clone this repository into `wp-content/plugins/`.
@@ -22,6 +25,10 @@ GitHub releases for stable distributions.
 4. Adjust assets in the `public/` and `admin/` directories to match current campaign requirements.
 
 ## Release notes
+
+### 1.4.11
+- Authenticate GitHub update checks using tokens sourced from constants, environment variables, or filters to prevent 403 errors.
+- Bump the plugin metadata to version 1.4.11 for this reliability release.
 
 ### 1.4.10
 - Bump the plugin metadata to version 1.4.10 for this maintenance release.

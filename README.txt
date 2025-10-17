@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.4.8
+Stable tag: 1.4.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,8 +42,10 @@ WordPress will offer the update automatically.
 
 = Do I need GitHub authentication? =
 
-No. Public access is sufficient. If you later make the repository private, you can configure authentication hooks
-provided by the Plugin Update Checker library.
+Public access is usually sufficient. If GitHub rate limits your site or you make the repository private, define the
+`GN_TSIARTAS_SPIN_TO_WIN_GITHUB_TOKEN` constant (or the same-named environment variable) with a personal access token and the
+plugin will authenticate update checks automatically. You can also filter the token via
+`gn_tsiartas_spin_to_win_github_token` when a different storage location is preferred.
 
 == Screenshots ==
 
@@ -51,6 +53,11 @@ provided by the Plugin Update Checker library.
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+= 1.4.11 =
+* Add GitHub authentication support driven by constants, environment variables, or filters so update checks stop failing with
+403 errors.
+* Bumped the plugin metadata to 1.4.11 for this reliability release.
 
 = 1.4.8 =
 * Ensure the active window weekday comparison works with translated day names so the wheel appears on localized sites.
@@ -139,6 +146,9 @@ provided by the Plugin Update Checker library.
 * Initial release of the GN Tsiartas Spin to Win experience.
 
 == Upgrade Notice ==
+
+= 1.4.11 =
+Install this update to unlock GitHub-authenticated checks and resolve the 403 errors that blocked automatic updates.
 
 = 1.4.8 =
 Install this release to restore the wheel on translated sites by fixing the weekday availability check while staying current with the 1.4.8 metadata bump.
