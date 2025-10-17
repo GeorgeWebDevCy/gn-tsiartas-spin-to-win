@@ -32,15 +32,15 @@
         var STORAGE_PREFIX = 'gn-tsiartas-spin-to-win:';
         var DEFAULT_SPIN_DURATION = 4600;
         var DEFAULT_COLOURS = [
-                '#f94144',
-                '#f3722c',
-                '#f8961e',
-                '#f9c74f',
-                '#90be6d',
-                '#43aa8b',
-                '#577590',
-                '#277da1',
-                '#9b5de5',
+                '#ff3b30',
+                '#ff9500',
+                '#ffd60a',
+                '#34c759',
+                '#00c7be',
+                '#0a84ff',
+                '#5856d6',
+                '#af52de',
+                '#ff2d55',
         ];
 
         function SpinToWin( $root, config, settings ) {
