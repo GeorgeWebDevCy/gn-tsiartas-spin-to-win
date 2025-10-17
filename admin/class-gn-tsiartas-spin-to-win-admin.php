@@ -582,12 +582,33 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                 return ( (int) $parsed->format( 'H' ) * 60 ) + (int) $parsed->format( 'i' );
         }
 
-	/**
-	 * Register the stylesheets for the admin area.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_styles() {
+        /**
+         * Add plugin action links for the settings page.
+         *
+         * @since    2.2.5
+         *
+         * @param    array $links Existing action links.
+         *
+         * @return   array
+         */
+        public function add_plugin_action_links( $links ) {
+                $settings_link = sprintf(
+                        '<a href="%s">%s</a>',
+                        esc_url( admin_url( 'admin.php?page=gn-tsiartas-spin-to-win' ) ),
+                        esc_html__( 'Settings', 'gn-tsiartas-spin-to-win' )
+                );
+
+                array_unshift( $links, $settings_link );
+
+                return $links;
+        }
+
+        /**
+         * Register the stylesheets for the admin area.
+         *
+         * @since    1.0.0
+         */
+        public function enqueue_styles() {
 
 		/**
 		 * This function is provided for demonstration purposes only.
