@@ -118,7 +118,7 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
 
                 $settings    = $this->get_settings();
                 $option_name = $this->get_option_name();
-                $timestamp   = current_time( 'timestamp' );
+                $timestamp   = $this->get_current_timestamp();
 
                 $server_day      = wp_date( 'l', $timestamp );
                 $server_datetime = wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $timestamp );
@@ -539,7 +539,7 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                         return true;
                 }
 
-                $timestamp   = current_time( 'timestamp' );
+                $timestamp   = $this->get_current_timestamp();
                 $current_day = strtolower( wp_date( 'l', $timestamp ) );
                 if ( $configured_day !== $current_day ) {
                         return false;
@@ -580,6 +580,23 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                 }
 
                 return ( (int) $parsed->format( 'H' ) * 60 ) + (int) $parsed->format( 'i' );
+        }
+
+        /**
+         * Retrieve the current timestamp in UTC based on the site's configured timezone.
+         *
+         * @since    2.2.6
+         *
+         * @return   int
+         */
+        private function get_current_timestamp() {
+                $datetime = current_datetime();
+
+                if ( $datetime instanceof DateTimeInterface ) {
+                        return $datetime->getTimestamp();
+                }
+
+                return time();
         }
 
         /**

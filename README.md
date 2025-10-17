@@ -23,6 +23,9 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 2.2.6
+- Ensure all public and admin date displays honour the WordPress site timezone instead of the underlying server configuration.
+
 ### 2.2.5
 - Refreshed the wheel header date and time display so the experience always communicates the current store schedule.
 - Added a Plugins screen **Settings** shortcut that opens the configuration page directly.
