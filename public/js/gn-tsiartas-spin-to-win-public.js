@@ -54,6 +54,8 @@
                 this.$modal = $root.find( '[data-role="result-modal"]' );
                 this.$modalTitle = this.$modal.find( '[data-role="modal-title"]' );
                 this.$modalMessage = this.$modal.find( '[data-role="modal-message"]' );
+                this.$dateValue = $root.find( '[data-role="date-value"]' );
+                this.$modalDate = this.$modal.find( '[data-role="modal-date"]' );
                 this.$desktopNotice = $root.find( '[data-role="desktop-notice"]' );
                 this.storageKey = STORAGE_PREFIX + this.config.id;
                 this.baseRotation = 0;
@@ -92,6 +94,9 @@
                         hasPrizes: Array.isArray( this.config.prizes ) && this.config.prizes.length > 0,
                 } );
 
+                this.updateDateDisplay();
+                this.updateModalDate();
+
                 if ( ! Array.isArray( this.config.prizes ) || ! this.config.prizes.length ) {
                         // eslint-disable-next-line no-console
                         console.log( '[SpinToWin] Initialization aborted: no prizes configured', {
@@ -106,6 +111,42 @@
                 this.restoreState();
                 this.bindEvents();
                 this.enforceDeviceAvailability();
+        };
+
+        SpinToWin.prototype.getCurrentDateText = function() {
+                if ( ! this.settings ) {
+                        return '';
+                }
+
+                return this.settings.currentDate || '';
+        };
+
+        SpinToWin.prototype.updateDateDisplay = function() {
+                var dateText = this.getCurrentDateText();
+
+                if ( this.$dateValue && this.$dateValue.length ) {
+                        this.$dateValue.text( dateText );
+
+                        if ( this.settings && this.settings.currentDateIso ) {
+                                this.$dateValue.attr( 'data-iso-date', this.settings.currentDateIso );
+                        } else {
+                                this.$dateValue.removeAttr( 'data-iso-date' );
+                        }
+                }
+        };
+
+        SpinToWin.prototype.updateModalDate = function() {
+                var dateText = this.getCurrentDateText();
+
+                if ( this.$modalDate && this.$modalDate.length ) {
+                        this.$modalDate.text( dateText );
+
+                        if ( this.settings && this.settings.currentDateIso ) {
+                                this.$modalDate.attr( 'data-iso-date', this.settings.currentDateIso );
+                        } else {
+                                this.$modalDate.removeAttr( 'data-iso-date' );
+                        }
+                }
         };
 
         SpinToWin.prototype.prepareAudio = function( audioConfig ) {
@@ -842,6 +883,7 @@
                                 this.playAudio( 'win' );
                         }
 
+                        this.updateModalDate();
                         this.openModal( headline, formattedMessage );
                 }
         };
@@ -852,6 +894,7 @@
                         this.$message.text( alreadyMessage );
                 }
 
+                this.updateModalDate();
                 this.openModal( 'Ήδη παίξατε', alreadyMessage );
         };
 

@@ -190,6 +190,10 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         data-gn-tsiartas-spin-instance="<?php echo esc_attr( $instance_id ); ?>"
                 >
                         <div class="gn-tsiartas-spin-to-win__wheel-area">
+                                <p class="gn-tsiartas-spin-to-win__date" data-role="date-line">
+                                        <span class="gn-tsiartas-spin-to-win__date-label"><?php echo esc_html__( 'Current date:', 'gn-tsiartas-spin-to-win' ); ?></span>
+                                        <span class="gn-tsiartas-spin-to-win__date-value" data-role="date-value" aria-live="polite"></span>
+                                </p>
                                 <div class="gn-tsiartas-spin-to-win__wheel" data-role="wheel" aria-live="polite"></div>
                                 <button type="button" class="gn-tsiartas-spin-to-win__spin-button" data-action="spin">
                                         <span class="gn-tsiartas-spin-to-win__spin-pointer" aria-hidden="true"></span>
@@ -225,6 +229,10 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 <div class="gn-tsiartas-spin-to-win__modal-content" role="document">
                                         <h2 class="gn-tsiartas-spin-to-win__modal-title" data-role="modal-title"></h2>
                                         <p class="gn-tsiartas-spin-to-win__modal-message" data-role="modal-message"></p>
+                                        <p class="gn-tsiartas-spin-to-win__modal-date">
+                                                <span class="gn-tsiartas-spin-to-win__modal-date-label"><?php echo esc_html__( 'Current date:', 'gn-tsiartas-spin-to-win' ); ?></span>
+                                                <span class="gn-tsiartas-spin-to-win__modal-date-value" data-role="modal-date" aria-live="polite"></span>
+                                        </p>
                                         <button type="button" class="gn-tsiartas-spin-to-win__modal-close" data-action="close-modal">
                                                 <span class="gn-tsiartas-spin-to-win__modal-close-label"><?php echo esc_html__( 'Close', 'gn-tsiartas-spin-to-win' ); ?></span>
                                         </button>
@@ -343,7 +351,23 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         $settings = $this->get_plugin_settings();
                 }
 
-                $spin_duration = isset( $settings['spin_duration'] ) ? (int) $settings['spin_duration'] : 4600;
+                $spin_duration     = isset( $settings['spin_duration'] ) ? (int) $settings['spin_duration'] : 4600;
+                $current_timestamp = current_time( 'timestamp' );
+                $date_format       = get_option( 'date_format' );
+                if ( empty( $date_format ) ) {
+                        $date_format = 'F j, Y';
+                }
+
+                $localized_date = wp_date( $date_format, $current_timestamp );
+                $iso_date       = wp_date( DATE_ATOM, $current_timestamp );
+
+                if ( false === $localized_date ) {
+                        $localized_date = '';
+                }
+
+                if ( false === $iso_date ) {
+                        $iso_date = '';
+                }
 
                 return array(
                         'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
@@ -356,6 +380,8 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'end'   => isset( $settings['active_end_time'] ) ? $settings['active_end_time'] : '',
                         ),
                         'cashierNotice' => isset( $settings['cashier_notice'] ) ? $settings['cashier_notice'] : '',
+                        'currentDate'   => $localized_date,
+                        'currentDateIso' => $iso_date,
                 );
         }
 

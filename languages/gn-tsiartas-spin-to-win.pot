@@ -145,19 +145,24 @@ msgstr ""
 msgid "Spin to Win promotion"
 msgstr ""
 
-#: public/class-gn-tsiartas-spin-to-win-public.php:196
+#: public/class-gn-tsiartas-spin-to-win-public.php:194
+#: public/class-gn-tsiartas-spin-to-win-public.php:233
+msgid "Current date:"
+msgstr ""
+
+#: public/class-gn-tsiartas-spin-to-win-public.php:200
 msgid "Spin the wheel"
 msgstr ""
 
-#: public/class-gn-tsiartas-spin-to-win-public.php:202
+#: public/class-gn-tsiartas-spin-to-win-public.php:206
 msgid "Try your luck and spin the wheel!"
 msgstr ""
 
-#: public/class-gn-tsiartas-spin-to-win-public.php:211
+#: public/class-gn-tsiartas-spin-to-win-public.php:215
 msgid "Available prizes"
 msgstr ""
 
-#: public/class-gn-tsiartas-spin-to-win-public.php:231
+#: public/class-gn-tsiartas-spin-to-win-public.php:237
 msgid "Close"
 msgstr ""
 
