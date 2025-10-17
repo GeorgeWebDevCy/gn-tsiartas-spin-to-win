@@ -472,12 +472,21 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 continue;
                         }
 
+                        $colour = '';
+                        if ( isset( $prize['colour'] ) ) {
+                                $colour = sanitize_text_field( $prize['colour'] );
+                        } elseif ( isset( $prize['color'] ) ) {
+                                $colour = sanitize_text_field( $prize['color'] );
+                        }
+
                         $normalised[] = array(
                                 'id'          => isset( $prize['id'] ) ? sanitize_title( $prize['id'] ) : sanitize_title( $label . '-' . $index ),
                                 'label'       => $label,
                                 'description' => isset( $prize['description'] ) ? sanitize_textarea_field( $prize['description'] ) : '',
                                 'weight'      => isset( $prize['weight'] ) ? (float) $prize['weight'] : 1,
                                 'value'       => isset( $prize['value'] ) ? sanitize_text_field( $prize['value'] ) : '',
+                                'colour'      => $colour,
+                                'color'       => $colour,
                         );
                 }
 
@@ -558,30 +567,40 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'label'       => __( 'Voucher €5', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Random probability reward.', 'gn-tsiartas-spin-to-win' ),
                                 'weight'      => 1,
+                                'colour'      => '#f94144',
+                                'color'       => '#f94144',
                         ),
                         array(
                                 'id'          => 'voucher-10-a',
                                 'label'       => __( 'Voucher €10', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Random probability reward.', 'gn-tsiartas-spin-to-win' ),
                                 'weight'      => 1,
+                                'colour'      => '#f3722c',
+                                'color'       => '#f3722c',
                         ),
                         array(
                                 'id'          => 'voucher-15-a',
                                 'label'       => __( 'Voucher €15', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Random probability reward.', 'gn-tsiartas-spin-to-win' ),
                                 'weight'      => 1,
+                                'colour'      => '#f8961e',
+                                'color'       => '#f8961e',
                         ),
                         array(
                                 'id'          => 'voucher-50',
                                 'label'       => __( 'Voucher €50', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Awarded approximately every 50 spins.', 'gn-tsiartas-spin-to-win' ),
                                 'weight'      => 1,
+                                'colour'      => '#f9c74f',
+                                'color'       => '#f9c74f',
                         ),
                         array(
                                 'id'          => 'voucher-100',
                                 'label'       => __( 'Voucher €100', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Awarded approximately every 100 spins.', 'gn-tsiartas-spin-to-win' ),
                                 'weight'      => 1,
+                                'colour'      => '#90be6d',
+                                'color'       => '#90be6d',
                         ),
                         array(
                                 'id'          => 'try-again',
@@ -589,24 +608,32 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'description' => __( 'Random probability outcome.', 'gn-tsiartas-spin-to-win' ),
                                 'icon'        => '✖',
                                 'weight'      => 1,
+                                'colour'      => '#43aa8b',
+                                'color'       => '#43aa8b',
                         ),
                         array(
                                 'id'          => 'voucher-5-b',
                                 'label'       => __( 'Voucher €5', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Random probability reward.', 'gn-tsiartas-spin-to-win' ),
                                 'weight'      => 1,
+                                'colour'      => '#577590',
+                                'color'       => '#577590',
                         ),
                         array(
                                 'id'          => 'voucher-10-b',
                                 'label'       => __( 'Voucher €10', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Random probability reward.', 'gn-tsiartas-spin-to-win' ),
                                 'weight'      => 1,
+                                'colour'      => '#277da1',
+                                'color'       => '#277da1',
                         ),
                         array(
                                 'id'          => 'voucher-15-b',
                                 'label'       => __( 'Voucher €15', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Random probability reward.', 'gn-tsiartas-spin-to-win' ),
                                 'weight'      => 1,
+                                'colour'      => '#9b5de5',
+                                'color'       => '#9b5de5',
                         ),
                 );
         }
