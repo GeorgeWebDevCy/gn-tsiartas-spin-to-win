@@ -125,7 +125,16 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                  * class.
                  */
 
-                wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/gn-tsiartas-spin-to-win-public.js', array( 'jquery' ), $this->version, true );
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/gn-tsiartas-spin-to-win-public.js', array( 'jquery' ), $this->version, true );
+
+		wp_localize_script(
+			$this->plugin_name,
+			'gnTsiartasSpinToWinConfig',
+			array(
+				'instances' => array(),
+				'settings'  => array(),
+			)
+		);
 
         }
 
