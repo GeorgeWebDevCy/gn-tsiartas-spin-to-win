@@ -23,6 +23,11 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 1.4.7
+- Surface the current time next to the localized date so the wheel and modal reflect the precise schedule shoppers see in-store.
+- Keep the wheel's centre branding visible by preserving the Tsiartas logo when rendering dynamic prize slices.
+- Updated plugin metadata to version 1.4.7 for this branding and scheduling refresh.
+
 ### 1.4.6
 - Layered a repeating conic overlay on the wheel so each coloured slice has crisp highlights and shadows.
 - Dialled back the inner wheel glare so the slice colours stay saturated after the contrast boost.

@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.4.6
+Stable tag: 1.4.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,11 @@ provided by the Plugin Update Checker library.
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+= 1.4.7 =
+* Display the localized time alongside the current date so the wheel and modal reflect the precise in-store schedule.
+* Preserve the centre logo while rebuilding wheel slices so the Tsiartas branding stays visible after spins.
+* Bumped the plugin metadata to 1.4.7 for this combined branding and scheduling update.
 
 = 1.4.6 =
 * Added a repeating conic overlay so adjacent wheel slices have defined highlights and shadows for better contrast.
