@@ -23,6 +23,9 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 2.2.3
+- Bumped the plugin metadata and documentation to version 2.2.3.
+
 ### 2.2.2
 - Embedded the Tsiartas logo within the wheel hub so branding stays visible across wheel redraws.
 
