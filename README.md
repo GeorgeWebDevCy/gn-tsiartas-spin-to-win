@@ -26,6 +26,10 @@ will authenticate future requests automatically. Advanced setups can override th
 
 ## Release notes
 
+### 1.4.12
+- Always expose an empty front-end configuration so the public script can bootstrap without console warnings on pages that omit the shortcode.
+- Bump the plugin metadata to version 1.4.12 for this stability release.
+
 ### 1.4.11
 - Authenticate GitHub update checks using tokens sourced from constants, environment variables, or filters to prevent 403 errors.
 - Bump the plugin metadata to version 1.4.11 for this reliability release.
