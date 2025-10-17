@@ -23,6 +23,9 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 2.2.4
+- Fixed Friday voucher quota persistence so guaranteed spins remain accurate after restarts.
+
 ### 2.2.3
 - Bumped the plugin metadata and documentation to version 2.2.3.
 
