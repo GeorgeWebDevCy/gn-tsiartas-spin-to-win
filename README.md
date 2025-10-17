@@ -23,6 +23,11 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 1.4.2
+- Updated the date copy surfaced on the wheel and modal so shoppers see the refreshed giveaway schedule.
+- Replaced the wheel and modal logos with the new 2025 supermarket branding.
+- Increased the default voucher quotas to line up with the latest allocation plan.
+
 ### 1.4.1
 - Trimmed the default prize labels so the wheel only displays the euro value for each reward.
 - Synced the translation template and plugin metadata with the 1.4.1 release.

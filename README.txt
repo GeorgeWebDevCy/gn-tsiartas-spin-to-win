@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,11 @@ provided by the Plugin Update Checker library.
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+= 1.4.2 =
+* Updated the in-app campaign date so the wheel and modal highlight the refreshed schedule for the latest giveaway window.
+* Swapped the modal and wheel logo assets to the new supermarket branding for the 2025 promotion.
+* Raised the default voucher quotas to mirror the latest daily allocation shared by the marketing team.
 
 = 1.4.1 =
 * Trimmed the default prize labels so the wheel shows only the euro value for each reward both on the wheel and in the sidebar.
@@ -112,6 +117,9 @@ provided by the Plugin Update Checker library.
 * Initial release of the GN Tsiartas Spin to Win experience.
 
 == Upgrade Notice ==
+
+= 1.4.2 =
+Install this update to refresh the campaign date copy, roll out the new supermarket logo artwork, and load the latest voucher quotas.
 
 = 1.4.1 =
 Install this release to present only the euro amounts on each prize and keep translations aligned with the 1.4.1 metadata bump.
