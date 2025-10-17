@@ -2,7 +2,7 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: GN Tsiartas Spin to WIN 1.4.2\n"
+"Project-Id-Version: GN Tsiartas Spin to WIN 1.4.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gn-tsiartas-spin-to-win\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -208,14 +208,6 @@ msgstr ""
 
 #: public/class-gn-tsiartas-spin-to-win-public.php:583
 msgid "Awarded approximately every 100 spins."
-msgstr ""
-
-#: public/class-gn-tsiartas-spin-to-win-public.php:588
-msgid "Try Again"
-msgstr ""
-
-#: public/class-gn-tsiartas-spin-to-win-public.php:589
-msgid "Random probability outcome."
 msgstr ""
 
 #: public/class-gn-tsiartas-spin-to-win-public.php:623

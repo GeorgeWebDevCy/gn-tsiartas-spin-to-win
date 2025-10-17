@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.4.2
+Stable tag: 1.4.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,10 @@ provided by the Plugin Update Checker library.
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+= 1.4.3 =
+* Removed the "Try Again" outcome from the default prize configuration so every spin pays out a voucher by default.
+* Updated plugin version metadata to 1.4.3 for this prize lineup refresh.
 
 = 1.4.2 =
 * Updated the in-app campaign date so the wheel and modal highlight the refreshed schedule for the latest giveaway window.
