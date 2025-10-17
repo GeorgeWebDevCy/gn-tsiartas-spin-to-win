@@ -109,8 +109,13 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                         return;
                 }
 
-                $settings = $this->get_settings();
+                $settings    = $this->get_settings();
                 $option_name = $this->get_option_name();
+                $timestamp   = current_time( 'timestamp' );
+
+                $server_day      = wp_date( 'l', $timestamp );
+                $server_datetime = wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $timestamp );
+                $wheel_is_visible = $this->is_within_active_window( $settings );
 
                 include plugin_dir_path( __FILE__ ) . 'partials/gn-tsiartas-spin-to-win-admin-display.php';
         }
@@ -405,6 +410,64 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
          */
         private function get_option_name() {
                 return defined( 'GN_TSIARTAS_SPIN_TO_WIN_OPTION_NAME' ) ? GN_TSIARTAS_SPIN_TO_WIN_OPTION_NAME : 'gn_tsiartas_spin_to_win_settings';
+        }
+
+        /**
+         * Determine if the current request falls within the configured active window.
+         *
+         * @since    1.3.3
+         *
+         * @param    array $settings Plugin settings.
+         *
+         * @return   bool
+         */
+        private function is_within_active_window( $settings ) {
+                $configured_day = isset( $settings['active_day'] ) ? strtolower( $settings['active_day'] ) : '';
+                if ( '' === $configured_day ) {
+                        return true;
+                }
+
+                $timestamp   = current_time( 'timestamp' );
+                $current_day = strtolower( wp_date( 'l', $timestamp ) );
+                if ( $configured_day !== $current_day ) {
+                        return false;
+                }
+
+                $current_minutes = $this->convert_time_to_minutes( wp_date( 'H:i', $timestamp ) );
+                $start_minutes   = $this->convert_time_to_minutes( isset( $settings['active_start_time'] ) ? $settings['active_start_time'] : '' );
+                $end_minutes     = $this->convert_time_to_minutes( isset( $settings['active_end_time'] ) ? $settings['active_end_time'] : '' );
+
+                if ( null === $current_minutes || null === $start_minutes || null === $end_minutes ) {
+                        return true;
+                }
+
+                if ( $start_minutes <= $end_minutes ) {
+                        return ( $current_minutes >= $start_minutes && $current_minutes <= $end_minutes );
+                }
+
+                return ( $current_minutes >= $start_minutes || $current_minutes <= $end_minutes );
+        }
+
+        /**
+         * Convert a time string (H:i) into total minutes.
+         *
+         * @since    1.3.3
+         *
+         * @param    string $time Time string.
+         *
+         * @return   int|null
+         */
+        private function convert_time_to_minutes( $time ) {
+                if ( empty( $time ) ) {
+                        return null;
+                }
+
+                $parsed = date_create_from_format( 'H:i', $time );
+                if ( ! $parsed ) {
+                        return null;
+                }
+
+                return ( (int) $parsed->format( 'H' ) * 60 ) + (int) $parsed->format( 'i' );
         }
 
 	/**
