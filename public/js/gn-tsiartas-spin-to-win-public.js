@@ -360,7 +360,10 @@
 
                 var gradientStops = [];
                 var currentAngle = 0;
-                this.$wheel.empty();
+
+                if ( this.$wheel.length ) {
+                        this.$wheel.children( '.gn-tsiartas-spin-to-win__slice-label' ).remove();
+                }
 
                 if ( this.$wheel.length ) {
                         this.$wheel[ 0 ].style.setProperty( '--segment-angle', anglePerSegment + 'deg' );

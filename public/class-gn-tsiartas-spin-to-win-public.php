@@ -363,15 +363,36 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         $date_format = 'F j, Y';
                 }
 
+                $time_format = get_option( 'time_format' );
+                if ( empty( $time_format ) ) {
+                        $time_format = 'g:i a';
+                }
+
                 $localized_date = wp_date( $date_format, $current_timestamp );
+                $localized_time = wp_date( $time_format, $current_timestamp );
                 $iso_date       = wp_date( DATE_ATOM, $current_timestamp );
 
                 if ( false === $localized_date ) {
                         $localized_date = '';
                 }
 
+                if ( false === $localized_time ) {
+                        $localized_time = '';
+                }
+
                 if ( false === $iso_date ) {
                         $iso_date = '';
+                }
+
+                $localized_datetime = $localized_date;
+
+                if ( '' !== $localized_time ) {
+                        $localized_datetime = sprintf(
+                                /* translators: 1: localized current date, 2: localized current time */
+                                _x( '%1$s at %2$s', 'current date/time format', 'gn-tsiartas-spin-to-win' ),
+                                $localized_date,
+                                $localized_time
+                        );
                 }
 
                 return array(
@@ -391,7 +412,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         ),
                         'voucherQuotas' => $this->prepare_voucher_quotas( isset( $settings['voucher_quotas'] ) ? $settings['voucher_quotas'] : array() ),
                         'cashierNotice' => isset( $settings['cashier_notice'] ) ? $settings['cashier_notice'] : '',
-                        'currentDate'   => $localized_date,
+                        'currentDate'   => $localized_datetime,
                         'currentDateIso' => $iso_date,
                 );
         }
