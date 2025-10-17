@@ -407,7 +407,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
          */
         private function get_formatted_store_date( $timestamp = null ) {
                 if ( null === $timestamp ) {
-                        $timestamp = current_time( 'timestamp' );
+                        $timestamp = $this->get_current_timestamp();
                 }
 
                 $date_format = get_option( 'date_format' );
@@ -435,6 +435,23 @@ class Gn_Tsiartas_Spin_To_Win_Public {
         }
 
         /**
+         * Retrieve the current timestamp in UTC based on the site's configured timezone.
+         *
+         * @since    2.2.6
+         *
+         * @return   int
+         */
+        private function get_current_timestamp() {
+                $datetime = current_datetime();
+
+                if ( $datetime instanceof DateTimeInterface ) {
+                        return $datetime->getTimestamp();
+                }
+
+                return time();
+        }
+
+        /**
          * AJAX handler that assigns prizes server-side.
          *
          * @since    2.2.0
@@ -455,7 +472,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         );
                 }
 
-                $timestamp = current_time( 'timestamp' );
+                $timestamp = $this->get_current_timestamp();
                 $quotas    = $this->get_friday_quotas( $settings );
 
                 if ( empty( array_filter( $quotas ) ) ) {
@@ -623,7 +640,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         return false;
                 }
 
-                $timestamp = current_time( 'timestamp' );
+                $timestamp = $this->get_current_timestamp();
                 $day       = strtolower( wp_date( 'l', $timestamp ) );
 
                 if ( 'friday' !== $day ) {
@@ -1191,7 +1208,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         return true;
                 }
 
-                $timestamp   = current_time( 'timestamp' );
+                $timestamp   = $this->get_current_timestamp();
                 $current_day = strtolower( wp_date( 'l', $timestamp ) );
                 if ( $configured_day !== $current_day ) {
                         return false;
