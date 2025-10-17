@@ -54,41 +54,6 @@
         min-width: min(20rem, 100%);
 }
 
-.gn-tsiartas-spin-to-win__date {
-        display: inline-flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: baseline;
-        gap: 0.35rem;
-        margin: 0;
-        padding: 0.35rem 0.75rem;
-        border-radius: 999px;
-        background-color: rgba(255, 255, 255, 0.85);
-        box-shadow: 0 0.5rem 1.25rem -0.9rem rgba(7, 59, 76, 0.35);
-        color: var(--gn-tsiartas-muted);
-        font-size: clamp(0.85rem, 2.2vmin, 0.95rem);
-        text-align: center;
-        max-width: min(100%, var(--gn-tsiartas-wheel-size));
-}
-
-.gn-tsiartas-spin-to-win__date-label {
-        font-weight: 600;
-        letter-spacing: 0.03em;
-        text-transform: uppercase;
-        color: var(--gn-tsiartas-secondary);
-}
-
-.gn-tsiartas-spin-to-win__date-value {
-        font-weight: 600;
-        color: var(--gn-tsiartas-text);
-}
-
-.gn-tsiartas-spin-to-win__date-value:empty::after {
-        content: '…';
-        letter-spacing: 0.15em;
-        color: inherit;
-}
-
 .gn-tsiartas-spin-to-win__wheel {
         position: relative;
         width: min(100%, var(--gn-tsiartas-wheel-size));
@@ -105,7 +70,7 @@
         transform: rotate(var(--rotation-angle));
         will-change: transform;
         --slice-distance: clamp(7.5rem, 28vmin, 11.5rem);
-        --slice-label-width: 37.261755px;
+        --slice-label-width: clamp(6.5rem, 30vmin, 9.5rem);
         --slice-font-size: clamp(0.7rem, 2.5vmin, 0.95rem);
 }
 
@@ -134,35 +99,13 @@
         z-index: 3;
 }
 
-.gn-tsiartas-spin-to-win__logo {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: clamp(4.5rem, 22%, 7.5rem);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 4;
-        pointer-events: none;
-}
-
-.gn-tsiartas-spin-to-win__logo-image {
-        width: 100%;
-        height: auto;
-        display: block;
-        object-fit: contain;
-        image-rendering: optimizeQuality;
-        filter: drop-shadow(0 0.25rem 0.65rem rgba(7, 59, 76, 0.25));
-}
-
 .gn-tsiartas-spin-to-win__slice-label {
         position: absolute;
         top: 50%;
         left: 50%;
         transform-origin: center center;
         transform: translate(-50%, -50%) rotate(var(--slice-rotation)) translateY(calc(-1 * var(--slice-distance, 10.5rem)));
-        width: var(--slice-label-width, 37.261755px);
+        width: var(--slice-label-width, clamp(6.5rem, 30vmin, 9.5rem));
         text-align: center;
         font-weight: 700;
         font-size: clamp(0.7rem, var(--slice-font-size, 0.9rem), 1rem);
@@ -541,35 +484,6 @@
         line-height: 1.6;
 }
 
-.gn-tsiartas-spin-to-win__modal-date {
-        margin: 0 0 1.5rem;
-        display: flex;
-        justify-content: center;
-        align-items: baseline;
-        gap: 0.35rem;
-        font-size: clamp(0.85rem, 2.2vmin, 0.95rem);
-        color: var(--gn-tsiartas-muted);
-        text-align: center;
-}
-
-.gn-tsiartas-spin-to-win__modal-date-label {
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
-        color: var(--gn-tsiartas-secondary);
-}
-
-.gn-tsiartas-spin-to-win__modal-date-value {
-        font-weight: 600;
-        color: var(--gn-tsiartas-text);
-}
-
-.gn-tsiartas-spin-to-win__modal-date-value:empty::after {
-        content: '…';
-        letter-spacing: 0.15em;
-        color: inherit;
-}
-
 .gn-tsiartas-spin-to-win__modal-close {
         border: none;
         border-radius: 999px;
@@ -650,7 +564,7 @@
 
         .gn-tsiartas-spin-to-win__wheel {
                 --slice-distance: clamp(5.5rem, 24vmin, 8.5rem);
-                --slice-label-width: 37.261755px;
+                --slice-label-width: clamp(5.5rem, 40vmin, 8rem);
         }
 }
 

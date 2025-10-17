@@ -23,26 +23,8 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
-### 1.4.15
-- Restored the plugin codebase to the stable 1.4.5 implementation to undo regressions introduced in later releases.
-- Bumped the plugin metadata to version 1.4.15 to publish this rollback build.
-
-### 1.4.5
-- Fixed the wheel slice label width so the CSS variable always resolves to exactly 37.261755px.
-- Bumped the plugin metadata to version 1.4.5 for this layout correction.
-
-### 1.4.4
-- Removed the sidebar heading and static prize list so the layout focuses on the spin CTA and dynamic messaging.
-- Bumped the plugin metadata to version 1.4.4 for this correction release.
-
-### 1.4.3
-- Removed the "Try Again" slice from the default wheel prizes so every segment awards a voucher.
-- Bumped plugin metadata to version 1.4.3 for this prize lineup update.
-
-### 1.4.2
-- Updated the date copy surfaced on the wheel and modal so shoppers see the refreshed giveaway schedule.
-- Replaced the wheel and modal logos with the new 2025 supermarket branding.
-- Increased the default voucher quotas to line up with the latest allocation plan.
+### 2.0
+- Reissued the stable 1.4.1 codebase under the 2.0 version banner to prepare for the next major update cycle.
 
 ### 1.4.1
 - Trimmed the default prize labels so the wheel only displays the euro value for each reward.
@@ -97,15 +79,6 @@ GitHub releases for stable distributions.
 ### 1.2.0
 - Documented the `[tsiartas_spin_to_win]` shortcode for embedding the promotional wheel markup and localized messages.
 - Highlighted the bundled front-end assets that render the interactive spin-to-win wheel experience on the page.
-
-## Manual QA checklist
-Follow the steps below when validating campaign changes that touch the voucher logic.
-
-1. **Reset weekly tracking** – delete the `gn_tsiartas_spin_to_win_tracking` option (via WP-CLI or the database) so the new week starts with zero recorded spins.
-2. **Configure quotas** – in the admin settings screen set explicit Friday counts (for example €5 → 6, €10 → 4, €15 → 2, €50/€100 → 1) and confirm they save without validation errors.
-3. **Pacing guardrails** – during the first hour of availability trigger several spins and confirm the AJAX response limits low-value voucher usage (the `quota_usage` payload should only increment up to the allowable share for the elapsed window while returning “try again” outcomes afterwards).
-4. **Forced jackpot spins** – prime the tracker to spin 50 and 100 by updating the option so `spin_count` is one less than the target, then run the next spin and confirm the server awards the €50 or €100 voucher and marks the `special_spin` flag accordingly.
-5. **Quota exhaustion fallback** – continue spinning until the response shows zero `remaining` vouchers for every tier and verify the subsequent request returns an error message telling the shopper all vouchers have been claimed for the day.
 
 ## License
 Released under the GPLv2 or later. See `LICENSE.txt` for details.
