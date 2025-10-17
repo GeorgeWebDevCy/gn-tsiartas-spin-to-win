@@ -158,6 +158,11 @@ class Gn_Tsiartas_Spin_To_Win {
                 $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
                 $this->loader->add_action( 'admin_menu', $plugin_admin, 'register_admin_menu' );
                 $this->loader->add_action( 'admin_init', $plugin_admin, 'register_settings' );
+                $this->loader->add_filter(
+                        'plugin_action_links_' . plugin_basename( GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE ),
+                        $plugin_admin,
+                        'add_plugin_action_links'
+                );
 
         }
 
