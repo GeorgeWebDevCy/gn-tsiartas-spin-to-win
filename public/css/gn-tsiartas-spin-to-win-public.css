@@ -54,6 +54,19 @@
         min-width: min(20rem, 100%);
 }
 
+.gn-tsiartas-spin-to-win__current-date {
+        margin: 0;
+        padding: 0.45rem 1.35rem;
+        border-radius: 999px;
+        background: rgba(7, 59, 76, 0.08);
+        color: var(--gn-tsiartas-secondary);
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        font-size: clamp(0.85rem, 2.35vmin, 1rem);
+        box-shadow: inset 0 0 0 1px rgba(27, 67, 50, 0.12);
+}
+
 .gn-tsiartas-spin-to-win__wheel {
         position: relative;
         width: min(100%, var(--gn-tsiartas-wheel-size));
@@ -482,6 +495,16 @@
         font-size: clamp(1rem, 2.6vmin, 1.1rem);
         color: var(--gn-tsiartas-text);
         line-height: 1.6;
+}
+
+.gn-tsiartas-spin-to-win__modal-date {
+        margin: 1rem 0 1.75rem;
+        padding-top: 0.85rem;
+        border-top: 1px solid rgba(7, 59, 76, 0.12);
+        font-size: 0.9rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--gn-tsiartas-muted);
 }
 
 .gn-tsiartas-spin-to-win__modal-close {

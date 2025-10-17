@@ -23,6 +23,11 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 2.2.1
+- Surfaced the current store date above the wheel header and inside the modal footer so players know which day's draw is active.
+- Localised the formatted date through the shortcode payload and AJAX responses for accurate, per-instance updates.
+- Tweaked the wheel header and modal footer styling to present the date clearly without distracting from the wheel.
+
 ### 2.2.0
 - Added Friday voucher quota controls (with guaranteed €50/€100 allocations) and surfaced the configuration alongside the public settings payload.
 - Replaced front-end prize selection with a server-side AJAX endpoint that paces vouchers across the 07:00–20:00 Friday window and records weekly spin history.

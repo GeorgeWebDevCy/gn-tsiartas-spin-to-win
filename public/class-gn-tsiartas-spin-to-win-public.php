@@ -177,7 +177,10 @@ class Gn_Tsiartas_Spin_To_Win_Public {
 
                 $configuration = $this->prepare_frontend_configuration( $instance_id, $atts );
                 $this->localized_data['instances'][ $instance_id ] = $configuration;
-                $this->localized_data['settings']                 = $this->get_global_settings( $settings );
+
+                $global_settings                  = $this->get_global_settings( $settings );
+                $this->localized_data['settings'] = $global_settings;
+                $formatted_date                  = isset( $global_settings['formattedDate'] ) ? $global_settings['formattedDate'] : $this->get_formatted_store_date();
 
                 // Ensure public assets are present and data is localized for the script.
                 wp_enqueue_style( $this->plugin_name );
@@ -198,6 +201,9 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         data-gn-tsiartas-spin-instance="<?php echo esc_attr( $instance_id ); ?>"
                 >
                         <div class="gn-tsiartas-spin-to-win__wheel-area">
+                                <p class="gn-tsiartas-spin-to-win__current-date" data-role="current-date">
+                                        <?php echo esc_html( $formatted_date ); ?>
+                                </p>
                                 <div class="gn-tsiartas-spin-to-win__wheel" data-role="wheel" aria-live="polite"></div>
                                 <button type="button" class="gn-tsiartas-spin-to-win__spin-button" data-action="spin">
                                         <span class="gn-tsiartas-spin-to-win__spin-pointer" aria-hidden="true"></span>
@@ -225,6 +231,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 <div class="gn-tsiartas-spin-to-win__modal-content" role="document">
                                         <h2 class="gn-tsiartas-spin-to-win__modal-title" data-role="modal-title"></h2>
                                         <p class="gn-tsiartas-spin-to-win__modal-message" data-role="modal-message"></p>
+                                        <p class="gn-tsiartas-spin-to-win__modal-date" data-role="modal-date"></p>
                                         <button type="button" class="gn-tsiartas-spin-to-win__modal-close" data-action="close-modal">
                                                 <span class="gn-tsiartas-spin-to-win__modal-close-label"><?php echo esc_html__( 'Close', 'gn-tsiartas-spin-to-win' ); ?></span>
                                         </button>
@@ -377,7 +384,36 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         'cashierNotice' => isset( $settings['cashier_notice'] ) ? $settings['cashier_notice'] : '',
                         'quotas'        => $quotas,
                         'storeHours'    => $store_hours,
+                        'formattedDate' => $this->get_formatted_store_date(),
                 );
+        }
+
+        /**
+         * Retrieve the formatted date string for the current store day.
+         *
+         * @since    2.2.1
+         *
+         * @param    int|null $timestamp Optional timestamp override.
+         *
+         * @return   string
+         */
+        private function get_formatted_store_date( $timestamp = null ) {
+                if ( null === $timestamp ) {
+                        $timestamp = current_time( 'timestamp' );
+                }
+
+                $format = get_option( 'date_format' );
+                if ( empty( $format ) ) {
+                        $format = 'l, F j, Y';
+                }
+
+                $formatted = wp_date( $format, $timestamp );
+
+                if ( false === $formatted ) {
+                        $formatted = wp_date( 'l, F j, Y', $timestamp );
+                }
+
+                return $formatted;
         }
 
         /**
@@ -454,6 +490,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'timestamp'        => $timestamp,
                                 'remainingQuotas'  => $remaining,
                                 'awardedDenomination' => isset( $prize['denomination'] ) ? $prize['denomination'] : null,
+                                'formattedDate'    => $this->get_formatted_store_date( $timestamp ),
                         )
                 );
         }

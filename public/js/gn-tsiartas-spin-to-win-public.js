@@ -54,6 +54,8 @@
                 this.$modal = $root.find( '[data-role="result-modal"]' );
                 this.$modalTitle = this.$modal.find( '[data-role="modal-title"]' );
                 this.$modalMessage = this.$modal.find( '[data-role="modal-message"]' );
+                this.$currentDate = $root.find( '[data-role="current-date"]' );
+                this.$modalDate = this.$modal.find( '[data-role="modal-date"]' );
                 this.$desktopNotice = $root.find( '[data-role="desktop-notice"]' );
                 this.storageKey = STORAGE_PREFIX + this.config.id;
                 this.baseRotation = 0;
@@ -85,11 +87,43 @@
                         return;
                 }
 
+                this.updateCurrentDate();
                 this.renderWheel();
                 this.highlightAvailablePrizes();
                 this.restoreState();
                 this.bindEvents();
                 this.enforceDeviceAvailability();
+        };
+
+        SpinToWin.prototype.getLocalizedDate = function() {
+                var dateText = this.settings && this.settings.formattedDate ? String( this.settings.formattedDate ) : '';
+                return dateText.trim();
+        };
+
+        SpinToWin.prototype.updateCurrentDate = function( dateText ) {
+                if ( ! this.$currentDate.length ) {
+                        return;
+                }
+
+                var resolved = dateText || this.getLocalizedDate();
+
+                if ( resolved ) {
+                        this.$currentDate.text( resolved );
+                }
+        };
+
+        SpinToWin.prototype.updateModalDate = function( dateText ) {
+                if ( ! this.$modalDate.length ) {
+                        return;
+                }
+
+                var resolved = dateText || this.getLocalizedDate();
+
+                if ( resolved ) {
+                        this.$modalDate.text( resolved ).attr( 'aria-hidden', 'false' );
+                } else {
+                        this.$modalDate.text( '' ).attr( 'aria-hidden', 'true' );
+                }
         };
 
         SpinToWin.prototype.prepareAudio = function( audioConfig ) {
@@ -616,6 +650,11 @@
 
                 var resolvedPrize = $.extend( true, {}, prize );
 
+                if ( data.formattedDate ) {
+                        this.settings.formattedDate = data.formattedDate;
+                        this.updateCurrentDate( data.formattedDate );
+                }
+
                 if ( data.label ) {
                         resolvedPrize.label = data.label;
                 }
@@ -764,7 +803,8 @@
                                 this.playAudio( 'win' );
                         }
 
-                        this.openModal( headline, formattedMessage );
+                        var modalDate = ( prize.serverData && prize.serverData.formattedDate ) || this.getLocalizedDate();
+                        this.openModal( headline, formattedMessage, modalDate );
                 }
         };
 
@@ -826,7 +866,7 @@
                 }
         };
 
-        SpinToWin.prototype.openModal = function( title, message ) {
+        SpinToWin.prototype.openModal = function( title, message, dateText ) {
 
                 if ( ! this.$modal.length ) {
                         return;
@@ -834,6 +874,7 @@
 
                 this.$modalTitle.text( title );
                 this.$modalMessage.text( message );
+                this.updateModalDate( dateText );
                 this.$modal.attr( 'aria-hidden', 'false' ).addClass( 'is-open' );
 
                 window.requestAnimationFrame( function() {

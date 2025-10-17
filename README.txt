@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.2.0
+Stable tag: 2.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,11 @@ provided by the Plugin Update Checker library.
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+= 2.2.1 =
+* Display the current store date above the wheel and inside the modal so shoppers know which day's promotion they are joining.
+* Localise the formatted date through the shortcode payload and AJAX responses so each instance can refresh the timestamp automatically.
+* Polished the wheel header and modal footer styling to highlight the date without overpowering the existing branding.
 
 = 2.2.0 =
 * Added Friday voucher quota controls with guaranteed €50 and €100 allocations and exposed the configuration to the public script.
