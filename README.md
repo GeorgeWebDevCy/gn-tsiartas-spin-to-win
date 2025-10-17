@@ -23,6 +23,11 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 2.2.5
+- Refreshed the wheel header date and time display so the experience always communicates the current store schedule.
+- Added a Plugins screen **Settings** shortcut that opens the configuration page directly.
+- Softened and adjusted the wheel colour palette to match the latest Tsiartas branding accents.
+
 ### 2.2.4
 - Fixed Friday voucher quota persistence so guaranteed spins remain accurate after restarts.
 
