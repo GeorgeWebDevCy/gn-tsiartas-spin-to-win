@@ -482,7 +482,7 @@
 
                 var radius = diameter / 2;
                 var labelDistance = radius * 0.68;
-                var labelWidth = Math.max( 96, Math.min( diameter * 0.42, radius * 1.25 ) );
+                var labelWidth = 37.261755;
                 var fontSize = Math.max( 12, Math.min( 16, diameter * 0.04 ) );
 
                 wheelElement.style.setProperty( '--slice-distance', labelDistance + 'px' );
