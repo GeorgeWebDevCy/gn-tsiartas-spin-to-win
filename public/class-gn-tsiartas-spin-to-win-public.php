@@ -410,15 +410,25 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         $timestamp = current_time( 'timestamp' );
                 }
 
-                $format = get_option( 'date_format' );
+                $date_format = get_option( 'date_format' );
+                if ( empty( $date_format ) ) {
+                        $date_format = 'l, F j, Y';
+                }
+
+                $time_format = get_option( 'time_format' );
+                if ( empty( $time_format ) ) {
+                        $time_format = 'H:i';
+                }
+
+                $format = trim( $date_format . ' ' . $time_format );
                 if ( empty( $format ) ) {
-                        $format = 'l, F j, Y';
+                        $format = 'l, F j, Y H:i';
                 }
 
                 $formatted = wp_date( $format, $timestamp );
 
                 if ( false === $formatted ) {
-                        $formatted = wp_date( 'l, F j, Y', $timestamp );
+                        $formatted = wp_date( 'l, F j, Y H:i', $timestamp );
                 }
 
                 return $formatted;
