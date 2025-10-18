@@ -522,6 +522,8 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'description'      => isset( $prize['description'] ) ? $prize['description'] : '',
                                 'value'            => isset( $prize['value'] ) ? $prize['value'] : null,
                                 'isVoucher'        => ! empty( $prize['is_voucher'] ),
+                                'isTryAgain'       => ! empty( $prize['is_try_again'] ),
+                                'type'             => isset( $prize['type'] ) ? $prize['type'] : '',
                                 'timestamp'        => $timestamp,
                                 'remainingQuotas'  => $remaining,
                                 'awardedDenomination' => isset( $prize['denomination'] ) ? $prize['denomination'] : null,
@@ -1115,6 +1117,8 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         'try-again' => array(),
                 );
 
+                $try_again_matchers = $this->get_try_again_matchers();
+
                 foreach ( $prizes as $prize ) {
                         $denomination = $this->extract_prize_denomination( $prize );
 
@@ -1128,16 +1132,18 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 $prize['denomination'] = $denomination;
                                 $prize['value']        = (int) $denomination;
                                 $prize['is_voucher']   = true;
+                                $prize['is_try_again'] = false;
                                 $map[ $key ][]          = $prize;
                                 continue;
                         }
 
-                        $id   = isset( $prize['id'] ) ? (string) $prize['id'] : '';
-                        $type = isset( $prize['type'] ) ? (string) $prize['type'] : '';
-
-                        if ( 'try-again' === $id || 0 === strpos( $id, 'try-again' ) || 'try-again' === $type ) {
-                                $prize['is_voucher'] = false;
-                                $map['try-again'][]   = $prize;
+                        if ( $this->is_try_again_prize( $prize, $try_again_matchers ) ) {
+                                $prize['is_voucher']   = false;
+                                $prize['is_try_again'] = true;
+                                if ( empty( $prize['type'] ) ) {
+                                        $prize['type'] = 'try-again';
+                                }
+                                $map['try-again'][] = $prize;
                         }
                 }
 
@@ -1160,6 +1166,147 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 $ordered_map['try-again'] = $map['try-again'];
 
                 return $ordered_map;
+        }
+
+        /**
+         * Retrieve configured identifiers that denote a try-again outcome.
+         *
+         * @since    2.5.0
+         *
+         * @return   array
+         */
+        private function get_try_again_matchers() {
+                $defaults = array(
+                        'try again',
+                        'better luck',
+                        'thank you',
+                        'no prize',
+                        'δοκιμάστε',
+                        'ξανά',
+                        'ευχαριστούμε',
+                );
+
+                $identifiers = apply_filters( 'gn_tsiartas_spin_to_win_try_again_identifiers', $defaults );
+                if ( ! is_array( $identifiers ) ) {
+                        $identifiers = array();
+                }
+
+                $phrases = array();
+                $slugs   = array(
+                        'try-again' => true,
+                );
+
+                foreach ( $identifiers as $identifier ) {
+                        if ( ! is_string( $identifier ) ) {
+                                continue;
+                        }
+
+                        $trimmed = trim( $identifier );
+                        if ( '' === $trimmed ) {
+                                continue;
+                        }
+
+                        $phrases[] = strtolower( $trimmed );
+
+                        $slug = sanitize_title( $trimmed );
+                        if ( '' !== $slug ) {
+                                $slugs[ $slug ] = true;
+                        }
+                }
+
+                if ( ! in_array( 'try again', $phrases, true ) ) {
+                        $phrases[] = 'try again';
+                }
+
+                $phrases = array_values( array_unique( $phrases ) );
+
+                return array(
+                        'phrases' => $phrases,
+                        'slugs'   => $slugs,
+                );
+        }
+
+        /**
+         * Determine whether a prize should be treated as a "try again" entry.
+         *
+         * @since    2.5.0
+         *
+         * @param    array $prize     Prize configuration.
+         * @param    array $matchers  Identifier matchers.
+         *
+         * @return   bool
+         */
+        private function is_try_again_prize( array $prize, array $matchers ) {
+                if ( isset( $prize['is_try_again'] ) && $this->to_boolean( $prize['is_try_again'] ) ) {
+                        return true;
+                }
+
+                if ( isset( $prize['isTryAgain'] ) && $this->to_boolean( $prize['isTryAgain'] ) ) {
+                        return true;
+                }
+
+                $type = isset( $prize['type'] ) ? sanitize_title( $prize['type'] ) : '';
+                if ( '' !== $type && ( 'try-again' === $type || isset( $matchers['slugs'][ $type ] ) ) ) {
+                        return true;
+                }
+
+                $id = isset( $prize['id'] ) ? sanitize_title( $prize['id'] ) : '';
+                if ( '' !== $id && isset( $matchers['slugs'][ $id ] ) ) {
+                        return true;
+                }
+
+                foreach ( array( 'label', 'description' ) as $field ) {
+                        if ( empty( $prize[ $field ] ) || ! is_string( $prize[ $field ] ) ) {
+                                continue;
+                        }
+
+                        $value = strtolower( $prize[ $field ] );
+                        foreach ( $matchers['phrases'] as $phrase ) {
+                                if ( '' !== $phrase && false !== strpos( $value, $phrase ) ) {
+                                        return true;
+                                }
+                        }
+
+                        $slug = sanitize_title( $prize[ $field ] );
+                        if ( '' !== $slug && isset( $matchers['slugs'][ $slug ] ) ) {
+                                return true;
+                        }
+                }
+
+                return false;
+        }
+
+        /**
+         * Normalise arbitrary truthy values into booleans.
+         *
+         * @since    2.5.0
+         *
+         * @param    mixed $value Value to normalise.
+         *
+         * @return   bool
+         */
+        private function to_boolean( $value ) {
+                if ( is_bool( $value ) ) {
+                        return $value;
+                }
+
+                if ( is_numeric( $value ) ) {
+                        return (bool) $value;
+                }
+
+                if ( is_string( $value ) ) {
+                        $value = strtolower( trim( $value ) );
+
+                        if ( in_array( $value, array( '1', 'true', 'yes', 'on' ), true ) ) {
+                                return true;
+                        }
+
+                        if ( in_array( $value, array( '0', 'false', 'no', 'off' ), true ) ) {
+                                return false;
+                        }
+                }
+
+                return (bool) $value;
         }
 
         /**
@@ -1281,6 +1428,10 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 $prize['denomination'] = null;
                 $prize['value']        = null;
                 $prize['is_voucher']   = false;
+                $prize['is_try_again'] = true;
+                if ( empty( $prize['type'] ) ) {
+                        $prize['type'] = 'try-again';
+                }
 
                 return $prize;
         }
@@ -1389,6 +1540,8 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 }
 
                 $normalised = array();
+                $used_ids   = array();
+
                 foreach ( $prizes as $index => $prize ) {
                         if ( ! is_array( $prize ) ) {
                                 continue;
@@ -1399,6 +1552,35 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 continue;
                         }
 
+                        $raw_id = isset( $prize['id'] ) ? sanitize_title( $prize['id'] ) : '';
+                        if ( '' === $raw_id ) {
+                                $raw_id = sanitize_title( $label . '-' . $index );
+                        }
+
+                        $unique_id = $raw_id;
+                        $suffix    = 2;
+                        while ( in_array( $unique_id, $used_ids, true ) ) {
+                                $unique_id = $raw_id . '-' . $suffix;
+                                $suffix++;
+                        }
+
+                        $used_ids[] = $unique_id;
+
+                        $type = isset( $prize['type'] ) ? sanitize_title( $prize['type'] ) : '';
+
+                        $is_try_again = false;
+                        if ( isset( $prize['is_try_again'] ) ) {
+                                $is_try_again = $this->to_boolean( $prize['is_try_again'] );
+                        } elseif ( isset( $prize['isTryAgain'] ) ) {
+                                $is_try_again = $this->to_boolean( $prize['isTryAgain'] );
+                        } elseif ( 'try-again' === $type ) {
+                                $is_try_again = true;
+                        }
+
+                        if ( $is_try_again && '' === $type ) {
+                                $type = 'try-again';
+                        }
+
                         $colour = '';
                         if ( isset( $prize['colour'] ) ) {
                                 $colour = sanitize_text_field( $prize['colour'] );
@@ -1407,13 +1589,16 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         }
 
                         $normalised[] = array(
-                                'id'          => isset( $prize['id'] ) ? sanitize_title( $prize['id'] ) : sanitize_title( $label . '-' . $index ),
+                                'id'          => $unique_id,
                                 'label'       => $label,
                                 'description' => isset( $prize['description'] ) ? sanitize_textarea_field( $prize['description'] ) : '',
                                 'weight'      => isset( $prize['weight'] ) ? (float) $prize['weight'] : 1,
                                 'value'       => isset( $prize['value'] ) ? sanitize_text_field( $prize['value'] ) : '',
                                 'colour'      => $colour,
                                 'color'       => $colour,
+                                'type'        => $type,
+                                'is_try_again' => $is_try_again,
+                                'icon'        => isset( $prize['icon'] ) ? sanitize_text_field( $prize['icon'] ) : '',
                         );
                 }
 
@@ -1502,6 +1687,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         array(
                                 'id'          => 'try-again-a',
                                 'type'        => 'try-again',
+                                'is_try_again' => true,
                                 'label'       => __( 'Try Again', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Better luck on the next spin!', 'gn-tsiartas-spin-to-win' ),
                                 'icon'        => '↺',
@@ -1522,6 +1708,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         array(
                                 'id'          => 'try-again-b',
                                 'type'        => 'try-again',
+                                'is_try_again' => true,
                                 'label'       => __( 'Try Again', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Keep spinning for a prize!', 'gn-tsiartas-spin-to-win' ),
                                 'icon'        => '⟲',
@@ -1542,6 +1729,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         array(
                                 'id'          => 'try-again-c',
                                 'type'        => 'try-again',
+                                'is_try_again' => true,
                                 'label'       => __( 'Try Again', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Almost there—give it another go!', 'gn-tsiartas-spin-to-win' ),
                                 'icon'        => '🔁',
@@ -1562,6 +1750,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         array(
                                 'id'          => 'try-again-d',
                                 'type'        => 'try-again',
+                                'is_try_again' => true,
                                 'label'       => __( 'Try Again', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Spin again for a chance to win.', 'gn-tsiartas-spin-to-win' ),
                                 'icon'        => '⟳',

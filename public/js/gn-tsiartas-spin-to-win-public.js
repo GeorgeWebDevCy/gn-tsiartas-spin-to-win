@@ -81,6 +81,8 @@
 
                 this.spinDuration = this.reducedMotion ? 600 : configuredDuration;
 
+                this.normalisePrizeConfig();
+
         }
 
         SpinToWin.prototype.init = function() {
@@ -95,6 +97,64 @@
                 this.restoreState();
                 this.bindEvents();
                 this.enforceDeviceAvailability();
+        };
+
+        SpinToWin.prototype.normalisePrizeConfig = function() {
+
+                if ( ! Array.isArray( this.config.prizes ) ) {
+                        this.config.prizes = [];
+                        return;
+                }
+
+                var usedIds = {};
+
+                this.config.prizes.forEach( function( prize, index ) {
+                        if ( ! prize || 'object' !== typeof prize ) {
+                                this.config.prizes[ index ] = {};
+                                prize = this.config.prizes[ index ];
+                        }
+
+                        var id = prize.id ? String( prize.id ).trim() : '';
+                        if ( ! id ) {
+                                id = 'prize-' + ( index + 1 );
+                        }
+
+                        var baseId = id;
+                        var suffix = 2;
+                        while ( usedIds[ id ] ) {
+                                id = baseId + '-' + suffix;
+                                suffix++;
+                        }
+
+                        usedIds[ id ] = true;
+                        prize.id = id;
+
+                        if ( prize.type ) {
+                                prize.type = String( prize.type ).trim();
+                        }
+
+                        var tryAgainFlag;
+                        if ( Object.prototype.hasOwnProperty.call( prize, 'isTryAgain' ) ) {
+                                tryAgainFlag = prize.isTryAgain;
+                        } else if ( Object.prototype.hasOwnProperty.call( prize, 'is_try_again' ) ) {
+                                tryAgainFlag = prize.is_try_again;
+                        } else {
+                                tryAgainFlag = false;
+                        }
+
+                        if ( 'string' === typeof tryAgainFlag ) {
+                                tryAgainFlag = tryAgainFlag.toLowerCase();
+                                tryAgainFlag = 'true' === tryAgainFlag || '1' === tryAgainFlag || 'yes' === tryAgainFlag || 'on' === tryAgainFlag;
+                        }
+
+                        var normalizedFlag = Boolean( tryAgainFlag ) || ( prize.type && prize.type.toLowerCase() === 'try-again' );
+                        prize.isTryAgain = normalizedFlag;
+                        prize.is_try_again = normalizedFlag;
+
+                        if ( normalizedFlag && ( ! prize.type || ! prize.type.length ) ) {
+                                prize.type = 'try-again';
+                        }
+                }, this );
         };
 
         SpinToWin.prototype.getLocalizedDate = function() {
@@ -300,6 +360,7 @@
                 var gradientStops = [];
                 var currentAngle = 0;
                 var $preservedHub = this.$wheel.find( '[data-role="wheel-hub"]' ).first();
+                var _this = this;
 
                 if ( $preservedHub.length ) {
                         $preservedHub = $preservedHub.detach();
@@ -319,7 +380,7 @@
                         var rotation = anglePerSegment * index + anglePerSegment / 2;
                         var labelText = 'string' === typeof prize.label ? prize.label : '';
                         var icon = prize.icon;
-                        if ( ! icon && 'try-again' === prize.id ) {
+                        if ( ! icon && _this.isTryAgainPrize( prize ) ) {
                                 icon = '✖';
                         }
 
@@ -447,6 +508,9 @@
                 this.$prizeList.find( '.gn-tsiartas-spin-to-win__prize-item' ).each( function( index, element ) {
                         var prize = _this.config.prizes[ index ] || {};
                         var accent = prize.colour || prize.color || DEFAULT_COLOURS[ index % colourCount ];
+                        if ( prize.id ) {
+                                element.setAttribute( 'data-prize-id', prize.id );
+                        }
                         element.style.setProperty( '--prize-accent', accent );
                 } );
         };
@@ -659,8 +723,16 @@
         SpinToWin.prototype.processSpinSuccess = function( data ) {
                 var prize = this.findPrizeById( data.prizeId );
 
+                if ( ! prize && data && data.type ) {
+                        prize = this.findPrizeByType( data.type );
+                }
+
+                if ( ! prize && data && data.isTryAgain ) {
+                        prize = this.findFirstTryAgainPrize();
+                }
+
                 if ( ! prize ) {
-                        prize = this.findPrizeById( 'try-again' ) || this.config.prizes[ 0 ] || {};
+                        prize = this.findFirstTryAgainPrize() || this.config.prizes[ 0 ] || {};
                 }
 
                 var resolvedPrize = $.extend( true, {}, prize );
@@ -676,6 +748,21 @@
 
                 if ( data.description ) {
                         resolvedPrize.description = data.description;
+                }
+
+                if ( data.type ) {
+                        resolvedPrize.type = data.type;
+                }
+
+                if ( Object.prototype.hasOwnProperty.call( data, 'isTryAgain' ) ) {
+                        var serverFlag = data.isTryAgain;
+                        if ( 'string' === typeof serverFlag ) {
+                                var lowered = serverFlag.toLowerCase();
+                                serverFlag = 'true' === lowered || '1' === lowered || 'yes' === lowered || 'on' === lowered;
+                        }
+                        var normalizedServerFlag = !! serverFlag;
+                        resolvedPrize.isTryAgain = normalizedServerFlag;
+                        resolvedPrize.is_try_again = normalizedServerFlag;
                 }
 
                 resolvedPrize.serverData = data;
@@ -844,6 +931,30 @@
                 this.$prizeList.find( '[data-prize-id="' + prizeId + '"]' ).addClass( 'is-active' );
         };
 
+        SpinToWin.prototype.findPrizeByType = function( type ) {
+
+                if ( ! type ) {
+                        return null;
+                }
+
+                var normalized = String( type ).toLowerCase();
+
+                for ( var i = 0; i < this.config.prizes.length; i++ ) {
+                        var prize = this.config.prizes[ i ];
+                        var prizeType = prize.type ? String( prize.type ).toLowerCase() : '';
+
+                        if ( prizeType && prizeType === normalized ) {
+                                return prize;
+                        }
+
+                        if ( 'try-again' === normalized && this.isTryAgainPrize( prize ) ) {
+                                return prize;
+                        }
+                }
+
+                return null;
+        };
+
         SpinToWin.prototype.findPrizeById = function( prizeId ) {
 
                 for ( var i = 0; i < this.config.prizes.length; i++ ) {
@@ -855,9 +966,32 @@
                 return null;
         };
 
+        SpinToWin.prototype.findFirstTryAgainPrize = function() {
+
+                for ( var i = 0; i < this.config.prizes.length; i++ ) {
+                        if ( this.isTryAgainPrize( this.config.prizes[ i ] ) ) {
+                                return this.config.prizes[ i ];
+                        }
+                }
+
+                return null;
+        };
+
         SpinToWin.prototype.isTryAgainPrize = function( prize ) {
+                if ( ! prize ) {
+                        return false;
+                }
+
                 var keywords = [ 'try again', 'better luck', 'thank you', 'no prize', 'δοκιμάστε', 'ξανά', 'ευχαριστούμε' ];
                 var haystack = ( ( prize.label || '' ) + ' ' + ( prize.description || '' ) ).toLowerCase();
+
+                if ( prize.isTryAgain || prize.is_try_again ) {
+                        return true;
+                }
+
+                if ( prize.type && String( prize.type ).toLowerCase() === 'try-again' ) {
+                        return true;
+                }
 
                 return keywords.some( function( keyword ) {
                         return haystack.indexOf( keyword ) !== -1;
