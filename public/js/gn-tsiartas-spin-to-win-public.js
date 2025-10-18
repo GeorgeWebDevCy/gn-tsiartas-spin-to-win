@@ -42,6 +42,7 @@
                 '#af52de',
                 '#ff2d55',
         ];
+        var POINTER_ALIGNMENT_OFFSET = 90;
 
         function SpinToWin( $root, config, settings ) {
                 this.$root = $root;
@@ -60,6 +61,7 @@
                 this.storageKey = STORAGE_PREFIX + this.config.id;
                 this.baseRotation = 0;
                 this.isAnimating = false;
+                this.rotationOffset = POINTER_ALIGNMENT_OFFSET;
                 this.audio = this.prepareAudio( this.config.audio || {} );
                 this.state = {
                         hasSpun: false,
@@ -292,7 +294,8 @@
                 var prizes = this.config.prizes;
                 var segmentCount = prizes.length;
                 var anglePerSegment = 360 / segmentCount;
-                this.baseRotation = anglePerSegment / 2;
+                var alignmentOffset = this.rotationOffset || 0;
+                this.baseRotation = anglePerSegment / 2 - alignmentOffset;
 
                 var gradientStops = [];
                 var currentAngle = 0;
@@ -308,8 +311,8 @@
 
                 prizes.forEach( function( prize, index ) {
                         var colour = prize.colour || prize.color || DEFAULT_COLOURS[ index % DEFAULT_COLOURS.length ];
-                        var startAngle = currentAngle;
-                        var endAngle = currentAngle + anglePerSegment;
+                        var startAngle = currentAngle - alignmentOffset;
+                        var endAngle = startAngle + anglePerSegment;
                         gradientStops.push( colour + ' ' + startAngle + 'deg ' + endAngle + 'deg' );
                         currentAngle += anglePerSegment;
 
@@ -360,7 +363,7 @@
                 var gradient = 'conic-gradient(' + gradientStops.join( ', ' ) + ')';
                 this.$wheel.css( {
                         background: gradient,
-                        '--rotation-angle': this.baseRotation + 'deg',
+                        '--rotation-angle': ( this.baseRotation + alignmentOffset ) + 'deg',
                 } );
                 if ( this.$wheel.length ) {
                         this.$wheel[ 0 ].style.setProperty( '--gn-tsiartas-spin-duration', this.spinDuration + 'ms' );
@@ -739,7 +742,8 @@
                 var rotations = this.reducedMotion ? 2 : 6 + Math.floor( Math.random() * 3 );
                 var randomOffset = ( Math.random() - 0.5 ) * anglePerSegment * ( this.reducedMotion ? 0.2 : 0.4 );
 
-                var targetRotation = rotations * 360 + ( anglePerSegment * index ) + this.baseRotation + randomOffset;
+                var alignmentOffset = this.rotationOffset || 0;
+                var targetRotation = rotations * 360 + ( anglePerSegment * index ) + this.baseRotation + alignmentOffset + randomOffset;
                 this.currentRotation = targetRotation % 360;
 
 
@@ -779,7 +783,8 @@
                 }
 
                 var anglePerSegment = 360 / this.config.prizes.length;
-                var rotation = this.baseRotation + anglePerSegment * index;
+                var alignmentOffset = this.rotationOffset || 0;
+                var rotation = this.baseRotation + alignmentOffset + anglePerSegment * index;
                 var element = this.$wheel[ 0 ];
                 var originalTransition = element.style.transition;
 
