@@ -551,7 +551,6 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         'friday_quotas'      => array(
                                 '5'   => 0,
                                 '10'  => 0,
-                                '15'  => 0,
                                 '50'  => 1,
                                 '100' => 1,
                         ),
@@ -590,12 +589,12 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 $defaults = array(
                         '5'   => 0,
                         '10'  => 0,
-                        '15'  => 0,
                         '50'  => 1,
                         '100' => 1,
                 );
 
                 $configured = isset( $settings['friday_quotas'] ) && is_array( $settings['friday_quotas'] ) ? $settings['friday_quotas'] : array();
+                $configured = array_intersect_key( $configured, $defaults );
                 $quotas     = array();
 
                 foreach ( $defaults as $denomination => $default ) {
@@ -723,13 +722,28 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 $totals_defaults = array(
                         '5'         => 0,
                         '10'        => 0,
-                        '15'        => 0,
                         '50'        => 0,
                         '100'       => 0,
                         'try-again' => 0,
                 );
 
+                $legacy_15 = 0;
+                if ( isset( $state['totals']['15'] ) ) {
+                        $legacy_15 = (int) $state['totals']['15'];
+                        unset( $state['totals']['15'] );
+                }
+
+                $state['totals'] = array_intersect_key( $state['totals'], $totals_defaults );
                 $state['totals'] = wp_parse_args( $state['totals'], $totals_defaults );
+
+                if ( $legacy_15 > 0 ) {
+                        $state['totals']['10'] += $legacy_15;
+                        if ( ! isset( $state['legacy_totals'] ) || ! is_array( $state['legacy_totals'] ) ) {
+                                $state['legacy_totals'] = array();
+                        }
+
+                        $state['legacy_totals']['15'] = $legacy_15;
+                }
 
                 if ( ! isset( $state['spins'] ) || ! is_array( $state['spins'] ) ) {
                         $state['spins'] = array();
@@ -737,6 +751,10 @@ class Gn_Tsiartas_Spin_To_Win_Public {
 
                 if ( ! isset( $state['total_spins'] ) ) {
                         $state['total_spins'] = 0;
+                }
+
+                if ( ! isset( $state['legacy_totals'] ) || ! is_array( $state['legacy_totals'] ) ) {
+                        $state['legacy_totals'] = array();
                 }
 
                 return $state;
@@ -772,13 +790,13 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         'totals'      => array(
                                 '5'         => 0,
                                 '10'        => 0,
-                                '15'        => 0,
                                 '50'        => 0,
                                 '100'       => 0,
                                 'try-again' => 0,
                         ),
                         'spins'       => array(),
                         'last_reset'  => $timestamp,
+                        'legacy_totals' => array(),
                 );
         }
 
@@ -916,8 +934,12 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         return $prize;
                 }
 
+                $forced_denominations  = array_values( $forced_spins );
+                $forced_denominations  = array_map( 'strval', $forced_denominations );
+                $voucher_denominations = $this->get_voucher_denominations_from_map( $prize_map, $forced_denominations );
+
                 $remaining_quota_total = 0;
-                foreach ( array( '5', '10', '15' ) as $value ) {
+                foreach ( $voucher_denominations as $value ) {
                         $quota   = isset( $quotas[ $value ] ) ? (int) $quotas[ $value ] : 0;
                         $awarded = isset( $totals[ $value ] ) ? (int) $totals[ $value ] : 0;
                         $remaining_quota_total += max( 0, $quota - $awarded );
@@ -930,7 +952,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 $ratio      = $this->calculate_elapsed_ratio( $timestamp );
                 $candidates = array();
 
-                foreach ( array( '5', '10', '15' ) as $value ) {
+                foreach ( $voucher_denominations as $value ) {
                         $quota   = isset( $quotas[ $value ] ) ? (int) $quotas[ $value ] : 0;
                         $awarded = isset( $totals[ $value ] ) ? (int) $totals[ $value ] : 0;
 
@@ -1090,11 +1112,6 @@ class Gn_Tsiartas_Spin_To_Win_Public {
          */
         private function map_prizes_by_value( array $prizes ) {
                 $map = array(
-                        '5'         => array(),
-                        '10'        => array(),
-                        '15'        => array(),
-                        '50'        => array(),
-                        '100'       => array(),
                         'try-again' => array(),
                 );
 
@@ -1102,22 +1119,80 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         $denomination = $this->extract_prize_denomination( $prize );
 
                         if ( null !== $denomination ) {
+                                $key = (string) $denomination;
+
+                                if ( ! isset( $map[ $key ] ) ) {
+                                        $map[ $key ] = array();
+                                }
+
                                 $prize['denomination'] = $denomination;
                                 $prize['value']        = (int) $denomination;
                                 $prize['is_voucher']   = true;
-                                $map[ (string) $denomination ][] = $prize;
+                                $map[ $key ][]          = $prize;
                                 continue;
                         }
 
-                        $id = isset( $prize['id'] ) ? $prize['id'] : '';
+                        $id   = isset( $prize['id'] ) ? (string) $prize['id'] : '';
+                        $type = isset( $prize['type'] ) ? (string) $prize['type'] : '';
 
-                        if ( 'try-again' === $id ) {
+                        if ( 'try-again' === $id || 0 === strpos( $id, 'try-again' ) || 'try-again' === $type ) {
                                 $prize['is_voucher'] = false;
                                 $map['try-again'][]   = $prize;
                         }
                 }
 
-                return $map;
+                // Sort voucher keys numerically while keeping try-again entries accessible.
+                $voucher_keys = array_filter(
+                        array_keys( $map ),
+                        function ( $key ) {
+                                return is_numeric( $key );
+                        }
+                );
+
+                sort( $voucher_keys, SORT_NUMERIC );
+
+                $ordered_map = array();
+
+                foreach ( $voucher_keys as $key ) {
+                        $ordered_map[ (string) $key ] = $map[ $key ];
+                }
+
+                $ordered_map['try-again'] = $map['try-again'];
+
+                return $ordered_map;
+        }
+
+        /**
+         * Retrieve voucher denominations that are eligible for random selection.
+         *
+         * @since    2.4.0
+         *
+         * @param    array $prize_map Prize map grouped by value.
+         * @param    array $excluded  Denominations to skip.
+         *
+         * @return   array
+         */
+        private function get_voucher_denominations_from_map( array $prize_map, array $excluded = array() ) {
+                $denominations = array();
+                $excluded      = array_map( 'strval', $excluded );
+
+                foreach ( $prize_map as $value => $pool ) {
+                        $key = (string) $value;
+
+                        if ( 'try-again' === $key || in_array( $key, $excluded, true ) ) {
+                                continue;
+                        }
+
+                        if ( ! is_numeric( $key ) || empty( $pool ) ) {
+                                continue;
+                        }
+
+                        $denominations[] = $key;
+                }
+
+                sort( $denominations, SORT_NUMERIC );
+
+                return $denominations;
         }
 
         /**
@@ -1415,74 +1490,81 @@ class Gn_Tsiartas_Spin_To_Win_Public {
         private function get_default_prizes() {
                 return array(
                         array(
-                                'id'          => 'voucher-5-a',
+                                'id'          => 'voucher-5',
                                 'label'       => __( '€5', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Random probability reward.', 'gn-tsiartas-spin-to-win' ),
                                 'weight'      => 1,
                                 'colour'      => '#f94144',
                                 'color'       => '#f94144',
+                                'icon'        => '🎟️',
+                                'value'       => 5,
                         ),
                         array(
-                                'id'          => 'voucher-10-a',
-                                'label'       => __( '€10', 'gn-tsiartas-spin-to-win' ),
-                                'description' => __( 'Random probability reward.', 'gn-tsiartas-spin-to-win' ),
+                                'id'          => 'try-again-a',
+                                'type'        => 'try-again',
+                                'label'       => __( 'Try Again', 'gn-tsiartas-spin-to-win' ),
+                                'description' => __( 'Better luck on the next spin!', 'gn-tsiartas-spin-to-win' ),
+                                'icon'        => '↺',
                                 'weight'      => 1,
                                 'colour'      => '#f3722c',
                                 'color'       => '#f3722c',
                         ),
                         array(
-                                'id'          => 'voucher-15-a',
-                                'label'       => __( '€15', 'gn-tsiartas-spin-to-win' ),
+                                'id'          => 'voucher-10',
+                                'label'       => __( '€10', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Random probability reward.', 'gn-tsiartas-spin-to-win' ),
                                 'weight'      => 1,
                                 'colour'      => '#f8961e',
                                 'color'       => '#f8961e',
+                                'icon'        => '🎉',
+                                'value'       => 10,
+                        ),
+                        array(
+                                'id'          => 'try-again-b',
+                                'type'        => 'try-again',
+                                'label'       => __( 'Try Again', 'gn-tsiartas-spin-to-win' ),
+                                'description' => __( 'Keep spinning for a prize!', 'gn-tsiartas-spin-to-win' ),
+                                'icon'        => '⟲',
+                                'weight'      => 1,
+                                'colour'      => '#43aa8b',
+                                'color'       => '#43aa8b',
                         ),
                         array(
                                 'id'          => 'voucher-50',
                                 'label'       => __( '€50', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Awarded approximately every 50 spins.', 'gn-tsiartas-spin-to-win' ),
                                 'weight'      => 1,
-                                'colour'      => '#f9c74f',
-                                'color'       => '#f9c74f',
+                                'colour'      => '#90be6d',
+                                'color'       => '#90be6d',
+                                'icon'        => '💶',
+                                'value'       => 50,
+                        ),
+                        array(
+                                'id'          => 'try-again-c',
+                                'type'        => 'try-again',
+                                'label'       => __( 'Try Again', 'gn-tsiartas-spin-to-win' ),
+                                'description' => __( 'Almost there—give it another go!', 'gn-tsiartas-spin-to-win' ),
+                                'icon'        => '🔁',
+                                'weight'      => 1,
+                                'colour'      => '#577590',
+                                'color'       => '#577590',
                         ),
                         array(
                                 'id'          => 'voucher-100',
                                 'label'       => __( '€100', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Awarded approximately every 100 spins.', 'gn-tsiartas-spin-to-win' ),
                                 'weight'      => 1,
-                                'colour'      => '#90be6d',
-                                'color'       => '#90be6d',
-                        ),
-                        array(
-                                'id'          => 'try-again',
-                                'label'       => __( 'Try Again', 'gn-tsiartas-spin-to-win' ),
-                                'description' => __( 'Random probability outcome.', 'gn-tsiartas-spin-to-win' ),
-                                'icon'        => '✖',
-                                'weight'      => 1,
-                                'colour'      => '#43aa8b',
-                                'color'       => '#43aa8b',
-                        ),
-                        array(
-                                'id'          => 'voucher-5-b',
-                                'label'       => __( '€5', 'gn-tsiartas-spin-to-win' ),
-                                'description' => __( 'Random probability reward.', 'gn-tsiartas-spin-to-win' ),
-                                'weight'      => 1,
-                                'colour'      => '#577590',
-                                'color'       => '#577590',
-                        ),
-                        array(
-                                'id'          => 'voucher-10-b',
-                                'label'       => __( '€10', 'gn-tsiartas-spin-to-win' ),
-                                'description' => __( 'Random probability reward.', 'gn-tsiartas-spin-to-win' ),
-                                'weight'      => 1,
                                 'colour'      => '#277da1',
                                 'color'       => '#277da1',
+                                'icon'        => '🏆',
+                                'value'       => 100,
                         ),
                         array(
-                                'id'          => 'voucher-15-b',
-                                'label'       => __( '€15', 'gn-tsiartas-spin-to-win' ),
-                                'description' => __( 'Random probability reward.', 'gn-tsiartas-spin-to-win' ),
+                                'id'          => 'try-again-d',
+                                'type'        => 'try-again',
+                                'label'       => __( 'Try Again', 'gn-tsiartas-spin-to-win' ),
+                                'description' => __( 'Spin again for a chance to win.', 'gn-tsiartas-spin-to-win' ),
+                                'icon'        => '⟳',
                                 'weight'      => 1,
                                 'colour'      => '#9b5de5',
                                 'color'       => '#9b5de5',
