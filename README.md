@@ -23,6 +23,9 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 2.2.8
+- Bumped the plugin metadata and documentation to version 2.2.8 in preparation for the next release package.
+
 ### 2.2.7
 - Ensure all public and admin date displays honour the WordPress site timezone instead of the underlying server configuration.
 
