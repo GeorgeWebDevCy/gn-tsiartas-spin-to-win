@@ -43,6 +43,117 @@
                 '#ff2d55',
         ];
         var POINTER_ALIGNMENT_OFFSET = 90;
+        var DEFAULT_TRY_AGAIN_PHRASES = [
+                'try again',
+                'better luck',
+                'thank you',
+                'no prize',
+                'δοκιμάστε',
+                'ξανά',
+                'ευχαριστούμε',
+        ];
+
+        function slugifyIdentifier( value ) {
+                if ( ! value && 0 !== value ) {
+                        return '';
+                }
+
+                var stringValue = String( value );
+
+                if ( stringValue.normalize ) {
+                        stringValue = stringValue.normalize( 'NFD' ).replace( /[\u0300-\u036f]/g, '' );
+                }
+
+                stringValue = stringValue.replace( /([a-z0-9])([A-Z])/g, '$1-$2' );
+                stringValue = stringValue.replace( /[^a-zA-Z0-9]+/g, '-' );
+                stringValue = stringValue.toLowerCase();
+                stringValue = stringValue.replace( /^-+|-+$/g, '' );
+
+                return stringValue;
+        }
+
+        function toBoolean( value ) {
+                if ( 'boolean' === typeof value ) {
+                        return value;
+                }
+
+                if ( 'number' === typeof value ) {
+                        return value !== 0;
+                }
+
+                if ( 'string' === typeof value ) {
+                        var lowered = value.toLowerCase().trim();
+
+                        if ( [ '1', 'true', 'yes', 'on' ].indexOf( lowered ) !== -1 ) {
+                                return true;
+                        }
+
+                        if ( [ '0', 'false', 'no', 'off' ].indexOf( lowered ) !== -1 ) {
+                                return false;
+                        }
+                }
+
+                return !! value;
+        }
+
+        function normaliseTryAgainMatchers( matchers ) {
+                var phrases = DEFAULT_TRY_AGAIN_PHRASES.slice();
+                var slugs = { 'try-again': true };
+
+                if ( matchers && 'object' === typeof matchers ) {
+                        if ( Array.isArray( matchers.phrases ) ) {
+                                phrases = phrases.concat( matchers.phrases );
+                        }
+
+                        if ( matchers.slugs && 'object' === typeof matchers.slugs ) {
+                                Object.keys( matchers.slugs ).forEach( function( key ) {
+                                        var slug = slugifyIdentifier( key );
+                                        if ( slug ) {
+                                                slugs[ slug ] = true;
+                                        }
+                                } );
+                        }
+                }
+
+                var seen = {};
+                var normalisedPhrases = [];
+
+                phrases.forEach( function( phrase ) {
+                        if ( ! phrase && 0 !== phrase ) {
+                                return;
+                        }
+
+                        var trimmed = String( phrase ).trim();
+
+                        if ( ! trimmed ) {
+                                return;
+                        }
+
+                        var lowered = trimmed.toLowerCase();
+
+                        if ( seen[ lowered ] ) {
+                                return;
+                        }
+
+                        seen[ lowered ] = true;
+                        normalisedPhrases.push( lowered );
+
+                        var slug = slugifyIdentifier( trimmed );
+                        if ( slug ) {
+                                slugs[ slug ] = true;
+                        }
+                } );
+
+                if ( ! seen['try again'] ) {
+                        normalisedPhrases.push( 'try again' );
+                        slugs['try-again'] = true;
+                }
+
+                return {
+                        phrases: normalisedPhrases,
+                        slugs: slugs,
+                };
+        }
 
         function SpinToWin( $root, config, settings ) {
                 this.$root = $root;
@@ -71,6 +182,7 @@
                 this.desktopRestrictionAddedDisable = false;
                 this.reducedMotion = window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
                 this.pendingSpinData = null;
+                this.tryAgainMatchers = normaliseTryAgainMatchers( this.settings.tryAgainMatchers );
 
                 var configuredDuration = DEFAULT_SPIN_DURATION;
                 var providedDuration = parseInt( this.settings && this.settings.spinDuration, 10 );
@@ -107,6 +219,7 @@
                 }
 
                 var usedIds = {};
+                var matchers = this.getTryAgainMatchers();
 
                 this.config.prizes.forEach( function( prize, index ) {
                         if ( ! prize || 'object' !== typeof prize ) {
@@ -129,32 +242,84 @@
                         usedIds[ id ] = true;
                         prize.id = id;
 
-                        if ( prize.type ) {
-                                prize.type = String( prize.type ).trim();
-                        }
+                        var typeSlug = prize.type ? this.normalizePrizeType( prize.type ) : '';
+                        prize.type = typeSlug;
 
-                        var tryAgainFlag;
+                        var explicitTryAgain;
                         if ( Object.prototype.hasOwnProperty.call( prize, 'isTryAgain' ) ) {
-                                tryAgainFlag = prize.isTryAgain;
+                                explicitTryAgain = toBoolean( prize.isTryAgain );
                         } else if ( Object.prototype.hasOwnProperty.call( prize, 'is_try_again' ) ) {
-                                tryAgainFlag = prize.is_try_again;
-                        } else {
-                                tryAgainFlag = false;
+                                explicitTryAgain = toBoolean( prize.is_try_again );
                         }
 
-                        if ( 'string' === typeof tryAgainFlag ) {
-                                tryAgainFlag = tryAgainFlag.toLowerCase();
-                                tryAgainFlag = 'true' === tryAgainFlag || '1' === tryAgainFlag || 'yes' === tryAgainFlag || 'on' === tryAgainFlag;
+                        var explicitVoucher;
+                        if ( Object.prototype.hasOwnProperty.call( prize, 'isVoucher' ) ) {
+                                explicitVoucher = toBoolean( prize.isVoucher );
+                        } else if ( Object.prototype.hasOwnProperty.call( prize, 'is_voucher' ) ) {
+                                explicitVoucher = toBoolean( prize.is_voucher );
                         }
 
-                        var normalizedFlag = Boolean( tryAgainFlag ) || ( prize.type && prize.type.toLowerCase() === 'try-again' );
-                        prize.isTryAgain = normalizedFlag;
-                        prize.is_try_again = normalizedFlag;
+                        var normalizedTryAgain = 'boolean' === typeof explicitTryAgain ? explicitTryAgain : false;
 
-                        if ( normalizedFlag && ( ! prize.type || ! prize.type.length ) ) {
+                        if ( ! normalizedTryAgain && typeSlug && matchers.slugs[ typeSlug ] ) {
+                                normalizedTryAgain = true;
+                        }
+
+                        if ( ! normalizedTryAgain ) {
+                                var idSlug = slugifyIdentifier( prize.id );
+                                if ( idSlug && matchers.slugs[ idSlug ] ) {
+                                        normalizedTryAgain = true;
+                                }
+                        }
+
+                        if ( ! normalizedTryAgain ) {
+                                var haystack = ( ( prize.label || '' ) + ' ' + ( prize.description || '' ) ).toLowerCase();
+                                normalizedTryAgain = matchers.phrases.some( function( phrase ) {
+                                        return phrase && haystack.indexOf( phrase ) !== -1;
+                                } );
+                        }
+
+                        var normalizedVoucher = 'boolean' === typeof explicitVoucher ? explicitVoucher : false;
+
+                        if ( normalizedTryAgain ) {
+                                normalizedVoucher = false;
+                        } else if ( 'boolean' !== typeof explicitVoucher ) {
+                                var numericValue = extractEuroValue( prize );
+                                if ( null !== numericValue ) {
+                                        normalizedVoucher = true;
+                                } else if ( null !== prize.denomination && prize.denomination !== undefined ) {
+                                        var parsedDenomination = parseInt( prize.denomination, 10 );
+                                        if ( ! isNaN( parsedDenomination ) ) {
+                                                normalizedVoucher = true;
+                                        }
+                                }
+                        }
+
+                        if ( normalizedTryAgain && ! typeSlug ) {
                                 prize.type = 'try-again';
+                        } else if ( normalizedVoucher && ! typeSlug ) {
+                                prize.type = 'voucher';
                         }
+
+                        prize.isTryAgain = normalizedTryAgain;
+                        prize.is_try_again = normalizedTryAgain;
+                        prize.isVoucher = normalizedVoucher;
+                        prize.is_voucher = normalizedVoucher;
                 }, this );
+        };
+
+        SpinToWin.prototype.getTryAgainMatchers = function() {
+
+                if ( ! this.tryAgainMatchers ) {
+                        this.tryAgainMatchers = normaliseTryAgainMatchers();
+                }
+
+                return this.tryAgainMatchers;
+        };
+
+        SpinToWin.prototype.normalizePrizeType = function( type ) {
+
+                return slugifyIdentifier( type );
         };
 
         SpinToWin.prototype.getLocalizedDate = function() {
@@ -422,6 +587,16 @@
 
                         $label.attr( 'data-slice-id', prize.id || ( 'slice-' + ( index + 1 ) ) );
                         $label.attr( 'data-slice-index', index );
+                        var sliceType = this.normalizePrizeType( prize.type );
+                        if ( sliceType ) {
+                                $label.attr( 'data-slice-type', sliceType );
+                        }
+                        if ( this.isTryAgainPrize( prize ) ) {
+                                $label.attr( 'data-slice-try-again', 'true' );
+                        }
+                        if ( this.isVoucherPrize( prize ) ) {
+                                $label.attr( 'data-slice-voucher', 'true' );
+                        }
                         $label[ 0 ].style.setProperty( '--slice-rotation', rotation + 'deg' );
                         if ( hasArt ) {
                                 $label[ 0 ].style.setProperty( '--slice-art', formatCssUrl( artworkUrl ) );
@@ -521,6 +696,24 @@
                         var accent = prize.colour || prize.color || DEFAULT_COLOURS[ index % colourCount ];
                         if ( prize.id ) {
                                 element.setAttribute( 'data-prize-id', prize.id );
+                        } else {
+                                element.removeAttribute( 'data-prize-id' );
+                        }
+                        var typeSlug = _this.normalizePrizeType( prize.type );
+                        if ( typeSlug ) {
+                                element.setAttribute( 'data-prize-type', typeSlug );
+                        } else {
+                                element.removeAttribute( 'data-prize-type' );
+                        }
+                        if ( _this.isTryAgainPrize( prize ) ) {
+                                element.setAttribute( 'data-prize-try-again', 'true' );
+                        } else {
+                                element.removeAttribute( 'data-prize-try-again' );
+                        }
+                        if ( _this.isVoucherPrize( prize ) ) {
+                                element.setAttribute( 'data-prize-voucher', 'true' );
+                        } else {
+                                element.removeAttribute( 'data-prize-voucher' );
                         }
                         element.style.setProperty( '--prize-accent', accent );
                 } );
@@ -732,18 +925,74 @@
         };
 
         SpinToWin.prototype.processSpinSuccess = function( data ) {
+                data = data || {};
+
+                var matchers = this.getTryAgainMatchers();
+                var normalizedType = data.type ? this.normalizePrizeType( data.type ) : '';
                 var prize = this.findPrizeById( data.prizeId );
 
-                if ( ! prize && data && data.type ) {
-                        prize = this.findPrizeByType( data.type );
+                if ( ! prize && normalizedType ) {
+                        prize = this.findPrizeByType( normalizedType );
                 }
 
-                if ( ! prize && data && data.isTryAgain ) {
+                var serverTryAgain = null;
+                if ( Object.prototype.hasOwnProperty.call( data, 'isTryAgain' ) ) {
+                        serverTryAgain = toBoolean( data.isTryAgain );
+                } else if ( Object.prototype.hasOwnProperty.call( data, 'is_try_again' ) ) {
+                        serverTryAgain = toBoolean( data.is_try_again );
+                }
+
+                var serverVoucher = null;
+                if ( Object.prototype.hasOwnProperty.call( data, 'isVoucher' ) ) {
+                        serverVoucher = toBoolean( data.isVoucher );
+                } else if ( Object.prototype.hasOwnProperty.call( data, 'is_voucher' ) ) {
+                        serverVoucher = toBoolean( data.is_voucher );
+                }
+
+                var targetDenomination = null;
+                if ( Object.prototype.hasOwnProperty.call( data, 'awardedDenomination' ) && data.awardedDenomination !== null && data.awardedDenomination !== undefined ) {
+                        var awardValue = data.awardedDenomination;
+                        var parsedAward = parseInt( awardValue, 10 );
+                        if ( ! isNaN( parsedAward ) ) {
+                                targetDenomination = parsedAward;
+                        } else {
+                                var awardMatch = String( awardValue ).match( /(\d+)/ );
+                                if ( awardMatch && awardMatch[ 1 ] ) {
+                                        targetDenomination = parseInt( awardMatch[ 1 ], 10 );
+                                }
+                        }
+                }
+
+                if ( null === targetDenomination && Object.prototype.hasOwnProperty.call( data, 'value' ) && data.value !== null && data.value !== undefined ) {
+                        var parsedValue = parseInt( data.value, 10 );
+                        if ( ! isNaN( parsedValue ) ) {
+                                targetDenomination = parsedValue;
+                        } else {
+                                var valueMatch = String( data.value ).match( /(\d+)/ );
+                                if ( valueMatch && valueMatch[ 1 ] ) {
+                                        targetDenomination = parseInt( valueMatch[ 1 ], 10 );
+                                }
+                        }
+                }
+
+                if ( ! prize && serverTryAgain === true ) {
                         prize = this.findFirstTryAgainPrize();
                 }
 
+                if ( ! prize && normalizedType && matchers.slugs[ normalizedType ] ) {
+                        prize = this.findFirstTryAgainPrize();
+                }
+
+                if ( ! prize && ( serverVoucher === true || normalizedType === 'voucher' ) ) {
+                        prize = this.findFirstVoucherPrize( targetDenomination );
+                }
+
+                if ( ! prize && normalizedType && ! matchers.slugs[ normalizedType ] && normalizedType !== 'voucher' ) {
+                        prize = this.findPrizeByType( normalizedType );
+                }
+
                 if ( ! prize ) {
-                        prize = this.findFirstTryAgainPrize() || this.config.prizes[ 0 ] || {};
+                        prize = this.findFirstTryAgainPrize() || this.findFirstVoucherPrize( targetDenomination ) || this.config.prizes[ 0 ] || {};
                 }
 
                 var resolvedPrize = $.extend( true, {}, prize );
@@ -761,19 +1010,68 @@
                         resolvedPrize.description = data.description;
                 }
 
-                if ( data.type ) {
-                        resolvedPrize.type = data.type;
+                var baseTryAgain = this.isTryAgainPrize( resolvedPrize );
+                var baseVoucher = this.isVoucherPrize( resolvedPrize );
+
+                resolvedPrize.isTryAgain = baseTryAgain;
+                resolvedPrize.is_try_again = baseTryAgain;
+                resolvedPrize.isVoucher = baseVoucher;
+                resolvedPrize.is_voucher = baseVoucher;
+
+                var resolvedType = this.normalizePrizeType( resolvedPrize.type );
+
+                if ( normalizedType ) {
+                        resolvedType = normalizedType;
                 }
 
-                if ( Object.prototype.hasOwnProperty.call( data, 'isTryAgain' ) ) {
-                        var serverFlag = data.isTryAgain;
-                        if ( 'string' === typeof serverFlag ) {
-                                var lowered = serverFlag.toLowerCase();
-                                serverFlag = 'true' === lowered || '1' === lowered || 'yes' === lowered || 'on' === lowered;
+                if ( serverTryAgain !== null ) {
+                        resolvedPrize.isTryAgain = serverTryAgain;
+                        resolvedPrize.is_try_again = serverTryAgain;
+
+                        if ( serverTryAgain ) {
+                                resolvedPrize.isVoucher = false;
+                                resolvedPrize.is_voucher = false;
+                                resolvedType = 'try-again';
+                        } else if ( resolvedType && matchers.slugs[ resolvedType ] ) {
+                                resolvedType = '';
                         }
-                        var normalizedServerFlag = !! serverFlag;
-                        resolvedPrize.isTryAgain = normalizedServerFlag;
-                        resolvedPrize.is_try_again = normalizedServerFlag;
+                }
+
+                if ( serverVoucher !== null ) {
+                        resolvedPrize.isVoucher = serverVoucher;
+                        resolvedPrize.is_voucher = serverVoucher;
+
+                        if ( serverVoucher && resolvedType !== 'try-again' ) {
+                                resolvedType = resolvedType || 'voucher';
+                        } else if ( ! serverVoucher && 'voucher' === resolvedType ) {
+                                resolvedType = '';
+                        }
+                }
+
+                if ( ! resolvedType ) {
+                        if ( resolvedPrize.isTryAgain ) {
+                                resolvedType = 'try-again';
+                        } else if ( resolvedPrize.isVoucher ) {
+                                resolvedType = 'voucher';
+                        }
+                }
+
+                resolvedPrize.type = resolvedType;
+
+                var finalTryAgain = this.isTryAgainPrize( resolvedPrize );
+                var finalVoucher = this.isVoucherPrize( resolvedPrize );
+
+                resolvedPrize.isTryAgain = finalTryAgain;
+                resolvedPrize.is_try_again = finalTryAgain;
+                resolvedPrize.isVoucher = finalVoucher;
+                resolvedPrize.is_voucher = finalVoucher;
+
+                if ( ! resolvedPrize.type ) {
+                        if ( finalTryAgain ) {
+                                resolvedPrize.type = 'try-again';
+                        } else if ( finalVoucher ) {
+                                resolvedPrize.type = 'voucher';
+                        }
                 }
 
                 resolvedPrize.serverData = data;
@@ -944,21 +1242,28 @@
 
         SpinToWin.prototype.findPrizeByType = function( type ) {
 
-                if ( ! type ) {
+                if ( ! type && 0 !== type ) {
                         return null;
                 }
 
-                var normalized = String( type ).toLowerCase();
+                var normalized = this.normalizePrizeType( type );
+
+                if ( ! normalized ) {
+                        return null;
+                }
+
+                var matchers = this.getTryAgainMatchers();
+                var treatAsTryAgain = !! matchers.slugs[ normalized ];
 
                 for ( var i = 0; i < this.config.prizes.length; i++ ) {
                         var prize = this.config.prizes[ i ];
-                        var prizeType = prize.type ? String( prize.type ).toLowerCase() : '';
+                        var prizeType = this.normalizePrizeType( prize.type );
 
                         if ( prizeType && prizeType === normalized ) {
                                 return prize;
                         }
 
-                        if ( 'try-again' === normalized && this.isTryAgainPrize( prize ) ) {
+                        if ( treatAsTryAgain && this.isTryAgainPrize( prize ) ) {
                                 return prize;
                         }
                 }
@@ -988,25 +1293,124 @@
                 return null;
         };
 
+        SpinToWin.prototype.findFirstVoucherPrize = function( denomination ) {
+
+                var target = null;
+
+                if ( denomination !== undefined && denomination !== null ) {
+                        var parsed = parseInt( denomination, 10 );
+                        if ( ! isNaN( parsed ) ) {
+                                target = parsed;
+                        }
+                }
+
+                var fallback = null;
+
+                for ( var i = 0; i < this.config.prizes.length; i++ ) {
+                        var prize = this.config.prizes[ i ];
+
+                        if ( ! this.isVoucherPrize( prize ) ) {
+                                continue;
+                        }
+
+                        if ( null === fallback ) {
+                                fallback = prize;
+                        }
+
+                        if ( null === target ) {
+                                continue;
+                        }
+
+                        var prizeValue = this.getPrizeDenomination( prize );
+
+                        if ( prizeValue === target ) {
+                                return prize;
+                        }
+                }
+
+                return fallback;
+        };
+
         SpinToWin.prototype.isTryAgainPrize = function( prize ) {
                 if ( ! prize ) {
                         return false;
                 }
 
-                var keywords = [ 'try again', 'better luck', 'thank you', 'no prize', 'δοκιμάστε', 'ξανά', 'ευχαριστούμε' ];
+                if ( Object.prototype.hasOwnProperty.call( prize, 'isTryAgain' ) ) {
+                        return toBoolean( prize.isTryAgain );
+                }
+
+                if ( Object.prototype.hasOwnProperty.call( prize, 'is_try_again' ) ) {
+                        return toBoolean( prize.is_try_again );
+                }
+
+                var matchers = this.getTryAgainMatchers();
+                var typeSlug = this.normalizePrizeType( prize.type );
+
+                if ( typeSlug && matchers.slugs[ typeSlug ] ) {
+                        return true;
+                }
+
+                var idSlug = slugifyIdentifier( prize.id );
+
+                if ( idSlug && matchers.slugs[ idSlug ] ) {
+                        return true;
+                }
+
                 var haystack = ( ( prize.label || '' ) + ' ' + ( prize.description || '' ) ).toLowerCase();
 
-                if ( prize.isTryAgain || prize.is_try_again ) {
-                        return true;
-                }
-
-                if ( prize.type && String( prize.type ).toLowerCase() === 'try-again' ) {
-                        return true;
-                }
-
-                return keywords.some( function( keyword ) {
-                        return haystack.indexOf( keyword ) !== -1;
+                return matchers.phrases.some( function( phrase ) {
+                        return phrase && haystack.indexOf( phrase ) !== -1;
                 } );
+        };
+
+        SpinToWin.prototype.isVoucherPrize = function( prize ) {
+                if ( ! prize ) {
+                        return false;
+                }
+
+                if ( Object.prototype.hasOwnProperty.call( prize, 'isVoucher' ) ) {
+                        return toBoolean( prize.isVoucher );
+                }
+
+                if ( Object.prototype.hasOwnProperty.call( prize, 'is_voucher' ) ) {
+                        return toBoolean( prize.is_voucher );
+                }
+
+                var typeSlug = this.normalizePrizeType( prize.type );
+
+                if ( typeSlug && ( 'voucher' === typeSlug || 'coupon' === typeSlug ) ) {
+                        return true;
+                }
+
+                return this.getPrizeDenomination( prize ) !== null;
+        };
+
+        SpinToWin.prototype.getPrizeDenomination = function( prize ) {
+                if ( ! prize ) {
+                        return null;
+                }
+
+                if ( Object.prototype.hasOwnProperty.call( prize, 'denomination' ) && prize.denomination !== null && prize.denomination !== undefined ) {
+                        var parsedDenomination = parseInt( prize.denomination, 10 );
+                        if ( ! isNaN( parsedDenomination ) ) {
+                                return parsedDenomination;
+                        }
+                }
+
+                var numericValue = extractEuroValue( prize );
+                if ( null !== numericValue ) {
+                        return numericValue;
+                }
+
+                if ( Object.prototype.hasOwnProperty.call( prize, 'value' ) && prize.value !== null && prize.value !== undefined ) {
+                        var parsedValue = parseInt( prize.value, 10 );
+                        if ( ! isNaN( parsedValue ) ) {
+                                return parsedValue;
+                        }
+                }
+
+                return null;
         };
 
         SpinToWin.prototype.triggerIntegrationHook = function( prize, serverData ) {
