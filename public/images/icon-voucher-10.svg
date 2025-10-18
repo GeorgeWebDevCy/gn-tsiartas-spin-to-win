@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="voucher10" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffda6b"/>
+      <stop offset="1" stop-color="#ff9f1c"/>
+    </linearGradient>
+    <linearGradient id="voucher10Sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff8e9" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#ffcf81" stop-opacity="0.25"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" fill-rule="evenodd">
+    <path d="M14 34c0-4.418 3.582-8 8-8h84c4.418 0 8 3.582 8 8v14c-6.627 0-12 5.373-12 12s5.373 12 12 12v14c0 4.418-3.582 8-8 8H22c-4.418 0-8-3.582-8-8V72c6.627 0 12-5.373 12-12S20.627 48 14 48V34z" fill="url(#voucher10)"/>
+    <path d="M16 40h96v8c-4.971 1.48-8.5 6.11-8.5 11.5S107.029 69.52 112 71v8H16v-8c4.971-1.48 8.5-6.11 8.5-11.5S20.971 49.48 16 48v-8z" fill="url(#voucher10Sheen)" opacity="0.6"/>
+    <text x="64" y="71" text-anchor="middle" font-family="'Poppins', 'Trebuchet MS', sans-serif" font-size="34" font-weight="700" fill="#fff">€10</text>
+  </g>
+</svg>

@@ -384,27 +384,35 @@
                                 icon = '✖';
                         }
 
-                        var hasIcon = !! icon;
+                        var artworkUrl = resolveSliceArtwork( prize );
+                        var hasArt = !! artworkUrl;
+                        var hasIcon = !! icon && ! hasArt;
                         var labelClass = 'gn-tsiartas-spin-to-win__slice-label';
                         if ( hasIcon ) {
                                 labelClass += ' gn-tsiartas-spin-to-win__slice-label--has-icon';
                         }
+                        if ( hasArt ) {
+                                labelClass += ' gn-tsiartas-spin-to-win__slice-label--has-art';
+                        }
+
+                        if ( hasIcon && 'string' === typeof icon ) {
+                                icon = icon.trim();
+                        }
 
                         var labelHtml = '<span class="gn-tsiartas-spin-to-win__slice-label-content">';
+                        if ( hasArt ) {
+                                labelHtml += '<span class="gn-tsiartas-spin-to-win__slice-label-art" aria-hidden="true"></span>';
+                        }
                         if ( hasIcon ) {
                                 labelHtml +=
                                         '<span class="gn-tsiartas-spin-to-win__slice-label-icon" aria-hidden="true">' +
                                         escapeHtml( icon ) +
-                                        '</span>' +
-                                        '<span class="gn-tsiartas-spin-to-win__slice-label-text gn-tsiartas-spin-to-win__sr-only">' +
-                                        escapeHtml( labelText ) +
-                                        '</span>';
-                        } else {
-                                labelHtml +=
-                                        '<span class="gn-tsiartas-spin-to-win__slice-label-text">' +
-                                        escapeHtml( labelText ) +
                                         '</span>';
                         }
+                        labelHtml +=
+                                '<span class="gn-tsiartas-spin-to-win__slice-label-text">' +
+                                escapeHtml( labelText ) +
+                                '</span>';
                         labelHtml += '</span>';
 
                         var $label = $( '<span>', {
@@ -412,7 +420,12 @@
                                 html: labelHtml,
                         } );
 
+                        $label.attr( 'data-slice-id', prize.id || ( 'slice-' + ( index + 1 ) ) );
+                        $label.attr( 'data-slice-index', index );
                         $label[ 0 ].style.setProperty( '--slice-rotation', rotation + 'deg' );
+                        if ( hasArt ) {
+                                $label[ 0 ].style.setProperty( '--slice-art', formatCssUrl( artworkUrl ) );
+                        }
 
                         this.$wheel.append( $label );
                 }.bind( this ) );
@@ -422,11 +435,9 @@
                 }
 
                 var gradient = 'conic-gradient(' + gradientStops.join( ', ' ) + ')';
-                this.$wheel.css( {
-                        background: gradient,
-                        '--rotation-angle': ( this.baseRotation + alignmentOffset ) + 'deg',
-                } );
                 if ( this.$wheel.length ) {
+                        this.$wheel[ 0 ].style.setProperty( '--gn-tsiartas-slice-gradient', gradient );
+                        this.$wheel[ 0 ].style.setProperty( '--rotation-angle', ( this.baseRotation + alignmentOffset ) + 'deg' );
                         this.$wheel[ 0 ].style.setProperty( '--gn-tsiartas-spin-duration', this.spinDuration + 'ms' );
                 }
 
@@ -1067,6 +1078,69 @@
                         .replace( />/g, '&gt;' )
                         .replace( /"/g, '&quot;' )
                         .replace( /'/g, '&#039;' );
+        }
+
+        function looksLikeImageUrl( value ) {
+                if ( ! value ) {
+                        return false;
+                }
+
+                var stringValue = String( value ).trim();
+
+                if ( ! stringValue ) {
+                        return false;
+                }
+
+                if ( /^data:image\//i.test( stringValue ) ) {
+                        return true;
+                }
+
+                if ( /^(https?:)?\/\//i.test( stringValue ) ) {
+                        return true;
+                }
+
+                if ( stringValue.charAt( 0 ) === '/' ) {
+                        return true;
+                }
+
+                return /\.(svg|png|jpe?g|gif|webp)(\?|#|$)/i.test( stringValue );
+        }
+
+        function resolveSliceArtwork( prize ) {
+                if ( ! prize || 'object' !== typeof prize ) {
+                        return '';
+                }
+
+                var candidates = [ prize.artwork, prize.art, prize.iconUrl, prize.icon_url, prize.icon ];
+
+                for ( var i = 0; i < candidates.length; i++ ) {
+                        var candidate = candidates[ i ];
+
+                        if ( ! candidate || 'string' !== typeof candidate ) {
+                                continue;
+                        }
+
+                        var trimmed = candidate.trim();
+
+                        if ( ! trimmed ) {
+                                continue;
+                        }
+
+                        if ( looksLikeImageUrl( trimmed ) ) {
+                                return trimmed;
+                        }
+                }
+
+                return '';
+        }
+
+        function formatCssUrl( url ) {
+                if ( ! url ) {
+                        return '';
+                }
+
+                var sanitised = String( url ).replace( /"/g, '\\"' );
+                return 'url("' + sanitised + '")';
         }
 
         function bootstrap() {

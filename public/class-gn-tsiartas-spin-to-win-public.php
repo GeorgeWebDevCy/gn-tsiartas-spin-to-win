@@ -1599,6 +1599,8 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'type'        => $type,
                                 'is_try_again' => $is_try_again,
                                 'icon'        => isset( $prize['icon'] ) ? sanitize_text_field( $prize['icon'] ) : '',
+                                'icon_url'    => isset( $prize['icon_url'] ) ? esc_url_raw( $prize['icon_url'] ) : ( isset( $prize['iconUrl'] ) ? esc_url_raw( $prize['iconUrl'] ) : '' ),
+                                'artwork'     => isset( $prize['artwork'] ) ? sanitize_text_field( $prize['artwork'] ) : ( isset( $prize['art'] ) ? sanitize_text_field( $prize['art'] ) : '' ),
                         );
                 }
 
@@ -1682,6 +1684,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'colour'      => '#f94144',
                                 'color'       => '#f94144',
                                 'icon'        => '🎟️',
+                                'icon_url'    => plugins_url( 'public/images/icon-voucher-5.svg', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE ),
                                 'value'       => 5,
                         ),
                         array(
@@ -1694,6 +1697,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'weight'      => 1,
                                 'colour'      => '#f3722c',
                                 'color'       => '#f3722c',
+                                'icon_url'    => plugins_url( 'public/images/icon-try-again-a.svg', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE ),
                         ),
                         array(
                                 'id'          => 'voucher-10',
@@ -1703,6 +1707,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'colour'      => '#f8961e',
                                 'color'       => '#f8961e',
                                 'icon'        => '🎉',
+                                'icon_url'    => plugins_url( 'public/images/icon-voucher-10.svg', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE ),
                                 'value'       => 10,
                         ),
                         array(
@@ -1715,6 +1720,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'weight'      => 1,
                                 'colour'      => '#43aa8b',
                                 'color'       => '#43aa8b',
+                                'icon_url'    => plugins_url( 'public/images/icon-try-again-b.svg', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE ),
                         ),
                         array(
                                 'id'          => 'voucher-50',
@@ -1724,6 +1730,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'colour'      => '#90be6d',
                                 'color'       => '#90be6d',
                                 'icon'        => '💶',
+                                'icon_url'    => plugins_url( 'public/images/icon-voucher-50.svg', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE ),
                                 'value'       => 50,
                         ),
                         array(
@@ -1736,6 +1743,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'weight'      => 1,
                                 'colour'      => '#577590',
                                 'color'       => '#577590',
+                                'icon_url'    => plugins_url( 'public/images/icon-try-again-c.svg', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE ),
                         ),
                         array(
                                 'id'          => 'voucher-100',
@@ -1745,6 +1753,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'colour'      => '#277da1',
                                 'color'       => '#277da1',
                                 'icon'        => '🏆',
+                                'icon_url'    => plugins_url( 'public/images/icon-voucher-100.svg', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE ),
                                 'value'       => 100,
                         ),
                         array(
@@ -1757,6 +1766,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'weight'      => 1,
                                 'colour'      => '#9b5de5',
                                 'color'       => '#9b5de5',
+                                'icon_url'    => plugins_url( 'public/images/icon-try-again-d.svg', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE ),
                         ),
                 );
         }
