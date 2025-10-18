@@ -393,6 +393,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         'quotas'        => $quotas,
                         'storeHours'    => $store_hours,
                         'formattedDate' => $this->get_formatted_store_date(),
+                        'tryAgainMatchers' => $this->get_try_again_matchers(),
                 );
         }
 
@@ -1132,14 +1133,21 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 $prize['denomination'] = $denomination;
                                 $prize['value']        = (int) $denomination;
                                 $prize['is_voucher']   = true;
+                                $prize['isVoucher']    = true;
                                 $prize['is_try_again'] = false;
+                                $prize['isTryAgain']   = false;
+                                if ( empty( $prize['type'] ) ) {
+                                        $prize['type'] = 'voucher';
+                                }
                                 $map[ $key ][]          = $prize;
                                 continue;
                         }
 
                         if ( $this->is_try_again_prize( $prize, $try_again_matchers ) ) {
                                 $prize['is_voucher']   = false;
+                                $prize['isVoucher']    = false;
                                 $prize['is_try_again'] = true;
+                                $prize['isTryAgain']   = true;
                                 if ( empty( $prize['type'] ) ) {
                                         $prize['type'] = 'try-again';
                                 }
@@ -1428,7 +1436,9 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 $prize['denomination'] = null;
                 $prize['value']        = null;
                 $prize['is_voucher']   = false;
+                $prize['isVoucher']    = false;
                 $prize['is_try_again'] = true;
+                $prize['isTryAgain']   = true;
                 if ( empty( $prize['type'] ) ) {
                         $prize['type'] = 'try-again';
                 }
@@ -1567,18 +1577,38 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         $used_ids[] = $unique_id;
 
                         $type = isset( $prize['type'] ) ? sanitize_title( $prize['type'] ) : '';
+                        if ( 'tryagain' === $type ) {
+                                $type = 'try-again';
+                        }
 
-                        $is_try_again = false;
-                        if ( isset( $prize['is_try_again'] ) ) {
-                                $is_try_again = $this->to_boolean( $prize['is_try_again'] );
-                        } elseif ( isset( $prize['isTryAgain'] ) ) {
-                                $is_try_again = $this->to_boolean( $prize['isTryAgain'] );
+                        $explicit_try_again = null;
+                        if ( array_key_exists( 'is_try_again', $prize ) ) {
+                                $explicit_try_again = $this->to_boolean( $prize['is_try_again'] );
+                        } elseif ( array_key_exists( 'isTryAgain', $prize ) ) {
+                                $explicit_try_again = $this->to_boolean( $prize['isTryAgain'] );
                         } elseif ( 'try-again' === $type ) {
-                                $is_try_again = true;
+                                $explicit_try_again = true;
+                        }
+
+                        $is_try_again = ( null !== $explicit_try_again ) ? (bool) $explicit_try_again : false;
+
+                        $explicit_voucher = null;
+                        if ( array_key_exists( 'is_voucher', $prize ) ) {
+                                $explicit_voucher = $this->to_boolean( $prize['is_voucher'] );
+                        } elseif ( array_key_exists( 'isVoucher', $prize ) ) {
+                                $explicit_voucher = $this->to_boolean( $prize['isVoucher'] );
+                        }
+
+                        $is_voucher = ( null !== $explicit_voucher ) ? (bool) $explicit_voucher : false;
+
+                        if ( $is_try_again ) {
+                                $is_voucher = false;
                         }
 
                         if ( $is_try_again && '' === $type ) {
                                 $type = 'try-again';
+                        } elseif ( $is_voucher && '' === $type ) {
+                                $type = 'voucher';
                         }
 
                         $colour = '';
@@ -1598,6 +1628,9 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'color'       => $colour,
                                 'type'        => $type,
                                 'is_try_again' => $is_try_again,
+                                'isTryAgain'  => $is_try_again,
+                                'is_voucher'  => $is_voucher,
+                                'isVoucher'   => $is_voucher,
                                 'icon'        => isset( $prize['icon'] ) ? sanitize_text_field( $prize['icon'] ) : '',
                                 'icon_url'    => isset( $prize['icon_url'] ) ? esc_url_raw( $prize['icon_url'] ) : ( isset( $prize['iconUrl'] ) ? esc_url_raw( $prize['iconUrl'] ) : '' ),
                                 'artwork'     => isset( $prize['artwork'] ) ? sanitize_text_field( $prize['artwork'] ) : ( isset( $prize['art'] ) ? sanitize_text_field( $prize['art'] ) : '' ),
@@ -1686,11 +1719,15 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'icon'        => '🎟️',
                                 'icon_url'    => plugins_url( 'public/images/icon-voucher-5.svg', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE ),
                                 'value'       => 5,
+                                'type'        => 'voucher',
+                                'is_voucher'  => true,
+                                'isVoucher'   => true,
                         ),
                         array(
                                 'id'          => 'try-again-a',
                                 'type'        => 'try-again',
                                 'is_try_again' => true,
+                                'isTryAgain'  => true,
                                 'label'       => __( 'Try Again', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Better luck on the next spin!', 'gn-tsiartas-spin-to-win' ),
                                 'icon'        => '↺',
@@ -1709,11 +1746,15 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'icon'        => '🎉',
                                 'icon_url'    => plugins_url( 'public/images/icon-voucher-10.svg', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE ),
                                 'value'       => 10,
+                                'type'        => 'voucher',
+                                'is_voucher'  => true,
+                                'isVoucher'   => true,
                         ),
                         array(
                                 'id'          => 'try-again-b',
                                 'type'        => 'try-again',
                                 'is_try_again' => true,
+                                'isTryAgain'  => true,
                                 'label'       => __( 'Try Again', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Keep spinning for a prize!', 'gn-tsiartas-spin-to-win' ),
                                 'icon'        => '⟲',
@@ -1732,11 +1773,15 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'icon'        => '💶',
                                 'icon_url'    => plugins_url( 'public/images/icon-voucher-50.svg', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE ),
                                 'value'       => 50,
+                                'type'        => 'voucher',
+                                'is_voucher'  => true,
+                                'isVoucher'   => true,
                         ),
                         array(
                                 'id'          => 'try-again-c',
                                 'type'        => 'try-again',
                                 'is_try_again' => true,
+                                'isTryAgain'  => true,
                                 'label'       => __( 'Try Again', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Almost there—give it another go!', 'gn-tsiartas-spin-to-win' ),
                                 'icon'        => '🔁',
@@ -1755,11 +1800,15 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 'icon'        => '🏆',
                                 'icon_url'    => plugins_url( 'public/images/icon-voucher-100.svg', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE ),
                                 'value'       => 100,
+                                'type'        => 'voucher',
+                                'is_voucher'  => true,
+                                'isVoucher'   => true,
                         ),
                         array(
                                 'id'          => 'try-again-d',
                                 'type'        => 'try-again',
                                 'is_try_again' => true,
+                                'isTryAgain'  => true,
                                 'label'       => __( 'Try Again', 'gn-tsiartas-spin-to-win' ),
                                 'description' => __( 'Spin again for a chance to win.', 'gn-tsiartas-spin-to-win' ),
                                 'icon'        => '⟳',
