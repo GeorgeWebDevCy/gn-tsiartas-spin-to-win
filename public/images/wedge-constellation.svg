@@ -1,0 +1,40 @@
+<svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="constellation-glow" cx="0.5" cy="0.5" r="0.7">
+      <stop offset="0%" stop-color="#FFF6E8" stop-opacity="0.95"/>
+      <stop offset="42%" stop-color="#FFE0B3" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#FFB36B" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="constellation-trail" x1="20" y1="12" x2="138" y2="152" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FF9EC3" stop-opacity="0.7"/>
+      <stop offset="40%" stop-color="#FFD35C" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#9AD7FF" stop-opacity="0.4"/>
+    </linearGradient>
+    <filter id="soft-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="160" height="160" fill="url(#constellation-glow)"/>
+  <g stroke="url(#constellation-trail)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.6">
+    <path d="M16 118L54 76L94 108L128 44L148 64"/>
+    <path d="M18 28L42 52L70 24L104 54" opacity="0.7"/>
+  </g>
+  <g fill="#FFF8E8" filter="url(#soft-glow)">
+    <circle cx="54" cy="76" r="3"/>
+    <circle cx="94" cy="108" r="2.5"/>
+    <circle cx="128" cy="44" r="3.5"/>
+    <circle cx="148" cy="64" r="2.2"/>
+    <circle cx="42" cy="52" r="2.2"/>
+    <circle cx="70" cy="24" r="2.2"/>
+    <circle cx="18" cy="28" r="2"/>
+  </g>
+  <g fill="#FFE6FF" opacity="0.45">
+    <circle cx="26" cy="108" r="2.2"/>
+    <circle cx="76" cy="132" r="3"/>
+    <circle cx="118" cy="120" r="2.5"/>
+  </g>
+</svg>

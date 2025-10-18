@@ -1,0 +1,35 @@
+<svg width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="hub-core" cx="0.5" cy="0.5" r="0.55">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95"/>
+      <stop offset="40%" stop-color="#FFE7C6" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#FFB673" stop-opacity="0.4"/>
+    </radialGradient>
+    <radialGradient id="hub-ring" cx="0.5" cy="0.5" r="0.8">
+      <stop offset="55%" stop-color="#FDF7FF" stop-opacity="0"/>
+      <stop offset="75%" stop-color="#F6CBF4" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#C9ABFF" stop-opacity="0.35"/>
+    </radialGradient>
+    <linearGradient id="hub-engraving" x1="26" y1="40" x2="194" y2="176" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#C1E3FF" stop-opacity="0.75"/>
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#FF8DC7" stop-opacity="0.65"/>
+    </linearGradient>
+    <filter id="hub-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <circle cx="110" cy="110" r="110" fill="url(#hub-ring)"/>
+  <circle cx="110" cy="110" r="82" fill="url(#hub-core)"/>
+  <g stroke="url(#hub-engraving)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity="0.6" filter="url(#hub-glow)">
+    <path d="M44 110C44 71 71 44 110 44"/>
+    <path d="M110 176C149 176 176 149 176 110"/>
+    <path d="M64 64L110 110L156 64"/>
+    <path d="M64 156L110 110L156 156"/>
+  </g>
+  <circle cx="110" cy="110" r="28" fill="#FFFFFF" opacity="0.75"/>
+</svg>
