@@ -1,0 +1,32 @@
+<svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="sparkle-center" cx="0.5" cy="0.5" r="0.7">
+      <stop offset="0%" stop-color="#D1E8FF" stop-opacity="0.9"/>
+      <stop offset="40%" stop-color="#A2D2FF" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#5D8DF7" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sparkle-streak" x1="12" y1="24" x2="148" y2="136" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="30%" stop-color="#FFE98A" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#6EC1FF" stop-opacity="0.4"/>
+    </linearGradient>
+    <filter id="sparkle-blur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+  </defs>
+  <rect width="160" height="160" fill="url(#sparkle-center)"/>
+  <g fill="#FFFFFF" opacity="0.85">
+    <path d="M26 54L34 68L50 72L38 82L36 100L26 88L10 86L22 74L18 58L26 54Z"/>
+    <path d="M112 38L118 50L132 54L120 62L118 76L108 66L92 64L104 54L100 40L112 38Z" opacity="0.75"/>
+  </g>
+  <g filter="url(#sparkle-blur)">
+    <path d="M50 140L78 120L108 140" stroke="url(#sparkle-streak)" stroke-width="5" stroke-linecap="round"/>
+    <path d="M84 20L96 46L122 50L100 66L96 94L80 74L54 70L74 52L68 26L84 20Z" fill="#FFFFFF" fill-opacity="0.45"/>
+  </g>
+  <g fill="#F9FBFF" opacity="0.6">
+    <circle cx="132" cy="108" r="3"/>
+    <circle cx="140" cy="92" r="2"/>
+    <circle cx="36" cy="124" r="2.5"/>
+    <circle cx="24" cy="40" r="2"/>
+  </g>
+</svg>
