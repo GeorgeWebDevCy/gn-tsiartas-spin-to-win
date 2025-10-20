@@ -704,6 +704,15 @@
                 resolvedPrize.serverData = data;
                 resolvedPrize.wasResolvedViaFallback = resolvedViaFallback;
 
+                if ( window.console && window.console.log ) {
+                        window.console.log( 'Spin-to-win resolved prize from server payload.', {
+                                prizeId: resolvedPrize.id,
+                                prizeLabel: resolvedPrize.label,
+                                resolvedViaFallback: resolvedViaFallback,
+                                serverPayload: data,
+                        } );
+                }
+
                 var targetRotation = this.computeTargetRotation( resolvedPrize );
 
                 if ( null === targetRotation ) {
@@ -792,6 +801,18 @@
 
                 this.currentRotation = targetRotation % 360;
 
+                if ( window.console && window.console.log ) {
+                        window.console.log( 'Spin-to-win computed target rotation.', {
+                                prizeId: prize.id,
+                                sliceIndex: index,
+                                anglePerSegment: anglePerSegment,
+                                baseRotation: this.baseRotation,
+                                rotations: rotations,
+                                randomOffset: randomOffset,
+                                targetRotation: targetRotation,
+                                currentRotation: this.currentRotation,
+                        } );
+                }
 
                 return targetRotation;
         };
@@ -812,6 +833,18 @@
                 this.triggerIntegrationHook( prize, serverData );
                 this.pendingSpinData = null;
                 this.isAnimating = false;
+
+                if ( window.console && window.console.log ) {
+                        window.console.log( 'Spin-to-win completed spin.', {
+                                prizeId: prize.id,
+                                prizeLabel: prize.label,
+                                sliceIndex: this.config.prizes.findIndex( function( item ) {
+                                        return item.id === prize.id;
+                                } ),
+                                currentRotation: this.currentRotation,
+                                serverData: serverData,
+                        } );
+                }
         };
 
         SpinToWin.prototype.setWheelToPrize = function( prize ) {
