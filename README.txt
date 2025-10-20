@@ -222,11 +222,11 @@ The following checklist covers the pacing, quota, and forced-spin safeguards add
 
 1. **Reset state and configure quotas**
    - Run `wp option delete gn_tsiartas_spin_to_win_friday_tracking` to clear previous logs.
-   - In **Spin & Win → Settings**, set Friday quotas (for example, €5=3, €10=3, €15=3, €50=1, €100=1) and save.
+   - In **Spin & Win → Settings**, set Friday quotas (for example, €5=3, €10=3, €50=1, €100=1) and save.
 2. **Validate pacing and quota exhaustion**
    - Load the public wheel on a Friday between 07:00 and 20:00.
    - Use the browser console to trigger spins with `fetch( gnTsiartasSpinToWinConfig.settings.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: new URLSearchParams( { action: 'gn_tsiartas_spin_to_win_spin', nonce: gnTsiartasSpinToWinConfig.settings.nonce } ) } )`.
-   - Confirm the JSON response reports decreasing `remainingQuotas` for €5/€10/€15 and, once they reach zero, includes `depleted: true` while the UI disables the spin button.
+   - Confirm the JSON response reports decreasing `remainingQuotas` for €5/€10 and, once they reach zero, includes `depleted: true` while the UI disables the spin button.
 3. **Verify guaranteed €50/€100 spins**
    - After generating tracking data, run `wp option patch update gn_tsiartas_spin_to_win_friday_tracking total_spins 49` and `wp option patch update gn_tsiartas_spin_to_win_friday_tracking totals.50 0`.
    - Trigger another spin and confirm the response shows `awardedDenomination: "50"`.

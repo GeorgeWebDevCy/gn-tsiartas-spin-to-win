@@ -165,51 +165,46 @@ msgstr ""
 msgid "Visit the supermarket"
 msgstr ""
 
-#: public/class-gn-tsiartas-spin-to-win-public.php:558
-#: public/class-gn-tsiartas-spin-to-win-public.php:595
+#: public/class-gn-tsiartas-spin-to-win-public.php:1471
 msgid "€5"
 msgstr ""
 
-#: public/class-gn-tsiartas-spin-to-win-public.php:559
-#: public/class-gn-tsiartas-spin-to-win-public.php:565
-#: public/class-gn-tsiartas-spin-to-win-public.php:571
-#: public/class-gn-tsiartas-spin-to-win-public.php:596
-#: public/class-gn-tsiartas-spin-to-win-public.php:602
-#: public/class-gn-tsiartas-spin-to-win-public.php:608
+#: public/class-gn-tsiartas-spin-to-win-public.php:1472
+#: public/class-gn-tsiartas-spin-to-win-public.php:1489
 msgid "Random probability reward."
 msgstr ""
 
-#: public/class-gn-tsiartas-spin-to-win-public.php:564
-#: public/class-gn-tsiartas-spin-to-win-public.php:601
+#: public/class-gn-tsiartas-spin-to-win-public.php:1488
 msgid "€10"
 msgstr ""
 
-#: public/class-gn-tsiartas-spin-to-win-public.php:570
-#: public/class-gn-tsiartas-spin-to-win-public.php:607
-msgid "€15"
-msgstr ""
-
-#: public/class-gn-tsiartas-spin-to-win-public.php:576
+#: public/class-gn-tsiartas-spin-to-win-public.php:1505
 msgid "€50"
 msgstr ""
 
-#: public/class-gn-tsiartas-spin-to-win-public.php:577
+#: public/class-gn-tsiartas-spin-to-win-public.php:1506
 msgid "Awarded approximately every 50 spins."
 msgstr ""
 
-#: public/class-gn-tsiartas-spin-to-win-public.php:582
+#: public/class-gn-tsiartas-spin-to-win-public.php:1522
 msgid "€100"
 msgstr ""
 
-#: public/class-gn-tsiartas-spin-to-win-public.php:583
+#: public/class-gn-tsiartas-spin-to-win-public.php:1523
 msgid "Awarded approximately every 100 spins."
 msgstr ""
 
-#: public/class-gn-tsiartas-spin-to-win-public.php:588
+#: public/class-gn-tsiartas-spin-to-win-public.php:1479
+#: public/class-gn-tsiartas-spin-to-win-public.php:1496
+#: public/class-gn-tsiartas-spin-to-win-public.php:1513
+#: public/class-gn-tsiartas-spin-to-win-public.php:1530
 msgid "Try Again"
 msgstr ""
 
-#: public/class-gn-tsiartas-spin-to-win-public.php:589
+#: public/class-gn-tsiartas-spin-to-win-public.php:1480
+#: public/class-gn-tsiartas-spin-to-win-public.php:1497
+#: public/class-gn-tsiartas-spin-to-win-public.php:1514
+#: public/class-gn-tsiartas-spin-to-win-public.php:1531
 msgid "Random probability outcome."
 msgstr ""
 
