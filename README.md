@@ -2,7 +2,7 @@
 
 GN Tsiartas Spin to Win delivers an interactive promotional wheel for Tsiartas Supermarket. The plugin bundles the
 front-end assets and WordPress hooks required to display the experience on any page while keeping the admin area clean.
-Version 2.3.11 deepens the gamified wheel experience with richer animations and celebratory cues that reward every spin.
+Version 2.3.12 reissues the trusted 2.3.10 wheel experience while reverting the celebration overlays introduced in 2.3.11.
 
 ## What's included
 - Responsive, branded spin-to-win experience out of the box.
@@ -24,9 +24,9 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
-### 2.3.11
-- Enhances the gamified wheel experience with more responsive animations and celebratory messaging to keep shoppers engaged after each spin.
-- Bumps plugin metadata and documentation references to version 2.3.11 for release packaging.
+### 2.3.12
+- Reverts the celebration layers and styling updates shipped in 2.3.11 so the wheel once again matches the 2.3.10 baseline behaviour.
+- Bumps plugin metadata and documentation references to version 2.3.12 for release packaging.
 
 ### 2.3.10
 - Realigns the wheel pointer so it stays centred above the winning slice to avoid post-spin offsets.

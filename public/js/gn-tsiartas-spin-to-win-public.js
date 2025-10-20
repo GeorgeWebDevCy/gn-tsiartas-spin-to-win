@@ -58,7 +58,6 @@
                 this.$currentDate = $root.find( '[data-role="current-date"]' );
                 this.$modalDate = this.$modal.find( '[data-role="modal-date"]' );
                 this.$desktopNotice = $root.find( '[data-role="desktop-notice"]' );
-                this.$celebrationLayer = $root.find( '[data-role="celebration-layer"]' );
                 this.storageKey = STORAGE_PREFIX + this.config.id;
                 this.baseRotation = 0;
                 this.isAnimating = false;
@@ -71,7 +70,6 @@
                 this.desktopRestrictionAddedDisable = false;
                 this.reducedMotion = window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
                 this.pendingSpinData = null;
-                this.celebrationTimers = [];
 
                 var configuredDuration = DEFAULT_SPIN_DURATION;
                 var providedDuration = parseInt( this.settings && this.settings.spinDuration, 10 );
@@ -90,12 +88,10 @@
                         return;
                 }
 
-                this.$root.toggleClass( 'prefers-reduced-motion', this.reducedMotion );
                 this.updateCurrentDate();
                 this.renderWheel();
                 this.highlightAvailablePrizes();
                 this.restoreState();
-                this.prepareCelebrationLayer();
                 this.bindEvents();
                 this.enforceDeviceAvailability();
         };
@@ -185,98 +181,6 @@
                 } catch ( error ) {
                 // Intentionally ignore errors to keep the experience smooth.
                 }
-        };
-
-        SpinToWin.prototype.clearCelebrationTimers = function() {
-
-                if ( ! Array.isArray( this.celebrationTimers ) || ! this.celebrationTimers.length ) {
-                        this.celebrationTimers = [];
-                        return;
-                }
-
-                for ( var i = 0; i < this.celebrationTimers.length; i++ ) {
-                        window.clearTimeout( this.celebrationTimers[ i ] );
-                }
-
-                this.celebrationTimers = [];
-        };
-
-        SpinToWin.prototype.prepareCelebrationLayer = function() {
-
-                if ( ! this.$celebrationLayer || ! this.$celebrationLayer.length ) {
-                        this.$celebrationLayer = this.$root.find( '[data-role="celebration-layer"]' );
-                }
-
-                this.clearCelebrationTimers();
-
-                if ( this.$celebrationLayer && this.$celebrationLayer.length ) {
-                        this.$celebrationLayer.empty();
-                        this.$celebrationLayer.attr( 'aria-hidden', 'true' );
-                }
-
-                this.$root.removeClass( 'is-celebrating' );
-        };
-
-        SpinToWin.prototype.launchCelebration = function( prize ) { // eslint-disable-line no-unused-vars
-
-                if ( this.reducedMotion ) {
-                        return;
-                }
-
-                this.prepareCelebrationLayer();
-
-                if ( ! this.$celebrationLayer || ! this.$celebrationLayer.length ) {
-                        return;
-                }
-
-                var layerElement = this.$celebrationLayer[ 0 ];
-                var confettiCount = 36;
-                var longestDuration = 0;
-
-                for ( var i = 0; i < confettiCount; i++ ) {
-                        var piece = document.createElement( 'span' );
-                        piece.className = 'gn-tsiartas-spin-to-win__confetti-piece';
-
-                        var startX = ( Math.random() * 160 ) - 80;
-                        var endX = startX + ( Math.random() * 60 - 30 );
-                        var rotationStart = ( Math.random() * 120 ) - 60;
-                        var rotationEnd = rotationStart + 120 + Math.random() * 240;
-                        var delay = Math.random() * 420;
-                        var duration = 2600 + Math.random() * 1400;
-                        var hue = Math.floor( Math.random() * 360 );
-                        var width = 0.35 + Math.random() * 0.4;
-                        var height = 0.9 + Math.random() * 0.8;
-
-                        piece.style.setProperty( '--confetti-x-start', startX.toFixed(2) + '%' );
-                        piece.style.setProperty( '--confetti-x-end', endX.toFixed(2) + '%' );
-                        piece.style.setProperty( '--confetti-rotation-start', rotationStart.toFixed(2) + 'deg' );
-                        piece.style.setProperty( '--confetti-rotation-end', rotationEnd.toFixed(2) + 'deg' );
-                        piece.style.setProperty( '--confetti-delay', delay.toFixed(0) + 'ms' );
-                        piece.style.setProperty( '--confetti-duration', duration.toFixed(0) + 'ms' );
-                        piece.style.setProperty( '--confetti-hue', hue.toString() );
-                        piece.style.setProperty( '--confetti-width', width.toFixed(2) + 'rem' );
-                        piece.style.setProperty( '--confetti-height', height.toFixed(2) + 'rem' );
-
-                        layerElement.appendChild( piece );
-
-                        longestDuration = Math.max( longestDuration, delay + duration );
-                }
-
-                this.$celebrationLayer.attr( 'aria-hidden', 'false' );
-                this.$root.addClass( 'is-celebrating' );
-
-                if ( longestDuration > 0 ) {
-                        var cleanupTimer = window.setTimeout( function() {
-                                this.teardownCelebration();
-                        }.bind( this ), longestDuration + 400 );
-
-                        this.celebrationTimers.push( cleanupTimer );
-                }
-        };
-
-        SpinToWin.prototype.teardownCelebration = function() {
-
-                this.prepareCelebrationLayer();
         };
 
         SpinToWin.prototype.calculateWeights = function() {
@@ -703,7 +607,6 @@
                         return;
                 }
 
-                this.teardownCelebration();
                 this.isAnimating = true;
                 this.$root.addClass( 'is-spinning' );
                 this.$spinButton.addClass( 'is-disabled' ).attr( 'disabled', 'disabled' );
@@ -849,7 +752,6 @@
                 this.stopAudio( 'spin' );
                 this.isAnimating = false;
                 this.$root.removeClass( 'is-spinning' );
-                this.teardownCelebration();
                 this.pendingSpinData = null;
 
                 var messages = this.config.messages || {};
@@ -934,13 +836,6 @@
                 this.showResult( prize );
                 this.highlightPrize( prize.id );
                 this.triggerIntegrationHook( prize, serverData );
-
-                if ( this.isTryAgainPrize( prize ) ) {
-                        this.teardownCelebration();
-                } else {
-                        this.launchCelebration( prize );
-                }
-
                 this.pendingSpinData = null;
                 this.isAnimating = false;
 
@@ -1168,7 +1063,6 @@
                 this.$modal.attr( 'aria-hidden', 'true' ).removeClass( 'is-open' );
                 this.stopAudio( 'win' );
                 this.stopAudio( 'lose' );
-                this.teardownCelebration();
         };
 
         function formatMessage( template, label ) {
