@@ -42,6 +42,7 @@
                 '#af52de',
                 '#ff2d55',
         ];
+        var POINTER_ANGLE = -90;
 
         function SpinToWin( $root, config, settings ) {
                 this.$root = $root;
@@ -292,7 +293,7 @@
                 var prizes = this.config.prizes;
                 var segmentCount = prizes.length;
                 var anglePerSegment = 360 / segmentCount;
-                this.baseRotation = anglePerSegment / 2;
+                this.baseRotation = POINTER_ANGLE - anglePerSegment / 2;
 
                 var gradientStops = [];
                 var currentAngle = 0;
@@ -734,12 +735,16 @@
                         return item.id === prize.id;
                 } );
 
+                if ( index < 0 ) {
+                        index = 0;
+                }
+
                 var segmentCount = this.config.prizes.length;
                 var anglePerSegment = 360 / segmentCount;
                 var rotations = this.reducedMotion ? 2 : 6 + Math.floor( Math.random() * 3 );
                 var randomOffset = ( Math.random() - 0.5 ) * anglePerSegment * ( this.reducedMotion ? 0.2 : 0.4 );
 
-                var targetRotation = rotations * 360 + ( anglePerSegment * index ) + this.baseRotation + randomOffset;
+                var targetRotation = rotations * 360 + this.baseRotation - ( anglePerSegment * index ) + randomOffset;
                 this.currentRotation = targetRotation % 360;
 
 
@@ -779,7 +784,7 @@
                 }
 
                 var anglePerSegment = 360 / this.config.prizes.length;
-                var rotation = this.baseRotation + anglePerSegment * index;
+                var rotation = this.baseRotation - anglePerSegment * index;
                 var element = this.$wheel[ 0 ];
                 var originalTransition = element.style.transition;
 
