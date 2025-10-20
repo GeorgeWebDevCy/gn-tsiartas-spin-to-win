@@ -407,7 +407,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
          */
         private function get_formatted_store_date( $timestamp = null ) {
                 if ( null === $timestamp ) {
-                        $timestamp = current_time( 'timestamp' );
+                        $timestamp = current_time( 'timestamp', true );
                 }
 
                 $date_format = get_option( 'date_format' );
@@ -455,7 +455,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         );
                 }
 
-                $timestamp = current_time( 'timestamp' );
+                $timestamp = current_time( 'timestamp', true );
                 $quotas    = $this->get_friday_quotas( $settings );
 
                 if ( empty( array_filter( $quotas ) ) ) {
@@ -623,7 +623,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         return false;
                 }
 
-                $timestamp = current_time( 'timestamp' );
+                $timestamp = current_time( 'timestamp', true );
                 $day       = strtolower( wp_date( 'l', $timestamp ) );
 
                 if ( 'friday' !== $day ) {
@@ -1191,7 +1191,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         return true;
                 }
 
-                $timestamp   = current_time( 'timestamp' );
+                $timestamp   = current_time( 'timestamp', true );
                 $current_day = strtolower( wp_date( 'l', $timestamp ) );
                 if ( $configured_day !== $current_day ) {
                         return false;

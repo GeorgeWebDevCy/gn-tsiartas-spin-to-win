@@ -118,7 +118,7 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
 
                 $settings    = $this->get_settings();
                 $option_name = $this->get_option_name();
-                $timestamp   = current_time( 'timestamp' );
+                $timestamp   = current_time( 'timestamp', true );
 
                 $server_day      = wp_date( 'l', $timestamp );
                 $server_datetime = wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $timestamp );
@@ -539,7 +539,7 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                         return true;
                 }
 
-                $timestamp   = current_time( 'timestamp' );
+                $timestamp   = current_time( 'timestamp', true );
                 $current_day = strtolower( wp_date( 'l', $timestamp ) );
                 if ( $configured_day !== $current_day ) {
                         return false;
