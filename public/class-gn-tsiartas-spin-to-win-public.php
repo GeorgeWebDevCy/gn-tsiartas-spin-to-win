@@ -61,6 +61,30 @@ class Gn_Tsiartas_Spin_To_Win_Public {
         );
 
         /**
+         * Absolute path to the directory inside uploads where public assets are stored.
+         *
+         * @since    2.3.14
+         * @var      string
+         */
+        private $assets_upload_dir = '';
+
+        /**
+         * Base URL to the directory inside uploads where public assets are stored.
+         *
+         * @since    2.3.14
+         * @var      string
+         */
+        private $assets_upload_url = '';
+
+        /**
+         * Option name tracking the version of the copied public assets.
+         *
+         * @since    2.3.14
+         * @var      string
+         */
+        private $assets_version_option = 'gn_tsiartas_spin_to_win_assets_version';
+
+        /**
          * Cached copy of plugin-level settings.
          *
          * @since    1.3.3
@@ -148,6 +172,147 @@ class Gn_Tsiartas_Spin_To_Win_Public {
         }
 
         /**
+         * Ensure the public-facing image assets are available from the uploads directory.
+         *
+         * When users are not logged in some environments restrict direct access to plugin
+         * files. Mirroring the images to the uploads directory allows them to remain
+         * accessible regardless of authentication requirements.
+         *
+         * @since    2.3.14
+         * @return   void
+         */
+        public function ensure_public_assets() {
+
+		$this->assets_upload_dir = '';
+		$this->assets_upload_url = '';
+
+		if ( ! function_exists( 'wp_upload_dir' ) ) {
+			return;
+		}
+
+		$uploads = wp_upload_dir();
+		if ( ! is_array( $uploads ) || ! empty( $uploads['error'] ) ) {
+			return;
+		}
+
+		$upload_dir = trailingslashit( $uploads['basedir'] );
+		$upload_url = trailingslashit( $uploads['baseurl'] );
+
+		$assets_dir = trailingslashit( $upload_dir . $this->plugin_name );
+		$assets_url = trailingslashit( $upload_url . $this->plugin_name );
+
+		if ( ! is_dir( $assets_dir ) && ! wp_mkdir_p( $assets_dir ) ) {
+			return;
+		}
+
+		$this->assets_upload_dir = $assets_dir;
+		$this->assets_upload_url = $assets_url;
+
+		$source_dir = trailingslashit( plugin_dir_path( __FILE__ ) . 'images' );
+		if ( ! is_dir( $source_dir ) ) {
+			return;
+		}
+
+		$stored_version = get_option( $this->assets_version_option );
+		$should_sync    = (string) $stored_version !== (string) $this->version;
+		$entries        = scandir( $source_dir );
+		if ( ! is_array( $entries ) ) {
+			return;
+		}
+
+		$copied     = false;
+		$has_images = false;
+		foreach ( $entries as $entry ) {
+			if ( '.' === $entry || '..' === $entry ) {
+				continue;
+			}
+
+			$source_file = $source_dir . $entry;
+			if ( ! is_file( $source_file ) || ! $this->is_image_file( $source_file ) ) {
+				continue;
+			}
+
+			$has_images = true;
+
+			$destination = $assets_dir . $entry;
+
+			if ( ! $should_sync && file_exists( $destination ) ) {
+				continue;
+			}
+
+			$contents = file_get_contents( $source_file );
+			if ( false === $contents ) {
+				continue;
+			}
+
+			$bytes_written = file_put_contents( $destination, $contents );
+			if ( false === $bytes_written ) {
+				continue;
+			}
+
+			$copied = true;
+		}
+
+		if ( $copied || ( $should_sync && ! $has_images ) ) {
+			update_option( $this->assets_version_option, $this->version );
+		}
+	}
+
+
+	/**
+	 * Retrieve the URL for an uploaded asset if it exists.
+	 *
+	 * @since    2.3.14
+	 *
+	 * @param    string $filename File name within the uploads mirror directory.
+	 * @return   string
+	 */
+        private function get_uploaded_asset_url( $filename ) {
+		if ( empty( $filename ) ) {
+			return '';
+		}
+
+		if ( empty( $this->assets_upload_dir ) || empty( $this->assets_upload_url ) ) {
+			$this->ensure_public_assets();
+		}
+
+		if ( empty( $this->assets_upload_dir ) || empty( $this->assets_upload_url ) ) {
+			return '';
+		}
+
+		$destination = $this->assets_upload_dir . $filename;
+
+		if ( file_exists( $destination ) ) {
+			return $this->assets_upload_url . $filename;
+		}
+
+		return '';
+	}
+
+	/**
+	 * Determine whether the provided path points to a supported image file.
+	 *
+	 * @since    2.3.14
+	 *
+	 * @param    string $path Absolute file path.
+	 * @return   bool
+	 */
+        private function is_image_file( $path ) {
+		if ( empty( $path ) ) {
+			return false;
+		}
+
+		$extension = strtolower( pathinfo( $path, PATHINFO_EXTENSION ) );
+		if ( '' === $extension ) {
+			return false;
+		}
+
+		$allowed_extensions = array( 'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp' );
+
+		return in_array( $extension, $allowed_extensions, true );
+	}
+
+        /**
          * Renders the Spin to Win experience markup.
          *
          * @since    1.0.0
@@ -190,7 +355,10 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 $show_cta = filter_var( $atts['show_cta'], FILTER_VALIDATE_BOOLEAN );
                 $prizes   = isset( $configuration['prizes'] ) ? $configuration['prizes'] : array();
                 $messages = isset( $configuration['messages'] ) ? $configuration['messages'] : array();
-                $wheel_logo_url = plugins_url( 'public/images/TSIARTAS-logo-transparent.png', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE );
+		$wheel_logo_url = $this->get_uploaded_asset_url( 'TSIARTAS-logo-transparent.png' );
+		if ( '' === $wheel_logo_url ) {
+			$wheel_logo_url = plugins_url( 'public/images/TSIARTAS-logo-transparent.png', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE );
+		}
 
                 ob_start();
                 ?>
