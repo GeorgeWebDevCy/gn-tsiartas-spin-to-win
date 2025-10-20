@@ -23,23 +23,9 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
-### 2.3.2
-- Reverted the desktop-only overlay so the wheel renders identically on all devices and remains visible to editors testing on large screens.
-- Bumped plugin metadata and translation template to version 2.3.2.
-
-### 2.3.1
-- Reintroduced the desktop-only QR reminder modal so desktop visitors know to play from their phone.
-- Bumped plugin metadata and translation template to version 2.3.1.
-
-### 2.3.0
-- Restored the plugin bootstrap so the shortcode renders markup instead of the literal tag.
-- Rebuilt the public shortcode handler with verbose inline documentation and a basic AJAX fallback.
-
-### 2.2.8
-- Bumped the plugin metadata and documentation to version 2.2.8 in preparation for the next release package.
-
-### 2.2.7
-- Ensure all public and admin date displays honour the WordPress site timezone instead of the underlying server configuration.
+### 2.3.3
+- Reverted the plugin to the 2.2.5 codebase so the wheel layout, styling, and behaviour match the proven baseline.
+- Bumped plugin metadata and documentation to version 2.3.3 for distribution.
 
 ### 2.2.5
 - Refreshed the wheel header date and time display so the experience always communicates the current store schedule.

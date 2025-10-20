@@ -80,6 +80,7 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                         'friday_quotas'      => array(
                                 '5'   => 0,
                                 '10'  => 0,
+                                '15'  => 0,
                                 '50'  => 1,
                                 '100' => 1,
                         ),
@@ -117,7 +118,7 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
 
                 $settings    = $this->get_settings();
                 $option_name = $this->get_option_name();
-                $timestamp   = $this->get_current_timestamp();
+                $timestamp   = current_time( 'timestamp' );
 
                 $server_day      = wp_date( 'l', $timestamp );
                 $server_datetime = wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $timestamp );
@@ -284,18 +285,13 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                 $defaults    = self::get_default_settings();
                 $quotas      = array_replace( $defaults['friday_quotas'], $quotas );
 
-                $supported = self::get_supported_voucher_denominations();
-                $denominations = array();
-
-                foreach ( $supported as $value ) {
-                        $denominations[ $value ] = sprintf(
-                                /* translators: %s: voucher amount */
-                                __( '€%s vouchers', 'gn-tsiartas-spin-to-win' ),
-                                $value
-                        );
-                }
-
-                $quotas = array_intersect_key( $quotas, array_flip( $supported ) );
+                $denominations = array(
+                        '5'   => __( '€5 vouchers', 'gn-tsiartas-spin-to-win' ),
+                        '10'  => __( '€10 vouchers', 'gn-tsiartas-spin-to-win' ),
+                        '15'  => __( '€15 vouchers', 'gn-tsiartas-spin-to-win' ),
+                        '50'  => __( '€50 vouchers', 'gn-tsiartas-spin-to-win' ),
+                        '100' => __( '€100 vouchers', 'gn-tsiartas-spin-to-win' ),
+                );
                 ?>
                 <fieldset class="gn-tsiartas-spin-to-win__friday-quotas">
                         <legend class="screen-reader-text"><?php esc_html_e( 'Friday voucher quotas', 'gn-tsiartas-spin-to-win' ); ?></legend>
@@ -420,7 +416,6 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
         private function sanitize_friday_quotas( $input, $option_name ) {
                 $defaults = self::get_default_settings();
                 $defaults = isset( $defaults['friday_quotas'] ) ? $defaults['friday_quotas'] : array();
-                $allowed   = array_flip( self::get_supported_voucher_denominations() );
 
                 if ( ! is_array( $input ) ) {
                         $input = array();
@@ -428,10 +423,6 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
 
                 $sanitized = array();
                 foreach ( $defaults as $value => $default_quota ) {
-                        if ( ! isset( $allowed[ $value ] ) ) {
-                                continue;
-                        }
-
                         $raw = isset( $input[ $value ] ) ? $input[ $value ] : $default_quota;
                         $quota = max( 0, absint( $raw ) );
 
@@ -471,27 +462,9 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                         $saved = array();
                 }
 
-                if ( isset( $saved['friday_quotas'] ) && is_array( $saved['friday_quotas'] ) ) {
-                        $saved['friday_quotas'] = array_intersect_key(
-                                $saved['friday_quotas'],
-                                array_flip( self::get_supported_voucher_denominations() )
-                        );
-                }
-
                 $this->settings = wp_parse_args( $saved, self::get_default_settings() );
 
                 return $this->settings;
-        }
-
-        /**
-         * Retrieve the supported voucher denominations.
-         *
-         * @since    2.4.0
-         *
-         * @return   array
-         */
-        private static function get_supported_voucher_denominations() {
-                return array( '5', '10', '50', '100' );
         }
 
         /**
@@ -566,7 +539,7 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                         return true;
                 }
 
-                $timestamp   = $this->get_current_timestamp();
+                $timestamp   = current_time( 'timestamp' );
                 $current_day = strtolower( wp_date( 'l', $timestamp ) );
                 if ( $configured_day !== $current_day ) {
                         return false;
@@ -607,23 +580,6 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                 }
 
                 return ( (int) $parsed->format( 'H' ) * 60 ) + (int) $parsed->format( 'i' );
-        }
-
-        /**
-         * Retrieve the current timestamp in UTC based on the site's configured timezone.
-         *
-         * @since    2.2.6
-         *
-         * @return   int
-         */
-        private function get_current_timestamp() {
-                $datetime = current_datetime();
-
-                if ( $datetime instanceof DateTimeInterface ) {
-                        return $datetime->getTimestamp();
-                }
-
-                return time();
         }
 
         /**

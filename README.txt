@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.3.2
+Stable tag: 2.3.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,23 +52,9 @@ provided by the Plugin Update Checker library.
 
 == Changelog ==
 
-= 2.3.2 =
-* Remove the desktop-only overlay so the shortcode output matches the responsive wheel shown before the regression.
-* Bump plugin metadata and documentation to version 2.3.2.
-
-= 2.3.1 =
-* Reintroduce the desktop-only QR reminder modal so desktop visitors know to scan the in-store code and play on mobile.
-* Bump plugin metadata and documentation to version 2.3.1.
-
-= 2.3.0 =
-* Restore the plugin bootstrap so the `[tsiartas_spin_to_win]` shortcode renders the wheel markup instead of the shortcode text.
-* Added a documented shortcode template, configuration payload, and AJAX handler to guide future maintenance.
-
-= 2.2.8 =
-* Bump the plugin metadata and documentation to version 2.2.8 so release packaging stays in sync.
-
-= 2.2.7 =
-* Ensure the wheel header and modal footer show the site's configured local time instead of the server timezone.
+= 2.3.3 =
+* Revert the plugin to the proven 2.2.5 codebase so the wheel and configuration behave exactly as the earlier release.
+* Bump plugin metadata and readme documentation to version 2.3.3 for distribution.
 
 = 2.2.5 =
 * Refreshed the wheel header date/time so the public experience always reflects the current store schedule.
@@ -167,9 +153,6 @@ provided by the Plugin Update Checker library.
 * Initial release of the GN Tsiartas Spin to Win experience.
 
 == Upgrade Notice ==
-
-= 2.3.2 =
-Install this update to restore the desktop view so the wheel remains visible on large screens and to stay current with the 2.3.2 version metadata.
 
 = 2.1 =
 Update to remove the diagnostic console logging from the admin and public scripts while receiving the 2.1 metadata bump.
