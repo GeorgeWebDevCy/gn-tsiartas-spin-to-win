@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.3.16
+Stable tag: 2.3.17
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,10 @@ provided by the Plugin Update Checker library.
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+\= 2.3.17 =
+* Display a reminder beneath the wheel date that Spin to Win is available for purchases above €50.
+* Bump the plugin metadata and documentation references to version 2.3.17 for release packaging.
 
 \= 2.3.16 =
 * Hard-code the wheel logo to load directly from tsiartassupermarket.com to ensure the latest branding is always displayed.
