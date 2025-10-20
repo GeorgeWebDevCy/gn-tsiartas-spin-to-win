@@ -23,6 +23,10 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 2.3.1
+- Reintroduced the desktop-only QR reminder modal so desktop visitors know to play from their phone.
+- Bumped plugin metadata and translation template to version 2.3.1.
+
 ### 2.3.0
 - Restored the plugin bootstrap so the shortcode renders markup instead of the literal tag.
 - Rebuilt the public shortcode handler with verbose inline documentation and a basic AJAX fallback.

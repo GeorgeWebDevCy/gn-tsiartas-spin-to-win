@@ -2,7 +2,7 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: GN Tsiartas Spin to WIN 2.3.0\n"
+"Project-Id-Version: GN Tsiartas Spin to WIN 2.3.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gn-tsiartas-spin-to-win\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -155,6 +155,18 @@ msgstr ""
 
 #: public/class-gn-tsiartas-spin-to-win-public.php:211
 msgid "Available prizes"
+msgstr ""
+
+#: public/partials/gn-tsiartas-spin-to-win-public-display.php:38
+msgid "Play Spin to Win on your phone"
+msgstr ""
+
+#: public/partials/gn-tsiartas-spin-to-win-public-display.php:41
+msgid "Scan the in-store QR code with your mobile camera to launch the wheel and claim today’s rewards."
+msgstr ""
+
+#: public/partials/gn-tsiartas-spin-to-win-public-display.php:44
+msgid "Got it, I will play on mobile"
 msgstr ""
 
 #: public/class-gn-tsiartas-spin-to-win-public.php:231
