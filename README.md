@@ -23,6 +23,10 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 2.3.0
+- Restored the plugin bootstrap so the shortcode renders markup instead of the literal tag.
+- Rebuilt the public shortcode handler with verbose inline documentation and a basic AJAX fallback.
+
 ### 2.2.8
 - Bumped the plugin metadata and documentation to version 2.2.8 in preparation for the next release package.
 

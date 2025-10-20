@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.2.8
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,10 @@ provided by the Plugin Update Checker library.
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+= 2.3.0 =
+* Restore the plugin bootstrap so the `[tsiartas_spin_to_win]` shortcode renders the wheel markup instead of the shortcode text.
+* Added a documented shortcode template, configuration payload, and AJAX handler to guide future maintenance.
 
 = 2.2.8 =
 * Bump the plugin metadata and documentation to version 2.2.8 so release packaging stays in sync.
