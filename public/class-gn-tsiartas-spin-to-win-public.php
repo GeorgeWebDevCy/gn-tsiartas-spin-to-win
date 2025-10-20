@@ -268,26 +268,43 @@ class Gn_Tsiartas_Spin_To_Win_Public {
 	 * @return   string
 	 */
         private function get_uploaded_asset_url( $filename ) {
-		if ( empty( $filename ) ) {
-			return '';
-		}
+                if ( empty( $filename ) ) {
+                        return '';
+                }
 
-		if ( empty( $this->assets_upload_dir ) || empty( $this->assets_upload_url ) ) {
-			$this->ensure_public_assets();
-		}
+                if ( empty( $this->assets_upload_dir ) || empty( $this->assets_upload_url ) ) {
+                        $this->ensure_public_assets();
+                }
 
-		if ( empty( $this->assets_upload_dir ) || empty( $this->assets_upload_url ) ) {
-			return '';
-		}
+                if ( empty( $this->assets_upload_dir ) || empty( $this->assets_upload_url ) ) {
+                        return '';
+                }
 
-		$destination = $this->assets_upload_dir . $filename;
+                $destination = $this->assets_upload_dir . $filename;
 
-		if ( file_exists( $destination ) ) {
-			return $this->assets_upload_url . $filename;
-		}
+                if ( file_exists( $destination ) ) {
+                        return $this->assets_upload_url . $filename;
+                }
 
-		return '';
-	}
+                $source_dir  = trailingslashit( plugin_dir_path( __FILE__ ) . 'images' );
+                $source_file = $source_dir . $filename;
+
+                if ( ! file_exists( $source_file ) || ! $this->is_image_file( $source_file ) ) {
+                        return '';
+                }
+
+                if ( ! is_dir( $this->assets_upload_dir ) ) {
+                        if ( ! function_exists( 'wp_mkdir_p' ) || ! wp_mkdir_p( $this->assets_upload_dir ) ) {
+                                return '';
+                        }
+                }
+
+                if ( copy( $source_file, $destination ) ) {
+                        return $this->assets_upload_url . $filename;
+                }
+
+                return '';
+        }
 
 	/**
 	 * Determine whether the provided path points to a supported image file.
