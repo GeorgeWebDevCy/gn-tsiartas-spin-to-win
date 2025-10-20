@@ -205,6 +205,10 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 <p class="gn-tsiartas-spin-to-win__current-date" data-role="current-date">
                                         <?php echo esc_html( $formatted_date ); ?>
                                 </p>
+                        <div class="gn-tsiartas-spin-to-win__wheel-wrapper">
+                                <div class="gn-tsiartas-spin-to-win__wheel-glow" aria-hidden="true"></div>
+                                <div class="gn-tsiartas-spin-to-win__ambient-orbs" aria-hidden="true"></div>
+                                <div class="gn-tsiartas-spin-to-win__celebration-layer" data-role="celebration-layer" aria-hidden="true"></div>
                                 <div class="gn-tsiartas-spin-to-win__wheel" data-role="wheel" aria-live="polite">
                                         <img
                                                 class="gn-tsiartas-spin-to-win__wheel-logo"
@@ -213,6 +217,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                                 data-role="wheel-hub"
                                         />
                                 </div>
+                        </div>
                                 <button type="button" class="gn-tsiartas-spin-to-win__spin-button" data-action="spin">
                                         <span class="gn-tsiartas-spin-to-win__spin-pointer" aria-hidden="true"></span>
                                         <span class="gn-tsiartas-spin-to-win__spin-label"><?php echo esc_html__( 'Spin the wheel', 'gn-tsiartas-spin-to-win' ); ?></span>
