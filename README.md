@@ -23,6 +23,10 @@ GitHub releases for stable distributions.
 
 ## Release notes
 
+### 2.3.2
+- Reverted the desktop-only overlay so the wheel renders identically on all devices and remains visible to editors testing on large screens.
+- Bumped plugin metadata and translation template to version 2.3.2.
+
 ### 2.3.1
 - Reintroduced the desktop-only QR reminder modal so desktop visitors know to play from their phone.
 - Bumped plugin metadata and translation template to version 2.3.1.

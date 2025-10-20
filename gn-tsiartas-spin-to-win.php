@@ -2,7 +2,7 @@
 /**
  * Plugin Name: GN Tsiartas Spin To Win
  * Description: Lucky spin wheel game with vouchers and try-again slices.
- * Version: 2.3.1
+ * Version: 2.3.2
  */
 
 /**
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * project.
  */
 if ( ! defined( 'GN_TSIARTAS_SPIN_TO_WIN_VERSION' ) ) {
-        define( 'GN_TSIARTAS_SPIN_TO_WIN_VERSION', '2.3.1' );
+        define( 'GN_TSIARTAS_SPIN_TO_WIN_VERSION', '2.3.2' );
 }
 
 /**

@@ -14,46 +14,6 @@
 /* global SpinToWin */
 
 (() => {
-  const DESKTOP_MODAL_SELECTOR = '[data-gn-tsiartas-spin-to-win-desktop-modal]';
-
-  const closeDesktopModal = (modal) => {
-    if (!modal) {
-      return;
-    }
-    modal.setAttribute('aria-hidden', 'true');
-    modal.classList.add('gn-tsiartas-spin-to-win__desktop-modal--dismissed');
-  };
-
-  const bindDesktopModalEvents = () => {
-    if (typeof document === 'undefined') {
-      return;
-    }
-    const modal = document.querySelector(DESKTOP_MODAL_SELECTOR);
-    if (!modal) {
-      return;
-    }
-
-    modal.addEventListener('click', (event) => {
-      if (event.target.matches('[data-action="dismiss-desktop-modal"]') || event.target === modal) {
-        closeDesktopModal(modal);
-      }
-    });
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
-        closeDesktopModal(modal);
-      }
-    });
-  };
-
-  if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', bindDesktopModalEvents);
-    } else {
-      bindDesktopModalEvents();
-    }
-  }
-
   // Updated default colours to better match the design in the provided image.
   // The array contains eight distinct colours and will be cycled through
   // when rendering the wheel slices. Colours were chosen to provide a
