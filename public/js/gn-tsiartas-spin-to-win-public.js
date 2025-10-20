@@ -655,10 +655,35 @@
         };
 
         SpinToWin.prototype.processSpinSuccess = function( data ) {
+                data = data || {};
+
+                var messages = this.config.messages || {};
+                var mismatchMessage = messages.prizeMismatch || 'Παρουσιάστηκε πρόβλημα στην επιβεβαίωση του δώρου. Ανανεώστε τη σελίδα και προσπαθήστε ξανά.';
                 var prize = this.findPrizeById( data.prizeId );
+                var resolvedViaFallback = false;
 
                 if ( ! prize ) {
-                        prize = this.findPrizeById( 'try-again' ) || this.config.prizes[ 0 ] || {};
+                        prize = this.resolvePrizeFromPayload( data );
+
+                        if ( prize ) {
+                                resolvedViaFallback = true;
+                                if ( window.console && window.console.warn ) {
+                                        window.console.warn( 'Spin-to-win payload prizeId did not match configuration. Falling back to alternate fields to resolve prize.', data );
+                                }
+                        }
+                }
+
+                if ( ! prize ) {
+                        if ( window.console && window.console.error ) {
+                                window.console.error( 'Unable to resolve spin-to-win prize from server payload.', data );
+                        }
+
+                        this.handleSpinError( {
+                                code: 'prize_mismatch',
+                                message: mismatchMessage,
+                        } );
+
+                        return;
                 }
 
                 var resolvedPrize = $.extend( true, {}, prize );
@@ -677,12 +702,27 @@
                 }
 
                 resolvedPrize.serverData = data;
+                resolvedPrize.wasResolvedViaFallback = resolvedViaFallback;
+
+                var targetRotation = this.computeTargetRotation( resolvedPrize );
+
+                if ( null === targetRotation ) {
+                        if ( window.console && window.console.error ) {
+                                window.console.error( 'Unable to compute target rotation for resolved prize.', resolvedPrize );
+                        }
+
+                        this.handleSpinError( {
+                                code: 'prize_rotation_failure',
+                                message: mismatchMessage,
+                        } );
+
+                        return;
+                }
+
                 this.pendingSpinData = {
                         prize: resolvedPrize,
                         serverData: data,
                 };
-
-                var targetRotation = this.computeTargetRotation( resolvedPrize );
 
                 window.requestAnimationFrame( function() {
                         if ( ! this.$wheel.length ) {
@@ -736,7 +776,7 @@
                 } );
 
                 if ( index < 0 ) {
-                        index = 0;
+                        return null;
                 }
 
                 var segmentCount = this.config.prizes.length;
@@ -745,6 +785,11 @@
                 var randomOffset = ( Math.random() - 0.5 ) * anglePerSegment * ( this.reducedMotion ? 0.2 : 0.4 );
 
                 var targetRotation = rotations * 360 + this.baseRotation - ( anglePerSegment * index ) + randomOffset;
+
+                if ( ! isFinite( targetRotation ) ) {
+                        return null;
+                }
+
                 this.currentRotation = targetRotation % 360;
 
 
@@ -842,6 +887,78 @@
 
                 this.$prizeList.find( '.gn-tsiartas-spin-to-win__prize-item' ).removeClass( 'is-active' );
                 this.$prizeList.find( '[data-prize-id="' + prizeId + '"]' ).addClass( 'is-active' );
+        };
+
+        SpinToWin.prototype.resolvePrizeFromPayload = function( data ) {
+
+                if ( ! data ) {
+                        return null;
+                }
+
+                var prizes = this.config.prizes || [];
+
+                if ( ! prizes.length ) {
+                        return null;
+                }
+
+                if ( data.prizeId ) {
+                        var direct = this.findPrizeById( data.prizeId );
+                        if ( direct ) {
+                                return direct;
+                        }
+                }
+
+                var numericDenomination = null;
+                if ( 'undefined' !== typeof data.awardedDenomination && null !== data.awardedDenomination ) {
+                        var denominationMatch = String( data.awardedDenomination ).match( /([0-9]+)/ );
+                        if ( denominationMatch && denominationMatch[ 1 ] ) {
+                                numericDenomination = parseInt( denominationMatch[ 1 ], 10 );
+                        }
+                }
+
+                if ( null !== numericDenomination && ! isNaN( numericDenomination ) ) {
+                        var denominationIndex = findPrizeIndexByValue( prizes, numericDenomination );
+                        if ( denominationIndex >= 0 ) {
+                                return prizes[ denominationIndex ];
+                        }
+                }
+
+                var extractedValue = extractEuroValue( {
+                        value: data.value,
+                        label: data.label,
+                        description: data.description,
+                } );
+
+                if ( null !== extractedValue && ! isNaN( extractedValue ) ) {
+                        var extractedIndex = findPrizeIndexByValue( prizes, extractedValue );
+                        if ( extractedIndex >= 0 ) {
+                                return prizes[ extractedIndex ];
+                        }
+                }
+
+                var payloadLabel = data.label && 'string' === typeof data.label ? data.label.trim().toLowerCase() : '';
+
+                if ( payloadLabel ) {
+                        for ( var i = 0; i < prizes.length; i++ ) {
+                                var prizeLabel = prizes[ i ].label && 'string' === typeof prizes[ i ].label ? prizes[ i ].label.trim().toLowerCase() : '';
+                                if ( prizeLabel && prizeLabel === payloadLabel ) {
+                                        return prizes[ i ];
+                                }
+                        }
+                }
+
+                var payloadValue = data.value && 'string' === typeof data.value ? data.value.trim().toLowerCase() : '';
+
+                if ( payloadValue ) {
+                        for ( var j = 0; j < prizes.length; j++ ) {
+                                var prizeValue = prizes[ j ].value && 'string' === typeof prizes[ j ].value ? prizes[ j ].value.trim().toLowerCase() : '';
+                                if ( prizeValue && prizeValue === payloadValue ) {
+                                        return prizes[ j ];
+                                }
+                        }
+                }
+
+                return null;
         };
 
         SpinToWin.prototype.findPrizeById = function( prizeId ) {

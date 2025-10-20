@@ -215,3 +215,18 @@ The following checklist covers the pacing, quota, and forced-spin safeguards add
    - After generating tracking data, run `wp option patch update gn_tsiartas_spin_to_win_friday_tracking total_spins 49` and `wp option patch update gn_tsiartas_spin_to_win_friday_tracking totals.50 0`.
    - Trigger another spin and confirm the response shows `awardedDenomination: "50"`.
    - Repeat by setting `total_spins` to `99` and `totals.100` to `0`; the next spin must report the €100 voucher.
+4. **Regression: mismatched prize identifiers**
+   - In the browser console, run:
+
+     ```js
+     const instance = window.gnTsiartasSpinToWin.instances[0];
+     const original = instance.processSpinSuccess;
+     instance.processSpinSuccess = function(payload) {
+         var mutated = window.jQuery.extend(true, {}, payload);
+         mutated.prizeId = 'fake-id-' + Date.now();
+         return original.call(instance, mutated);
+     };
+     ```
+
+   - Click the spin button once and confirm the wheel lands on the same prize described in the modal (no fallback to an incorrect wedge or generic error message).
+   - Restore the original handler with `instance.processSpinSuccess = original;` after completing the check.
