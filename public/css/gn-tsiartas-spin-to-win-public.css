@@ -67,6 +67,15 @@
         box-shadow: inset 0 0 0 1px rgba(27, 67, 50, 0.12);
 }
 
+.gn-tsiartas-spin-to-win__minimum-purchase {
+        margin: 0.4rem 0 0;
+        color: var(--gn-tsiartas-muted);
+        font-size: clamp(0.8rem, 2.2vmin, 0.95rem);
+        font-weight: 500;
+        text-align: center;
+        max-width: 22rem;
+}
+
 .gn-tsiartas-spin-to-win__wheel {
         position: relative;
         width: min(100%, var(--gn-tsiartas-wheel-size));

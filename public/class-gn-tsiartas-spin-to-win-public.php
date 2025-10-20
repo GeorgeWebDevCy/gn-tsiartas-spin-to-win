@@ -387,6 +387,9 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 <p class="gn-tsiartas-spin-to-win__current-date" data-role="current-date">
                                         <?php echo esc_html( $formatted_date ); ?>
                                 </p>
+                                <p class="gn-tsiartas-spin-to-win__minimum-purchase" data-role="minimum-purchase-notice">
+                                        <?php echo esc_html__( 'Spin to Win is available for purchases above €50.', 'gn-tsiartas-spin-to-win' ); ?>
+                                </p>
                                 <div class="gn-tsiartas-spin-to-win__wheel" data-role="wheel" aria-live="polite">
                                         <img
                                                 class="gn-tsiartas-spin-to-win__wheel-logo"
