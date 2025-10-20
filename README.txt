@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.3.12
+Stable tag: 2.3.13
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,7 +52,11 @@ provided by the Plugin Update Checker library.
 
 == Changelog ==
 
-\= 2.3.12 =
+\= 2.3.13 =
+* Confirm compatibility with current WordPress maintenance releases while keeping the proven 2.3.10 wheel configuration intact.
+* Bump the plugin header, version constant, and documentation references to 2.3.13 for release packaging.
+
+= 2.3.12 =
 * Revert the celebration overlay and styling changes shipped in 2.3.11 so the experience matches the proven 2.3.10 baseline.
 * Bump the plugin header, version constant, and documentation references to 2.3.12 for release packaging.
 
