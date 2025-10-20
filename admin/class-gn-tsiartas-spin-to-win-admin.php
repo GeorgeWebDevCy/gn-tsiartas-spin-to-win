@@ -80,7 +80,6 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                         'friday_quotas'      => array(
                                 '5'   => 0,
                                 '10'  => 0,
-                                '15'  => 0,
                                 '50'  => 1,
                                 '100' => 1,
                         ),
@@ -288,7 +287,6 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                 $denominations = array(
                         '5'   => __( '€5 vouchers', 'gn-tsiartas-spin-to-win' ),
                         '10'  => __( '€10 vouchers', 'gn-tsiartas-spin-to-win' ),
-                        '15'  => __( '€15 vouchers', 'gn-tsiartas-spin-to-win' ),
                         '50'  => __( '€50 vouchers', 'gn-tsiartas-spin-to-win' ),
                         '100' => __( '€100 vouchers', 'gn-tsiartas-spin-to-win' ),
                 );
