@@ -42,7 +42,7 @@
                 '#af52de',
                 '#ff2d55',
         ];
-        var POINTER_ANGLE = -90;
+        var POINTER_ANGLE = 180;
 
         function SpinToWin( $root, config, settings ) {
                 this.$root = $root;
@@ -715,7 +715,7 @@
 
                 var targetRotation = this.computeTargetRotation( resolvedPrize );
 
-                if ( null === targetRotation ) {
+                if ( ! targetRotation ) {
                         if ( window.console && window.console.error ) {
                                 window.console.error( 'Unable to compute target rotation for resolved prize.', resolvedPrize );
                         }
@@ -738,7 +738,7 @@
                                 return;
                         }
 
-                        this.$wheel[ 0 ].style.setProperty( '--rotation-angle', targetRotation + 'deg' );
+                        this.$wheel[ 0 ].style.setProperty( '--rotation-angle', targetRotation.applied + 'deg' );
                 }.bind( this ) );
 
                 window.setTimeout( function() {
@@ -793,13 +793,14 @@
                 var rotations = this.reducedMotion ? 2 : 6 + Math.floor( Math.random() * 3 );
                 var randomOffset = ( Math.random() - 0.5 ) * anglePerSegment * ( this.reducedMotion ? 0.2 : 0.4 );
 
-                var targetRotation = rotations * 360 + this.baseRotation - ( anglePerSegment * index ) + randomOffset;
+                var rotationOffset = rotations * 360 - ( anglePerSegment * index ) + randomOffset;
+                var appliedRotation = this.baseRotation + rotationOffset;
 
-                if ( ! isFinite( targetRotation ) ) {
+                if ( ! isFinite( appliedRotation ) ) {
                         return null;
                 }
 
-                this.currentRotation = targetRotation % 360;
+                this.currentRotation = appliedRotation % 360;
 
                 if ( window.console && window.console.log ) {
                         window.console.log( 'Spin-to-win computed target rotation.', {
@@ -809,12 +810,16 @@
                                 baseRotation: this.baseRotation,
                                 rotations: rotations,
                                 randomOffset: randomOffset,
-                                targetRotation: targetRotation,
+                                rotationOffset: rotationOffset,
+                                appliedRotation: appliedRotation,
                                 currentRotation: this.currentRotation,
                         } );
                 }
 
-                return targetRotation;
+                return {
+                        applied: appliedRotation,
+                        offset: rotationOffset,
+                };
         };
 
         SpinToWin.prototype.completeSpin = function( prize, serverData ) {
