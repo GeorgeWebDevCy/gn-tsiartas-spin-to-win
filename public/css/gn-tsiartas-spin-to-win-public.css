@@ -67,82 +67,10 @@
         box-shadow: inset 0 0 0 1px rgba(27, 67, 50, 0.12);
 }
 
-.gn-tsiartas-spin-to-win__wheel-wrapper {
+.gn-tsiartas-spin-to-win__wheel {
         position: relative;
         width: min(100%, var(--gn-tsiartas-wheel-size));
         max-width: min(90vw, 32rem);
-        aspect-ratio: 1 / 1;
-        display: grid;
-        place-items: center;
-}
-
-.gn-tsiartas-spin-to-win__wheel-wrapper > * {
-        grid-area: 1 / 1;
-}
-
-.gn-tsiartas-spin-to-win__wheel-glow {
-        position: absolute;
-        inset: 8%;
-        border-radius: 50%;
-        background: radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.35), rgba(255, 0, 0, 0));
-        filter: blur(22px) saturate(110%);
-        opacity: 0.55;
-        z-index: 1;
-        pointer-events: none;
-        transform: scale(0.98);
-}
-
-.gn-tsiartas-spin-to-win__ambient-orbs {
-        position: absolute;
-        inset: -12%;
-        pointer-events: none;
-        z-index: 2;
-        overflow: hidden;
-        mix-blend-mode: screen;
-}
-
-.gn-tsiartas-spin-to-win__ambient-orbs::before,
-.gn-tsiartas-spin-to-win__ambient-orbs::after {
-        content: '';
-        position: absolute;
-        width: 60%;
-        aspect-ratio: 1 / 1;
-        border-radius: 50%;
-        opacity: 0.35;
-        filter: blur(0.6rem);
-}
-
-.gn-tsiartas-spin-to-win__ambient-orbs::before {
-        top: 12%;
-        left: -15%;
-        background: radial-gradient(circle at 30% 30%, rgba(217, 4, 41, 0.65), rgba(217, 4, 41, 0));
-}
-
-.gn-tsiartas-spin-to-win__ambient-orbs::after {
-        bottom: 8%;
-        right: -10%;
-        background: radial-gradient(circle at 70% 70%, rgba(27, 67, 50, 0.6), rgba(27, 67, 50, 0));
-}
-
-.gn-tsiartas-spin-to-win__celebration-layer {
-        position: absolute;
-        inset: -10%;
-        z-index: 6;
-        pointer-events: none;
-        overflow: visible;
-        display: block;
-        opacity: 0;
-        transition: opacity 220ms ease;
-}
-
-.gn-tsiartas-spin-to-win.is-celebrating .gn-tsiartas-spin-to-win__celebration-layer {
-        opacity: 1;
-}
-
-.gn-tsiartas-spin-to-win__wheel {
-        position: relative;
-        width: 100%;
-        max-width: 100%;
         aspect-ratio: 1 / 1;
         border-radius: 50%;
         background: conic-gradient(var(--gn-tsiartas-neutral), var(--gn-tsiartas-neutral));
@@ -158,7 +86,6 @@
         --slice-distance: clamp(7.5rem, 28vmin, 11.5rem);
         --slice-label-width: 37.261755px;
         --slice-font-size: clamp(0.7rem, 2.5vmin, 0.95rem);
-        z-index: 4;
 }
 
 .gn-tsiartas-spin-to-win.is-spinning .gn-tsiartas-spin-to-win__wheel {
@@ -326,9 +253,7 @@
         border-right: 1.1rem solid transparent;
         border-bottom: 1.9rem solid rgba(255, 255, 255, 0.92);
         filter: drop-shadow(0 0.25rem 0.35rem rgba(0, 0, 0, 0.2));
-        transform: translate(-50%, 0) rotate(0deg);
-        transform-origin: 50% 100%;
-        will-change: transform;
+        transform: translateX(-50%);
         z-index: 10;
 }
 
@@ -343,58 +268,6 @@
         border-radius: 999px;
         box-shadow: inset 0 0 0.2rem rgba(255, 255, 255, 0.45);
         transform: translateX(-50%);
-}
-
-.gn-tsiartas-spin-to-win:not(.prefers-reduced-motion) .gn-tsiartas-spin-to-win__wheel-glow {
-        animation: gn-tsiartas-wheel-glow 8s ease-in-out infinite;
-}
-
-.gn-tsiartas-spin-to-win:not(.prefers-reduced-motion) .gn-tsiartas-spin-to-win__ambient-orbs::before {
-        animation: gn-tsiartas-ambient-orb-a 18s ease-in-out infinite;
-}
-
-.gn-tsiartas-spin-to-win:not(.prefers-reduced-motion) .gn-tsiartas-spin-to-win__ambient-orbs::after {
-        animation: gn-tsiartas-ambient-orb-b 20s ease-in-out infinite;
-}
-
-.gn-tsiartas-spin-to-win:not(.prefers-reduced-motion) .gn-tsiartas-spin-to-win__spin-pointer {
-        animation: gn-tsiartas-pointer-idle 3.2s ease-in-out infinite;
-}
-
-.gn-tsiartas-spin-to-win:not(.prefers-reduced-motion) .gn-tsiartas-spin-to-win__spin-button:not(.is-disabled):hover .gn-tsiartas-spin-to-win__spin-pointer,
-.gn-tsiartas-spin-to-win:not(.prefers-reduced-motion) .gn-tsiartas-spin-to-win__spin-button:not(.is-disabled):focus-visible .gn-tsiartas-spin-to-win__spin-pointer {
-        animation: gn-tsiartas-pointer-hover 950ms ease-in-out infinite;
-}
-
-.gn-tsiartas-spin-to-win.is-spinning .gn-tsiartas-spin-to-win__spin-pointer,
-.gn-tsiartas-spin-to-win.has-spun .gn-tsiartas-spin-to-win__spin-pointer {
-        animation: none;
-}
-
-.gn-tsiartas-spin-to-win__confetti-piece {
-        position: absolute;
-        top: 0;
-        left: 50%;
-        width: var(--confetti-width, 0.45rem);
-        height: var(--confetti-height, 1.35rem);
-        border-radius: 0.3rem;
-        background: hsl(var(--confetti-hue, 10) 85% 60%);
-        transform: translate3d(var(--confetti-x-start, 0), -15%, 0) rotate(var(--confetti-rotation-start, 0deg));
-        transform-origin: center;
-        opacity: 0;
-        animation: gn-tsiartas-confetti-fall var(--confetti-duration, 3200ms) cubic-bezier(0.16, 0.64, 0.32, 1) forwards;
-        animation-delay: var(--confetti-delay, 0ms);
-        mix-blend-mode: screen;
-        will-change: transform, opacity;
-}
-
-.gn-tsiartas-spin-to-win__confetti-piece::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        border-radius: inherit;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.65), rgba(0, 0, 0, 0.1));
-        opacity: 0.8;
 }
 
 .gn-tsiartas-spin-to-win__spin-label {
@@ -683,83 +556,6 @@
         animation: gn-tsiartas-pulse 900ms ease-in-out infinite alternate;
 }
 
-@keyframes gn-tsiartas-wheel-glow {
-        0%,
-        100% {
-                transform: scale(0.98);
-                opacity: 0.45;
-        }
-
-        50% {
-                transform: scale(1.05);
-                opacity: 0.75;
-        }
-}
-
-@keyframes gn-tsiartas-ambient-orb-a {
-        0%,
-        100% {
-                transform: translate3d(-12%, -10%, 0) scale(0.85);
-                opacity: 0.3;
-        }
-
-        50% {
-                transform: translate3d(6%, 12%, 0) scale(1.05);
-                opacity: 0.55;
-        }
-}
-
-@keyframes gn-tsiartas-ambient-orb-b {
-        0%,
-        100% {
-                transform: translate3d(14%, 16%, 0) scale(0.9);
-                opacity: 0.28;
-        }
-
-        50% {
-                transform: translate3d(-8%, -14%, 0) scale(1.08);
-                opacity: 0.5;
-        }
-}
-
-@keyframes gn-tsiartas-pointer-idle {
-        0%,
-        100% {
-                transform: translate(-50%, 0) rotate(-1.5deg);
-        }
-
-        50% {
-                transform: translate(-50%, -0.15rem) rotate(2deg);
-        }
-}
-
-@keyframes gn-tsiartas-pointer-hover {
-        0%,
-        100% {
-                transform: translate(-50%, -0.05rem) rotate(-6deg);
-        }
-
-        50% {
-                transform: translate(-50%, 0.15rem) rotate(2deg);
-        }
-}
-
-@keyframes gn-tsiartas-confetti-fall {
-        0% {
-                opacity: 0;
-                transform: translate3d(var(--confetti-x-start, 0), -20%, 0) rotate(var(--confetti-rotation-start, 0deg));
-        }
-
-        15% {
-                opacity: 1;
-        }
-
-        100% {
-                opacity: 0;
-                transform: translate3d(var(--confetti-x-end, 0), 125%, 0) rotate(var(--confetti-rotation-end, 180deg));
-        }
-}
-
 @keyframes gn-tsiartas-pulse {
         from {
                 filter: brightness(0.95);
@@ -827,17 +623,5 @@
 
         .gn-tsiartas-spin-to-win.is-spinning .gn-tsiartas-spin-to-win__spin-button {
                 animation: none;
-        }
-
-        .gn-tsiartas-spin-to-win__wheel-glow,
-        .gn-tsiartas-spin-to-win__ambient-orbs::before,
-        .gn-tsiartas-spin-to-win__ambient-orbs::after,
-        .gn-tsiartas-spin-to-win__spin-pointer,
-        .gn-tsiartas-spin-to-win__confetti-piece {
-                animation: none !important;
-        }
-
-        .gn-tsiartas-spin-to-win__spin-pointer {
-                transform: translate(-50%, 0) rotate(0deg);
         }
 }
