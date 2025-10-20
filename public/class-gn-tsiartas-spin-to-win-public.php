@@ -372,10 +372,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 $show_cta = filter_var( $atts['show_cta'], FILTER_VALIDATE_BOOLEAN );
                 $prizes   = isset( $configuration['prizes'] ) ? $configuration['prizes'] : array();
                 $messages = isset( $configuration['messages'] ) ? $configuration['messages'] : array();
-		$wheel_logo_url = $this->get_uploaded_asset_url( 'TSIARTAS-logo-transparent.png' );
-		if ( '' === $wheel_logo_url ) {
-			$wheel_logo_url = plugins_url( 'public/images/TSIARTAS-logo-transparent.png', GN_TSIARTAS_SPIN_TO_WIN_PLUGIN_FILE );
-		}
+                $wheel_logo_url = 'https://tsiartassupermarket.com/wp-content/uploads/2025/10/TSIARTAS-logo-transparent.png';
 
                 ob_start();
                 ?>

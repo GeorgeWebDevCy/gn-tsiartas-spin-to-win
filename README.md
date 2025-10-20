@@ -2,7 +2,7 @@
 
 GN Tsiartas Spin to Win delivers an interactive promotional wheel for Tsiartas Supermarket. The plugin bundles the
 front-end assets and WordPress hooks required to display the experience on any page while keeping the admin area clean.
-Version 2.3.15 ensures the branded wheel logo is always served from the WordPress uploads directory so it remains visible for every visitor.
+Version 2.3.16 hard-codes the wheel hub logo to tsiartassupermarket.com so the latest branding is always displayed on the wheel.
 
 ## What's included
 - Responsive, branded spin-to-win experience out of the box.
@@ -23,6 +23,10 @@ GitHub releases for stable distributions.
 4. Adjust assets in the `public/` and `admin/` directories to match current campaign requirements.
 
 ## Release notes
+
+### 2.3.16
+- Hard-codes the wheel hub logo to tsiartassupermarket.com for consistent branding across every spin.
+- Bumps plugin metadata and documentation references to version 2.3.16 for release packaging.
 
 ### 2.3.15
 - Copies the wheel logo into the WordPress uploads directory whenever it is missing so the front-end always references `wp-content`.
