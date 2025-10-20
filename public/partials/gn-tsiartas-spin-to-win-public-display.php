@@ -31,21 +31,6 @@ if ( empty( $payload['wheel_is_visible'] ) ) {
 	$container_classes .= ' gn-tsiartas-spin-to-win--inactive';
 }
 ?>
-<?php if ( ! empty( $payload['wheel_is_visible'] ) ) : ?>
-<div class="gn-tsiartas-spin-to-win__desktop-modal" role="dialog" aria-labelledby="gn-tsiartas-spin-to-win-desktop-modal-title" aria-describedby="gn-tsiartas-spin-to-win-desktop-modal-description" aria-hidden="false" tabindex="-1" data-gn-tsiartas-spin-to-win-desktop-modal>
-        <div class="gn-tsiartas-spin-to-win__desktop-modal__content" role="document">
-                <h2 class="gn-tsiartas-spin-to-win__desktop-modal__title" id="gn-tsiartas-spin-to-win-desktop-modal-title">
-                        <?php esc_html_e( 'Play Spin to Win on your phone', 'gn-tsiartas-spin-to-win' ); ?>
-                </h2>
-                <p class="gn-tsiartas-spin-to-win__desktop-modal__description" id="gn-tsiartas-spin-to-win-desktop-modal-description">
-                        <?php esc_html_e( 'Scan the in-store QR code with your mobile camera to launch the wheel and claim today’s rewards.', 'gn-tsiartas-spin-to-win' ); ?>
-                </p>
-                <button type="button" class="gn-tsiartas-spin-to-win__desktop-modal__close" data-action="dismiss-desktop-modal">
-                        <?php esc_html_e( 'Got it, I will play on mobile', 'gn-tsiartas-spin-to-win' ); ?>
-                </button>
-        </div>
-</div>
-<?php endif; ?>
 <div class="<?php echo esc_attr( $container_classes ); ?>" data-gn-tsiartas-spin-to-win="<?php echo esc_attr( $config_json ); ?>">
         <?php if ( ! empty( $payload['wheel_is_visible'] ) ) : ?>
                 <div class="gn-tsiartas-spin-to-win__canvas" role="presentation" aria-hidden="true"></div>

@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.3.1
+Stable tag: 2.3.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,10 @@ provided by the Plugin Update Checker library.
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+= 2.3.2 =
+* Remove the desktop-only overlay so the shortcode output matches the responsive wheel shown before the regression.
+* Bump plugin metadata and documentation to version 2.3.2.
 
 = 2.3.1 =
 * Reintroduce the desktop-only QR reminder modal so desktop visitors know to scan the in-store code and play on mobile.
@@ -163,6 +167,9 @@ provided by the Plugin Update Checker library.
 * Initial release of the GN Tsiartas Spin to Win experience.
 
 == Upgrade Notice ==
+
+= 2.3.2 =
+Install this update to restore the desktop view so the wheel remains visible on large screens and to stay current with the 2.3.2 version metadata.
 
 = 2.1 =
 Update to remove the diagnostic console logging from the admin and public scripts while receiving the 2.1 metadata bump.
