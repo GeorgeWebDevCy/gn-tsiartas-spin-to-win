@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.3.4
+Stable tag: 2.3.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,10 @@ provided by the Plugin Update Checker library.
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+= 2.3.8 =
+* Bump the plugin header, version constant, and documentation references to 2.3.8 for release packaging.
+* Confirm the GitHub-powered updater continues targeting the `main` branch for distributing the 2.3.8 build.
 
 = 2.3.4 =
 * Align the wheel header and Friday schedule logic with the WordPress timezone setting so shoppers see the correct local time.

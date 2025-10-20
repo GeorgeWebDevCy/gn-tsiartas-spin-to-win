@@ -2,7 +2,7 @@
 
 GN Tsiartas Spin to Win delivers an interactive promotional wheel for Tsiartas Supermarket. The plugin bundles the
 front-end assets and WordPress hooks required to display the experience on any page while keeping the admin area clean.
-Version 2.3.4 also ensures the wheel header respects the site's timezone so the public schedule always reflects local store hours.
+Version 2.3.8 keeps the plugin metadata, documentation, and GitHub updater configuration aligned for a smooth release package.
 
 ## What's included
 - Responsive, branded spin-to-win experience out of the box.
@@ -23,6 +23,10 @@ GitHub releases for stable distributions.
 4. Adjust assets in the `public/` and `admin/` directories to match current campaign requirements.
 
 ## Release notes
+
+### 2.3.8
+- Synchronises the plugin header, version constant, and public readme files to 2.3.8.
+- Confirms the GitHub-powered updater remains pointed at the `main` branch for distributing the 2.3.8 build.
 
 ### 2.3.4
 - Aligns the wheel header date and Friday schedule logic with the WordPress timezone configuration so players always see the correct local time.
