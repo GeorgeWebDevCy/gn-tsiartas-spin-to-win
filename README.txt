@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.3.17
+Stable tag: 2.3.18
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,10 @@ provided by the Plugin Update Checker library.
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+\= 2.3.18 =
+* Pace voucher awards so the hourly release rate respects the configured Friday quotas across the active window.
+* Bump the plugin metadata and documentation references to version 2.3.18 for release packaging.
 
 \= 2.3.17 =
 * Display a reminder beneath the wheel date that Spin to Win is available for purchases above €50.
