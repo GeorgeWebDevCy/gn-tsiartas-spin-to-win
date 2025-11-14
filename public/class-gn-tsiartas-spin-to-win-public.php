@@ -1082,6 +1082,14 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         return $try_again;
                 }
 
+                if ( $this->should_force_try_again( $ratio, $quotas, $totals ) ) {
+                        $try_again = $this->pick_try_again_prize( $prize_map );
+
+                        if ( ! is_wp_error( $try_again ) ) {
+                                return $try_again;
+                        }
+                }
+
                 $total_weight = array_sum( wp_list_pluck( $candidates, 'weight' ) );
                 $random       = wp_rand( 1, (int) $total_weight );
                 $accumulator  = 0;
@@ -1107,6 +1115,58 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 }
 
                 return $prize;
+        }
+
+        /**
+         * Determine whether the current spin should yield a loss even when vouchers are available.
+         *
+         * @since    2.3.19
+         *
+         * @param    float $ratio   Elapsed ratio for the active window.
+         * @param    array $quotas  Configured voucher quotas.
+         * @param    array $totals  Already awarded voucher totals.
+         *
+         * @return   bool
+         */
+        private function should_force_try_again( $ratio, array $quotas, array $totals ) {
+                $quota_total   = 0;
+                $awarded_total = 0;
+
+                foreach ( array( '5', '10' ) as $value ) {
+                        $quota_total   += max( 0, isset( $quotas[ $value ] ) ? (int) $quotas[ $value ] : 0 );
+                        $awarded_total += max( 0, isset( $totals[ $value ] ) ? (int) $totals[ $value ] : 0 );
+                }
+
+                if ( $quota_total <= 0 ) {
+                        return false;
+                }
+
+                $remaining       = max( 0, $quota_total - $awarded_total );
+                $remaining_ratio = $quota_total > 0 ? $remaining / $quota_total : 0;
+
+                if ( $remaining <= 0 ) {
+                        return false;
+                }
+
+                $loss_probability = 0.65;
+
+                if ( $ratio >= 0.9 ) {
+                        $loss_probability = 0.2;
+                } elseif ( $ratio >= 0.75 ) {
+                        $loss_probability = 0.4;
+                } elseif ( $remaining_ratio <= 0.25 ) {
+                        $loss_probability = min( $loss_probability, 0.4 );
+                }
+
+                $threshold = max( 0, min( 100, (int) round( $loss_probability * 100 ) ) );
+
+                if ( 0 === $threshold ) {
+                        return false;
+                }
+
+                $roll = wp_rand( 1, 100 );
+
+                return $roll <= $threshold;
         }
 
         /**
