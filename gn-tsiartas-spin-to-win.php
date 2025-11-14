@@ -16,7 +16,7 @@
  * Plugin Name:       GN Tsiartas Spin to WIN
  * Plugin URI:        https://https://www.georgenicolaou.me/plugins/gn-tsiartas-spin-to-win
  * Description:       A spin to win plugin built for Tsiartas Supermarket
- * Version:           2.3.20
+ * Version:           2.3.21
  * Author:            George Nicolaou
  * Author URI:        https://https://www.georgenicolaou.me//
  * License:           GPL-2.0+
@@ -35,7 +35,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'GN_TSIARTAS_SPIN_TO_WIN_VERSION', '2.3.20' );
+define( 'GN_TSIARTAS_SPIN_TO_WIN_VERSION', '2.3.21' );
 
 if ( ! defined( 'GN_TSIARTAS_SPIN_TO_WIN_OPTION_NAME' ) ) {
         define( 'GN_TSIARTAS_SPIN_TO_WIN_OPTION_NAME', 'gn_tsiartas_spin_to_win_settings' );
