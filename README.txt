@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.3.21
+Stable tag: 2.3.22
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,10 @@ provided by the Plugin Update Checker library.
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+\= 2.3.22 =
+* Treat prizes without a voucher denomination as fallback outcomes so renamed "try again" slices remain available.
+* Bump the plugin metadata and documentation references to version 2.3.22 for release packaging.
 
 \= 2.3.21 =
 * Reissue the 2.3.19 codebase to reverse the spin distribution changes introduced in 2.3.20.

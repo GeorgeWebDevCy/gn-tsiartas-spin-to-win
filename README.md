@@ -2,8 +2,8 @@
 
 GN Tsiartas Spin to Win delivers an interactive promotional wheel for Tsiartas Supermarket. The plugin bundles the
 front-end assets and WordPress hooks required to display the experience on any page while keeping the admin area clean.
-Version 2.3.21 reissues the proven 2.3.19 codebase so the wheel once again favours "try again" outcomes while respecting the
-configured Friday quotas across the active window.
+Version 2.3.22 keeps fallback outcomes available even when "try again" slices use translated or customised identifiers, ensuring
+voucher pools remain untouched until their quotas are reached.
 
 ## What's included
 - Responsive, branded spin-to-win experience out of the box.
@@ -24,6 +24,10 @@ GitHub releases for stable distributions.
 4. Adjust assets in the `public/` and `admin/` directories to match current campaign requirements.
 
 ## Release notes
+
+### 2.3.22
+- Treats any prize lacking a voucher denomination as a fallback outcome so renamed "try again" slices stay available.
+- Bumps plugin metadata and documentation references to version 2.3.22 for release packaging.
 
 ### 2.3.21
 - Reissues the 2.3.19 baseline to roll back the spin distribution adjustments introduced in 2.3.20.
