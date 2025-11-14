@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.3.20
+Stable tag: 2.3.21
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,9 +52,9 @@ provided by the Plugin Update Checker library.
 
 == Changelog ==
 
-\= 2.3.20 =
-* Randomise the €5 and €10 voucher selection order so denominations no longer alternate in a predictable pattern.
-* Bump the plugin metadata and documentation references to version 2.3.20 for release packaging.
+\= 2.3.21 =
+* Reissue the 2.3.19 codebase to reverse the spin distribution changes introduced in 2.3.20.
+* Bump the plugin metadata and documentation references to version 2.3.21 for release packaging.
 
 \= 2.3.19 =
 * Bias spin outcomes toward "try again" results so voucher wins are less frequent while honouring the guaranteed prize schedule.
