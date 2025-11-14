@@ -1025,8 +1025,9 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         return $prize;
                 }
 
+                $voucher_values        = array( '5', '10' );
                 $remaining_quota_total = 0;
-                foreach ( array( '5', '10' ) as $value ) {
+                foreach ( $voucher_values as $value ) {
                         $quota   = isset( $quotas[ $value ] ) ? (int) $quotas[ $value ] : 0;
                         $awarded = isset( $totals[ $value ] ) ? (int) $totals[ $value ] : 0;
                         $remaining_quota_total += max( 0, $quota - $awarded );
@@ -1039,7 +1040,10 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 $ratio      = $this->calculate_elapsed_ratio( $timestamp );
                 $candidates = array();
 
-                foreach ( array( '5', '10' ) as $value ) {
+                $shuffled_values = $voucher_values;
+                shuffle( $shuffled_values );
+
+                foreach ( $shuffled_values as $value ) {
                         $quota   = isset( $quotas[ $value ] ) ? (int) $quotas[ $value ] : 0;
                         $awarded = isset( $totals[ $value ] ) ? (int) $totals[ $value ] : 0;
 
