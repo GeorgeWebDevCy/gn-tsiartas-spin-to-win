@@ -1285,12 +1285,10 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 continue;
                         }
 
-                        $id = isset( $prize['id'] ) ? (string) $prize['id'] : '';
-
-                        if ( '' !== $id && 0 === strpos( $id, 'try-again' ) ) {
-                                $prize['is_voucher'] = false;
-                                $map['try-again'][]   = $prize;
-                        }
+                        $prize['denomination'] = null;
+                        $prize['value']        = null;
+                        $prize['is_voucher']   = false;
+                        $map['try-again'][]    = $prize;
                 }
 
                 return $map;
