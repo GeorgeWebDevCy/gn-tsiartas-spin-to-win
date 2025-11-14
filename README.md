@@ -2,7 +2,7 @@
 
 GN Tsiartas Spin to Win delivers an interactive promotional wheel for Tsiartas Supermarket. The plugin bundles the
 front-end assets and WordPress hooks required to display the experience on any page while keeping the admin area clean.
-Version 2.3.17 adds a minimum purchase reminder beneath the wheel date so shoppers know the €50 eligibility threshold.
+Version 2.3.18 slows voucher wins so the hourly cadence stays aligned with the configured Friday quotas across the active window.
 
 ## What's included
 - Responsive, branded spin-to-win experience out of the box.
@@ -23,6 +23,10 @@ GitHub releases for stable distributions.
 4. Adjust assets in the `public/` and `admin/` directories to match current campaign requirements.
 
 ## Release notes
+
+### 2.3.18
+- Paces voucher awards to honour the configured Friday quotas throughout the promotion window.
+- Bumps plugin metadata and documentation references to version 2.3.18 for release packaging.
 
 ### 2.3.17
 - Displays a reminder under the wheel date that Spin to Win applies to purchases above €50.

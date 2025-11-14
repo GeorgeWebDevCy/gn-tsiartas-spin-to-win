@@ -1049,14 +1049,22 @@ class Gn_Tsiartas_Spin_To_Win_Public {
 
                         $allowed = $this->calculate_allowed_awards( $quota, $ratio );
 
-                        if ( $awarded >= $allowed && $allowed < $quota ) {
+                        if ( $allowed <= $awarded && $allowed < $quota ) {
                                 continue;
                         }
 
                         $remaining = max( 0, $quota - $awarded );
-                        $allowed_now = max( 1, $allowed - $awarded );
+                        $allowed_now = $allowed - $awarded;
+
+                        if ( $allowed_now <= 0 ) {
+                                continue;
+                        }
+
                         $weight = min( $remaining, $allowed_now );
-                        $weight = max( 1, $weight );
+
+                        if ( $weight <= 0 ) {
+                                continue;
+                        }
 
                         $candidates[] = array(
                                 'value'  => $value,
@@ -1140,14 +1148,15 @@ class Gn_Tsiartas_Spin_To_Win_Public {
          * @return   int
          */
         private function calculate_allowed_awards( $quota, $ratio ) {
-                $ratio = max( 0, min( 1, $ratio ) );
+                $quota   = max( 0, (int) $quota );
+                $ratio   = max( 0, min( 1, $ratio ) );
                 $allowed = (int) floor( $quota * $ratio );
 
-                if ( $quota > 0 ) {
-                        $allowed = max( 1, $allowed );
+                if ( $ratio >= 1 ) {
+                        return $quota;
                 }
 
-                return min( $quota, $allowed );
+                return min( $quota, max( 0, $allowed ) );
         }
 
         /**
