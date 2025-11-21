@@ -2,8 +2,8 @@
 
 GN Tsiartas Spin to Win delivers an interactive promotional wheel for Tsiartas Supermarket. The plugin bundles the
 front-end assets and WordPress hooks required to display the experience on any page while keeping the admin area clean.
-Version 2.3.22 keeps fallback outcomes available even when "try again" slices use translated or customised identifiers, ensuring
-voucher pools remain untouched until their quotas are reached.
+Version 2.3.23 guarantees the €50 voucher on the 100th spin and the €100 voucher on the 500th spin while keeping metadata and
+documentation in sync with the latest release.
 
 ## What's included
 - Responsive, branded spin-to-win experience out of the box.
@@ -24,6 +24,10 @@ GitHub releases for stable distributions.
 4. Adjust assets in the `public/` and `admin/` directories to match current campaign requirements.
 
 ## Release notes
+
+### 2.3.23
+- Guarantees the €50 voucher on the 100th spin and the €100 voucher on the 500th spin to align with the updated prize schedule.
+- Bumps plugin metadata and documentation references to version 2.3.23 for release packaging.
 
 ### 2.3.22
 - Treats any prize lacking a voucher denomination as a fallback outcome so renamed "try again" slices stay available.
@@ -187,9 +191,9 @@ Follow these steps to validate the new pacing, quota, and guaranteed-spin logic 
    - Trigger spins from the browser console using `fetch( gnTsiartasSpinToWinConfig.settings.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: new URLSearchParams( { action: 'gn_tsiartas_spin_to_win_spin', nonce: gnTsiartasSpinToWinConfig.settings.nonce } ) } )`.
    - Observe the `remainingQuotas` values in each JSON response and ensure that, once a voucher reaches zero, the response includes `depleted: true` and the UI disables further spins.
 3. **Validate the guaranteed €50/€100 spins**
-   - After creating tracking data, run `wp option patch update gn_tsiartas_spin_to_win_friday_tracking total_spins 49` and `wp option patch update gn_tsiartas_spin_to_win_friday_tracking totals.50 0`.
+   - After creating tracking data, run `wp option patch update gn_tsiartas_spin_to_win_friday_tracking total_spins 99` and `wp option patch update gn_tsiartas_spin_to_win_friday_tracking totals.50 0`.
    - Trigger one more spin and verify the response reports `awardedDenomination: "50"`.
-   - Repeat with `total_spins` set to `99` and `totals.100` set to `0` to confirm the €100 voucher fires on the hundredth spin.
+   - Repeat with `total_spins` set to `499` and `totals.100` set to `0` to confirm the €100 voucher fires on the 500th spin.
 4. **Regression: mismatched prize identifiers**
    - In the browser console, run:
 

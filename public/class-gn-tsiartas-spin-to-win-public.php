@@ -994,8 +994,8 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 $totals    = isset( $tracking['totals'] ) ? $tracking['totals'] : array();
 
                 $forced_spins = array(
-                        50  => '50',
-                        100 => '100',
+                        100 => '50',
+                        500 => '100',
                 );
 
                 if ( isset( $forced_spins[ $spin_number ] ) ) {
@@ -1755,7 +1755,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         array(
                                 'id'          => 'voucher-50',
                                 'label'       => __( '€50', 'gn-tsiartas-spin-to-win' ),
-                                'description' => __( 'Awarded approximately every 50 spins.', 'gn-tsiartas-spin-to-win' ),
+                                'description' => __( 'Guaranteed on the 100th spin.', 'gn-tsiartas-spin-to-win' ),
                                 'weight'      => 1,
                                 'colour'      => '#90be6d',
                                 'color'       => '#90be6d',
@@ -1772,7 +1772,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         array(
                                 'id'          => 'voucher-100',
                                 'label'       => __( '€100', 'gn-tsiartas-spin-to-win' ),
-                                'description' => __( 'Awarded approximately every 100 spins.', 'gn-tsiartas-spin-to-win' ),
+                                'description' => __( 'Guaranteed on the 500th spin.', 'gn-tsiartas-spin-to-win' ),
                                 'weight'      => 1,
                                 'colour'      => '#577590',
                                 'color'       => '#577590',
