@@ -40,6 +40,11 @@ From version 1.1.0, the plugin uses the Plugin Update Checker library to detect 
 https://github.com/GeorgeWebDevCy/gn-tsiartas-spin-to-win/. Publish a tagged release (or update the `main` branch) and
 WordPress will offer the update automatically.
 
+= How are wins paced through the day? =
+
+Voucher quotas are released gradually based on how much of the active window has elapsed. The plugin multiplies each voucher's quota by the fraction of the configured window that has passed and only permits awards up to that allowance. The default 07:00–20:00 window spans 13 hours; if you configure 13:00–20:00 instead, the pacing runs across 7 hours, so the average release rate is roughly each quota divided by 7 with randomness preventing awards beyond the computed allowance at any moment.
+Example: with quotas of ten €5 vouchers, five €10 vouchers, one €50 voucher, and one €100 voucher over 13:00–20:00, the pacing allows roughly 1–2 €5 vouchers and fewer than one of each other denomination per hour; halfway through the window the allowance would cap at five €5 vouchers, two €10 vouchers, and zero €50/€100 vouchers until later in the day.
+
 = Do I need GitHub authentication? =
 
 No. Public access is sufficient. If you later make the repository private, you can configure authentication hooks

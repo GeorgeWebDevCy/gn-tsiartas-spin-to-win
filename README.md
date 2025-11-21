@@ -23,6 +23,11 @@ GitHub releases for stable distributions.
 3. Activate **GN Tsiartas Spin to Win** from the WordPress admin.
 4. Adjust assets in the `public/` and `admin/` directories to match current campaign requirements.
 
+## Voucher pacing
+- Voucher quotas are released gradually across the configured active window using elapsed time. The plugin multiplies each denomination's quota by the fraction of the window that has passed and only allows awards up to that threshold.
+- The default window runs 07:00–20:00 (13 hours), but you can configure any start and end time. For example, if the promotion runs 13:00–20:00 (7 hours), the average release rate becomes roughly `quota ÷ 7` per hour, with randomness preventing awards from exceeding the computed allowance at each moment.
+- Example: with quotas of ten €5 vouchers, five €10 vouchers, one €50 voucher, and one €100 voucher over 13:00–20:00, the pacing allows roughly 1–2 €5 vouchers and fewer than one of each other denomination per hour; halfway through the window the allowance would cap at five €5 vouchers, two €10 vouchers, and zero €50/€100 vouchers until later in the day.
+
 ## Release notes
 
 ### 2.3.23
