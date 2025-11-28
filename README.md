@@ -2,7 +2,7 @@
 
 GN Tsiartas Spin to Win delivers an interactive promotional wheel for Tsiartas Supermarket. The plugin bundles the
 front-end assets and WordPress hooks required to display the experience on any page while keeping the admin area clean.
-Version 2.3.23 guarantees the €50 voucher on the 100th spin and the €100 voucher on the 500th spin while keeping metadata and
+Version 2.3.24 protects late-window shoppers by reserving a portion of €5/€10 vouchers until the closing stretch while keeping metadata and
 documentation in sync with the latest release.
 
 ## What's included
@@ -25,10 +25,15 @@ GitHub releases for stable distributions.
 
 ## Voucher pacing
 - Voucher quotas are released gradually across the configured active window using elapsed time. The plugin multiplies each denomination's quota by the fraction of the window that has passed and only allows awards up to that threshold.
+- A configurable reserve of €5/€10 vouchers (20% by default) is held back until roughly 75–90% of the window has elapsed, then gradually unlocked so prizes remain available near closing.
 - The default window runs 07:00–20:00 (13 hours), but you can configure any start and end time. For example, if the promotion runs 13:00–20:00 (7 hours), the average release rate becomes roughly `quota ÷ 7` per hour, with randomness preventing awards from exceeding the computed allowance at each moment.
-- Example: with quotas of ten €5 vouchers, five €10 vouchers, one €50 voucher, and one €100 voucher over 13:00–20:00, the pacing allows roughly 1–2 €5 vouchers and fewer than one of each other denomination per hour; halfway through the window the allowance would cap at five €5 vouchers, two €10 vouchers, and zero €50/€100 vouchers until later in the day.
+- Example: with quotas of ten €5 vouchers, five €10 vouchers, one €50 voucher, and one €100 voucher over 13:00–20:00, the pacing allows roughly 1–2 €5 vouchers and fewer than one of each other denomination per hour; halfway through the window the allowance would cap at five €5 vouchers, two €10 vouchers, and zero €50/€100 vouchers until later in the day, with a portion of the €5/€10 quotas reserved for the final stretch.
 
 ## Release notes
+
+### 2.3.24
+- Holds back a configurable reserve of €5/€10 vouchers that gradually unlocks between 75% and 90% of the active window.
+- Bumps plugin metadata and documentation references to version 2.3.24 for release packaging.
 
 ### 2.3.23
 - Guarantees the €50 voucher on the 100th spin and the €100 voucher on the 500th spin to align with the updated prize schedule.

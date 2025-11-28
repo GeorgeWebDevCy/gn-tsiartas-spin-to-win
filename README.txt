@@ -5,7 +5,7 @@ Tags: spin wheel, gamification, loyalty, giveaways
 Requires at least: 5.8
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.3.23
+Stable tag: 2.3.24
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,8 +42,7 @@ WordPress will offer the update automatically.
 
 = How are wins paced through the day? =
 
-Voucher quotas are released gradually based on how much of the active window has elapsed. The plugin multiplies each voucher's quota by the fraction of the configured window that has passed and only permits awards up to that allowance. The default 07:00–20:00 window spans 13 hours; if you configure 13:00–20:00 instead, the pacing runs across 7 hours, so the average release rate is roughly each quota divided by 7 with randomness preventing awards beyond the computed allowance at any moment.
-Example: with quotas of ten €5 vouchers, five €10 vouchers, one €50 voucher, and one €100 voucher over 13:00–20:00, the pacing allows roughly 1–2 €5 vouchers and fewer than one of each other denomination per hour; halfway through the window the allowance would cap at five €5 vouchers, two €10 vouchers, and zero €50/€100 vouchers until later in the day.
+Voucher quotas are released gradually based on how much of the active window has elapsed, and a configurable reserve of €5/€10 vouchers is held back for late-window shoppers. The plugin multiplies each voucher's quota by the fraction of the configured window that has passed and only permits awards up to that allowance. The default 07:00–20:00 window spans 13 hours; if you configure 13:00–20:00 instead, the pacing runs across 7 hours, so the average release rate is roughly each quota divided by 7 with randomness preventing awards beyond the computed allowance at any moment. A percentage of €5/€10 vouchers (20% by default) stays reserved until roughly 75–90% of the window has elapsed to keep prizes available near closing.
 
 = Do I need GitHub authentication? =
 
@@ -56,6 +55,10 @@ provided by the Plugin Update Checker library.
 2. Custom styling applied to the modal interface.
 
 == Changelog ==
+
+\= 2.3.24 =
+* Hold back a configurable reserve of €5/€10 vouchers that gradually unlocks between 75% and 90% of the active window.
+* Bump the plugin metadata and documentation references to version 2.3.24 for release packaging.
 
 \= 2.3.23 =
 * Guarantee the €50 voucher on the 100th spin and the €100 voucher on the 500th spin to match the updated prize schedule.
