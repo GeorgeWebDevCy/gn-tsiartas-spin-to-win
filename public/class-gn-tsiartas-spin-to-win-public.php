@@ -755,6 +755,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         'active_start_time'  => '07:00',
                         'active_end_time'    => '20:00',
                         'cashier_notice'     => __( 'Please spin the wheel in front of the cashier.', 'gn-tsiartas-spin-to-win' ),
+                        'voucher_reserve_percent' => 20,
                         'friday_quotas'      => array(
                                 '5'   => 0,
                                 '10'  => 0,
@@ -815,6 +816,86 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                 }
 
                 return $quotas;
+        }
+
+        /**
+         * Retrieve the voucher reserve pacing rules.
+         *
+         * @since    2.3.24
+         *
+         * @return   array
+         */
+        private function get_voucher_reserve_rules() {
+                $settings = $this->get_plugin_settings();
+
+                $percent = isset( $settings['voucher_reserve_percent'] ) ? (int) $settings['voucher_reserve_percent'] : 0;
+
+                return $this->normalize_voucher_reserve_rules(
+                        array(
+                                'percentage'    => $percent,
+                                'release_start' => 0.75,
+                                'full_release'  => 0.9,
+                        )
+                );
+        }
+
+        /**
+         * Normalise voucher reserve options into a consistent structure.
+         *
+         * @since    2.3.24
+         *
+         * @param    array $rules Raw voucher reserve rules.
+         *
+         * @return   array
+         */
+        private function normalize_voucher_reserve_rules( array $rules ) {
+                $percentage = isset( $rules['percentage'] ) ? (int) $rules['percentage'] : 0;
+                $percentage = max( 0, min( 90, $percentage ) );
+
+                $release_start = isset( $rules['release_start'] ) ? (float) $rules['release_start'] : 0.75;
+                $full_release  = isset( $rules['full_release'] ) ? (float) $rules['full_release'] : 0.9;
+
+                $release_start = max( 0, min( 1, $release_start ) );
+                $full_release  = max( $release_start, min( 1, $full_release ) );
+
+                return array(
+                        'percentage'    => $percentage,
+                        'ratio'         => $percentage / 100,
+                        'release_start' => $release_start,
+                        'full_release'  => $full_release,
+                );
+        }
+
+        /**
+         * Calculate how much of the reserve should be unlocked for the current ratio.
+         *
+         * @since    2.3.24
+         *
+         * @param    float $ratio Current elapsed ratio.
+         * @param    array $rules Normalised voucher reserve rules.
+         *
+         * @return   float Ratio between 0 and 1 indicating how much of the reserve is unlocked.
+         */
+        private function calculate_reserve_release_progress( $ratio, array $rules ) {
+                $ratio         = max( 0, min( 1, (float) $ratio ) );
+                $release_start = isset( $rules['release_start'] ) ? (float) $rules['release_start'] : 0.75;
+                $full_release  = isset( $rules['full_release'] ) ? (float) $rules['full_release'] : 0.9;
+
+                if ( $ratio <= $release_start ) {
+                        return 0.0;
+                }
+
+                if ( $ratio >= $full_release || $full_release <= $release_start ) {
+                        return 1.0;
+                }
+
+                $range = $full_release - $release_start;
+
+                if ( $range <= 0 ) {
+                        return 1.0;
+                }
+
+                return min( 1, max( 0, ( $ratio - $release_start ) / $range ) );
         }
 
         /**
@@ -1142,8 +1223,9 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         return $this->handle_quota_depletion( $prize_map );
                 }
 
-                $ratio      = $this->calculate_elapsed_ratio( $timestamp );
-                $candidates = array();
+                $ratio          = $this->calculate_elapsed_ratio( $timestamp );
+                $reserve_rules  = $this->get_voucher_reserve_rules();
+                $candidates     = array();
 
                 foreach ( array( '5', '10' ) as $value ) {
                         $quota   = isset( $quotas[ $value ] ) ? (int) $quotas[ $value ] : 0;
@@ -1153,7 +1235,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                                 continue;
                         }
 
-                        $allowed = $this->calculate_allowed_awards( $quota, $ratio );
+                        $allowed = $this->calculate_allowed_awards( $quota, $ratio, $reserve_rules );
 
                         if ( $allowed <= $awarded && $allowed < $quota ) {
                                 continue;
@@ -1188,7 +1270,7 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         return $try_again;
                 }
 
-                if ( $this->should_force_try_again( $ratio, $quotas, $totals ) ) {
+                if ( $this->should_force_try_again( $ratio, $quotas, $totals, $reserve_rules ) ) {
                         $try_again = $this->pick_try_again_prize( $prize_map );
 
                         if ( ! is_wp_error( $try_again ) ) {
@@ -1231,10 +1313,11 @@ class Gn_Tsiartas_Spin_To_Win_Public {
          * @param    float $ratio   Elapsed ratio for the active window.
          * @param    array $quotas  Configured voucher quotas.
          * @param    array $totals  Already awarded voucher totals.
+         * @param    array $reserve_rules Voucher reserve pacing rules.
          *
          * @return   bool
          */
-        private function should_force_try_again( $ratio, array $quotas, array $totals ) {
+        private function should_force_try_again( $ratio, array $quotas, array $totals, array $reserve_rules = array() ) {
                 $quota_total   = 0;
                 $awarded_total = 0;
 
@@ -1254,6 +1337,27 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         return false;
                 }
 
+                $reserve_rules   = $this->normalize_voucher_reserve_rules( $reserve_rules );
+                $release_progress = $this->calculate_reserve_release_progress( $ratio, $reserve_rules );
+                $locked_reserve   = 0;
+
+                if ( $reserve_rules['ratio'] > 0 && $release_progress < 1 ) {
+                        foreach ( array( '5', '10' ) as $value ) {
+                                $quota   = isset( $quotas[ $value ] ) ? (int) $quotas[ $value ] : 0;
+                                $awarded = isset( $totals[ $value ] ) ? (int) $totals[ $value ] : 0;
+
+                                if ( $quota <= 0 ) {
+                                        continue;
+                                }
+
+                                $reserved_amount = max( 0, min( $quota, (int) ceil( $quota * $reserve_rules['ratio'] ) ) );
+                                $locked          = (int) ceil( $reserved_amount * ( 1 - $release_progress ) );
+                                $remaining_quota = max( 0, $quota - $awarded );
+
+                                $locked_reserve += min( $locked, $remaining_quota );
+                        }
+                }
+
                 $loss_probability = 0.65;
 
                 if ( $ratio >= 0.9 ) {
@@ -1262,6 +1366,10 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         $loss_probability = 0.4;
                 } elseif ( $remaining_ratio <= 0.25 ) {
                         $loss_probability = min( $loss_probability, 0.4 );
+                }
+
+                if ( $locked_reserve > 0 ) {
+                        $loss_probability = max( $loss_probability, min( 0.9, 0.55 + ( 0.35 * ( 1 - $release_progress ) ) ) );
                 }
 
                 $threshold = max( 0, min( 100, (int) round( $loss_probability * 100 ) ) );
@@ -1310,16 +1418,28 @@ class Gn_Tsiartas_Spin_To_Win_Public {
          *
          * @param    int   $quota Total quota for the denomination.
          * @param    float $ratio Elapsed ratio between 0 and 1.
+         * @param    array $reserve_rules Voucher reserve pacing rules.
          *
          * @return   int
          */
-        private function calculate_allowed_awards( $quota, $ratio ) {
+        private function calculate_allowed_awards( $quota, $ratio, array $reserve_rules = array() ) {
                 $quota   = max( 0, (int) $quota );
                 $ratio   = max( 0, min( 1, $ratio ) );
                 $allowed = (int) floor( $quota * $ratio );
 
                 if ( $ratio >= 1 ) {
                         return $quota;
+                }
+
+                $reserve_rules = $this->normalize_voucher_reserve_rules( $reserve_rules );
+
+                if ( $quota > 0 && $reserve_rules['ratio'] > 0 ) {
+                        $reserve_amount   = max( 0, min( $quota, (int) ceil( $quota * $reserve_rules['ratio'] ) ) );
+                        $release_progress = $this->calculate_reserve_release_progress( $ratio, $reserve_rules );
+                        $locked_reserve   = (int) ceil( $reserve_amount * ( 1 - $release_progress ) );
+                        $max_available    = max( 0, $quota - $locked_reserve );
+
+                        $allowed = min( $allowed, $max_available );
                 }
 
                 return min( $quota, max( 0, $allowed ) );

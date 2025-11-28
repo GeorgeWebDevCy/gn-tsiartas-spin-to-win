@@ -77,6 +77,7 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                         'active_start_time'  => '07:00',
                         'active_end_time'    => '20:00',
                         'cashier_notice'     => __( 'Please spin the wheel in front of the cashier.', 'gn-tsiartas-spin-to-win' ),
+                        'voucher_reserve_percent' => 20,
                         'friday_quotas'      => array(
                                 '5'   => 0,
                                 '10'  => 0,
@@ -162,6 +163,14 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                         'gn_tsiartas_spin_to_win_cashier_notice',
                         __( 'Cashier notification', 'gn-tsiartas-spin-to-win' ),
                         array( $this, 'render_cashier_notice_field' ),
+                        'gn_tsiartas_spin_to_win',
+                        'gn_tsiartas_spin_to_win_general'
+                );
+
+                add_settings_field(
+                        'gn_tsiartas_spin_to_win_voucher_reserve',
+                        __( 'Voucher reserve', 'gn-tsiartas-spin-to-win' ),
+                        array( $this, 'render_voucher_reserve_field' ),
                         'gn_tsiartas_spin_to_win',
                         'gn_tsiartas_spin_to_win_general'
                 );
@@ -267,6 +276,33 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                 ><?php echo esc_textarea( $settings['cashier_notice'] ); ?></textarea>
                 <p class="description">
                         <?php esc_html_e( 'Displayed alongside the wheel so shoppers remember to spin it in front of the cashier.', 'gn-tsiartas-spin-to-win' ); ?>
+                </p>
+                <?php
+        }
+
+        /**
+         * Render the voucher reserve field.
+         *
+         * @since    2.3.24
+         * @return   void
+         */
+        public function render_voucher_reserve_field() {
+                $settings    = $this->get_settings();
+                $option_name = $this->get_option_name();
+                $percent     = isset( $settings['voucher_reserve_percent'] ) ? (int) $settings['voucher_reserve_percent'] : 0;
+                ?>
+                <input
+                        type="number"
+                        class="small-text"
+                        id="gn-tsiartas-spin-voucher-reserve"
+                        name="<?php echo esc_attr( $option_name ); ?>[voucher_reserve_percent]"
+                        value="<?php echo esc_attr( $percent ); ?>"
+                        min="0"
+                        max="90"
+                />
+                <span><?php esc_html_e( '% of €5/€10 vouchers', 'gn-tsiartas-spin-to-win' ); ?></span>
+                <p class="description">
+                        <?php esc_html_e( 'Hold back a percentage of €5/€10 vouchers until the final part of the active window. The buffer starts releasing around 75% of the window and fully unlocks by 90%.', 'gn-tsiartas-spin-to-win' ); ?>
                 </p>
                 <?php
         }
@@ -393,6 +429,17 @@ class Gn_Tsiartas_Spin_To_Win_Admin {
                         $notice = $defaults['cashier_notice'];
                 }
                 $sanitized['cashier_notice'] = $notice;
+
+                $reserve_percent = isset( $settings['voucher_reserve_percent'] ) ? (int) $settings['voucher_reserve_percent'] : 0;
+                if ( $reserve_percent < 0 || $reserve_percent > 90 ) {
+                        $reserve_percent = $defaults['voucher_reserve_percent'];
+                        add_settings_error(
+                                $option_name,
+                                $option_name . '_voucher_reserve_percent',
+                                __( 'Please choose a voucher reserve between 0% and 90%.', 'gn-tsiartas-spin-to-win' )
+                        );
+                }
+                $sanitized['voucher_reserve_percent'] = max( 0, min( 90, $reserve_percent ) );
 
                 $sanitized['friday_quotas'] = $this->sanitize_friday_quotas( isset( $settings['friday_quotas'] ) ? $settings['friday_quotas'] : array(), $option_name );
 
