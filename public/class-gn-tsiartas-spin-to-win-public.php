@@ -653,14 +653,30 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         );
                 }
 
+                $lock = $this->acquire_tracking_lock();
+
+                if ( is_wp_error( $lock ) ) {
+                        $error_data = $lock->get_error_data();
+                        $status     = isset( $error_data['status'] ) ? (int) $error_data['status'] : 429;
+
+                        wp_send_json_error(
+                                array(
+                                        'code'    => $lock->get_error_code(),
+                                        'message' => $lock->get_error_message(),
+                                ),
+                                $status
+                        );
+                }
+
                 $tracking = $this->get_tracking_state( $timestamp );
                 $prizes   = $this->get_prize_pool();
 
                 $spin_number = (int) $tracking['total_spins'] + 1;
-
-                $prize = $this->determine_prize_for_spin( $spin_number, $quotas, $tracking, $timestamp, $prizes );
+                $prize       = $this->determine_prize_for_spin( $spin_number, $quotas, $tracking, $timestamp, $prizes );
 
                 if ( is_wp_error( $prize ) ) {
+                        $this->release_tracking_lock( $lock );
+
                         $error_data = $prize->get_error_data();
                         $status     = isset( $error_data['status'] ) ? (int) $error_data['status'] : 400;
                         $payload    = array(
@@ -675,6 +691,27 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         wp_send_json_error( $payload, $status );
                 }
 
+                $remaining_before_award = $this->build_remaining_quota_summary( $quotas, $tracking['totals'] );
+
+                if ( ! empty( $prize['is_voucher'] ) && isset( $prize['denomination'] ) ) {
+                        $denomination = (string) $prize['denomination'];
+                        $available    = isset( $remaining_before_award[ $denomination ] ) ? (int) $remaining_before_award[ $denomination ] : 0;
+
+                        if ( $available <= 0 ) {
+                                $this->release_tracking_lock( $lock );
+
+                                wp_send_json_error(
+                                        array(
+                                                'code'      => 'quota_depleted',
+                                                'message'   => __( 'The voucher quota has been depleted. Please try again.', 'gn-tsiartas-spin-to-win' ),
+                                                'depleted'  => true,
+                                                'available' => $remaining_before_award,
+                                        ),
+                                        410
+                                );
+                        }
+                }
+
                 $tracking['total_spins'] = $spin_number;
                 $this->update_tracking_totals( $tracking, $prize );
                 $this->append_tracking_log( $tracking, $prize, $timestamp, $spin_number );
@@ -682,18 +719,20 @@ class Gn_Tsiartas_Spin_To_Win_Public {
 
                 $remaining = $this->build_remaining_quota_summary( $quotas, $tracking['totals'] );
 
+                $this->release_tracking_lock( $lock );
+
                 wp_send_json_success(
                         array(
-                                'spinNumber'       => $spin_number,
-                                'prizeId'          => $prize['id'],
-                                'label'            => isset( $prize['label'] ) ? $prize['label'] : '',
-                                'description'      => isset( $prize['description'] ) ? $prize['description'] : '',
-                                'value'            => isset( $prize['value'] ) ? $prize['value'] : null,
-                                'isVoucher'        => ! empty( $prize['is_voucher'] ),
-                                'timestamp'        => $timestamp,
-                                'remainingQuotas'  => $remaining,
+                                'spinNumber'          => $spin_number,
+                                'prizeId'             => $prize['id'],
+                                'label'               => isset( $prize['label'] ) ? $prize['label'] : '',
+                                'description'         => isset( $prize['description'] ) ? $prize['description'] : '',
+                                'value'               => isset( $prize['value'] ) ? $prize['value'] : null,
+                                'isVoucher'           => ! empty( $prize['is_voucher'] ),
+                                'timestamp'           => $timestamp,
+                                'remainingQuotas'     => $remaining,
                                 'awardedDenomination' => isset( $prize['denomination'] ) ? $prize['denomination'] : null,
-                                'formattedDate'    => $this->get_formatted_store_date( $timestamp ),
+                                'formattedDate'       => $this->get_formatted_store_date( $timestamp ),
                         )
                 );
         }
@@ -889,6 +928,73 @@ class Gn_Tsiartas_Spin_To_Win_Public {
                         'spins'       => array(),
                         'last_reset'  => $timestamp,
                 );
+        }
+
+        /**
+         * Acquire an exclusive lock for tracking updates.
+         *
+         * @since    2.3.16
+         *
+         * @param    int $timeout Maximum time to wait for the lock (in seconds).
+         *
+         * @return   string|WP_Error Lock token on success or WP_Error on failure.
+         */
+        private function acquire_tracking_lock( $timeout = 5 ) {
+                $lock_key   = $this->tracking_option_name . '_lock';
+                $lock_token = wp_generate_password( 20, false );
+                $start      = microtime( true );
+                $ttl        = 10; // seconds.
+
+                do {
+                        $expires  = time() + $ttl;
+                        $lock_set = add_option(
+                                $lock_key,
+                                array(
+                                        'token'   => $lock_token,
+                                        'expires' => $expires,
+                                ),
+                                '',
+                                'no'
+                        );
+
+                        if ( $lock_set ) {
+                                return $lock_token;
+                        }
+
+                        $current = get_option( $lock_key );
+                        if ( ! is_array( $current ) || ! isset( $current['expires'] ) || (int) $current['expires'] < time() ) {
+                                delete_option( $lock_key );
+                                continue;
+                        }
+
+                        usleep( 200000 ); // 0.2 seconds.
+                } while ( ( microtime( true ) - $start ) < $timeout );
+
+                return new WP_Error(
+                        'spin_lock_timeout',
+                        __( 'Too many spins are being processed. Please try again momentarily.', 'gn-tsiartas-spin-to-win' ),
+                        array(
+                                'status' => 429,
+                        )
+                );
+        }
+
+        /**
+         * Release the exclusive lock for tracking updates.
+         *
+         * @since    2.3.16
+         *
+         * @param    string $token Lock token acquired by acquire_tracking_lock().
+         *
+         * @return   void
+         */
+        private function release_tracking_lock( $token ) {
+                $lock_key = $this->tracking_option_name . '_lock';
+                $current  = get_option( $lock_key );
+
+                if ( is_array( $current ) && ( ( isset( $current['token'] ) && $current['token'] === $token ) || ( isset( $current['expires'] ) && (int) $current['expires'] < time() ) ) ) {
+                        delete_option( $lock_key );
+                }
         }
 
         /**
